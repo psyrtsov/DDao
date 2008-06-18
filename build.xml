@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Dynamic Dao" default="dist" basedir=".">
+    <property name="version" value="0.3"/>
+    <property name="name" value="ddao${version}"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="src.dir" value="src"/>
+    <property name="src.tests" value="test"/>
+    <property name="src.docs" value="docs"/>
+    <property name="build.dir" value="build"/>
+    <property name="build.classes" value="build/classes"/>
+    <property name="build.lib" value="build/lib"/>
+    <property name="build.docs" value="build/docs"/>
+    <property name="build.javadoc" value="build/docs/javadoc"/>
+    <property name="dist.dir" value="dist"/>
+    <property name="dist.lib" value="dist/lib"/>
+    <property name="dist.javadoc" value="docs/javadoc"/>
+    <property name="testlib.dir" value="testlib"/>
+    <property name="reports.tests" value="build"/>
+    <path id="runtime-libs">
+        <fileset dir="${lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+    <path id="test-libs">
+        <fileset dir="${testlib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+        <path refid="runtime-libs"/>
+    </path>
+    <target name="dist" depends="jars, docs">
+        <mkdir dir="${dist.dir}"/>
+        <zip destfile="${dist.dir}/${name}-bin.zip">
+            <zipfileset dir="${lib.dir}" prefix="${name}/lib"/>
+            <zipfileset dir="${build.lib}" prefix="${name}/lib"/>
+            <zipfileset dir="${build.docs}" prefix="${name}/docs"/>
+            <zipfileset dir="${src.tests}" prefix="${name}/test"/>
+        </zip>
+        <zip destfile="${dist.dir}/${name}-src.zip">
+            <zipfileset dir="." prefix="${name}" excludes="${build.dir}/**,${dist.dir}/**"/>
+        </zip>
+    </target>
+    <target name="jars"
+            depends="compile">
+        <jar destfile="${build.lib}/${name}.jar"
+             basedir="${build.classes}">
+            <manifest>
+                <attribute name="Jar-Version" value="${version}"/>
+            </manifest>
+        </jar>
+    </target>
+    <target name="test" depends="compile,compile-test">
+        <junit haltonfailure="yes">
+            <classpath>
+                <path refid="test-libs"/>
+                <dirset dir="${build.classes}"/>
+            </classpath>
+            <formatter type="plain"/>
+            <batchtest fork="yes" todir="${reports.tests}">
+                <fileset dir="${src.tests}">
+                    <include name="**/*Test.java"/>
+                    <exclude name="**/AllTests.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+    <target name="docs">
+        <mkdir dir="${build.docs}"/>
+        <loadfile property="html.header" srcFile="${src.docs}/header.templ"/>
+        <loadfile property="html.footer" srcFile="${src.docs}/footer.templ"/>
+        <copy todir="${build.docs}">
+            <fileset dir="${src.docs}" excludes="**/*.templ,**/*.html"/>
+        </copy>
+        <copy todir="${build.docs}">
+            <fileset dir="${src.docs}" includes="**/*.html"/>
+            <filterchain>
+                <replacetokens>
+                    <token key="html.header"
+                           value="${html.header}"/>
+                    <token key="html.footer"
+                           value="${html.footer}"/>
+                </replacetokens>
+            </filterchain>
+        </copy>
+        <javadoc sourcepath="src" destdir="${build.javadoc}"/>
+    </target>
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+    </target>
+    <target name="compile">
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${build.classes}"/>
+        <mkdir dir="${build.lib}"/>
+        <javac srcdir="${src.dir}"
+               destdir="${build.classes}"
+               debug="true"
+               deprecation="true">
+            <classpath refid="runtime-libs"/>
+        </javac>
+    </target>
+    <target name="compile-test">
+        <javac srcdir="${src.tests}"
+               destdir="${build.classes}"
+               debug="true"
+               deprecation="true">
+            <classpath refid="test-libs"/>
+        </javac>
+    </target>
+</project>

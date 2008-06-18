@@ -1,0 +1,86 @@
+
+body {
+    margin: 0;
+    padding: 0;
+    line-height: 1.5em;
+}
+
+#topsection {
+    background: #66CCFF;
+    height: 40px;
+}
+
+#topsection h1 {
+    margin: 0;
+    padding-top: 5px;
+    text-align: center;
+}
+
+#contentwrapper {
+    float: left;
+    width: 100%;
+}
+
+#contentcolumn {
+    margin-left: 200px; /*Set left margin to LeftColumnWidth*/
+}
+
+#leftcolumn {
+    float: left;
+    width: 170px; /*Width of left column*/
+    margin-left: -100%;
+}
+
+.logo {
+    padding-top: 10px
+}
+
+.innertube {
+    margin: 10px; /*Margins for inner DIV inside each column (to provide padding)*/
+    margin-top: 0;
+}
+
+.arrowlistmenu {
+    width: 150px; /*width of menu*/
+}
+
+.arrowlistmenu .headerbar {
+    font: bold 14px Arial;
+    color: black;
+    background: black url( media/titlebar.png ) repeat-x center left;
+    margin-bottom: 10px; /*bottom spacing between header and rest of content*/
+    padding: 4px 0 4px 10px; /*header text is indented 10px*/
+}
+
+.arrowlistmenu ul {
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 8px; /*bottom spacing between each UL and rest of content*/
+}
+
+.arrowlistmenu ul li {
+    padding-bottom: 0; /*bottom spacing between menu items*/
+}
+
+.arrowlistmenu ul li a {
+    color: #A70303;
+    background: url( media/arrowbullet.png ) no-repeat center left; /*custom bullet list image*/
+    display: block;
+    padding: 2px 0;
+    padding-left: 19px; /*link text is indented 19px*/
+    text-decoration: none;
+    font-weight: bold;
+    border-bottom: 1px solid #dadada;
+    font-size: 90%;
+}
+
+.arrowlistmenu ul li a:visited {
+    color: #A70303;
+}
+
+.arrowlistmenu ul li a:hover {
+/*hover state CSS*/
+    color: #A70303;
+    background-color: #F3F3F3;
+}
+
