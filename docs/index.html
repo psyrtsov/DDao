@@ -1,21 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf8"/>
-    <title>Dynamic Dao</title>
-    <LINK REL=StyleSheet HREF="css/styles.css" TYPE="text/css">
-</head>
-<body>
-
-<div id="topsection">
-    <div class="innertube"><h1>Dynamic Dao framework</h1></div>
-</div>
-
-<div id="contentwrapper">
-    <div id="contentcolumn">
-        <div class="innertube">
-            <div>
+@html.header@
                 <p>Dynamic Dao is JDBC ORM framework. It allows to use annotations to attach SQL execution to
                     interface methods.</p>
 
@@ -45,31 +28,4 @@
                         TestDao dao = factory.create(TestDao.class);
                         UserBean res = dao.getUser(1);
                     </pre>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="leftcolumn">
-    <div class="innertube">
-        <div class="arrowlistmenu">
-            <h3 class="headerbar">Links</h3>
-            <ul>
-                <li><a href="http://ddao.svn.sourceforge.net/viewvc/ddao/" tabindex="2">Browse Subversion</a></li>
-                <li><a href="https://sourceforge.net/project/showfiles.php?group_id=230003" tabindex="3">Download</a>
-                <li><a href="/javadoc" tabindex="4">Documentation</a>
-                </li>
-            </ul>
-        </div>
-        <div class="logo">
-            <a href="http://sourceforge.net"><img
-                    src="http://sflogo.sourceforge.net/sflogo.php?group_id=230003&amp;type=3" width="125" height="37"
-                    border="0" alt="SourceForge.net Logo"/></a>
-        </div>
-    </div>
-</div>
-
-<!--<div id="footer"></div>-->
-
-</body>
-</html>
+@html.footer@
