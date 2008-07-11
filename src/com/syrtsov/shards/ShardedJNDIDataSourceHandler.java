@@ -114,7 +114,10 @@ public class ShardedJNDIDataSourceHandler extends ConnectionHandlerHelper implem
                 dsMap.put(dsName, ds);
             }
             shard.setDataSource(ds);
-            shardMap.put(shard, shard);
+            Shard oldShard = shardMap.put(shard, shard);
+            if (oldShard != null) {
+                throw new ShardException("Conflict on shard key range between 2 shards:" + oldShard + " and " + shard);
+            }
         }
         super.init(iFace, annotation, iFaceList);
     }

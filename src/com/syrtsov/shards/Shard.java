@@ -1,5 +1,7 @@
 package com.syrtsov.shards;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import javax.sql.DataSource;
 
 /**
@@ -43,14 +45,14 @@ public class Shard implements Comparable {
         if (o instanceof Shard) {
             Shard shard = (Shard) o;
             if (shard.endId < startId) {
-               return -1;
+                return -1;
             }
             if (endId < shard.startId) {
                 return 1;
             }
             return 0;
         }
-        int v = (Integer)o;
+        int v = (Integer) o;
         if (v < startId) {
             return -1;
         }
@@ -58,5 +60,10 @@ public class Shard implements Comparable {
             return 1;
         }
         return 0;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 }
