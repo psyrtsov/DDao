@@ -44,6 +44,9 @@ public class JNDIDaoTest extends BasicJDBCTestCaseAdapter {
         /**
          * in this statement we assume that 1st method arg is Java Bean
          * and refer to property by name. It works same way for Map.
+         * @param userBean - properties of this java bean used in the query as parameters
+         * @return - query result transformed into java bean, since we defined only one bean as result
+         * of this method, we expect query to return only one row.
          */
         @Select("select id, name from user where id = #id#")
         TestUserBean getUser(TestUserBean userBean);
@@ -52,7 +55,11 @@ public class JNDIDaoTest extends BasicJDBCTestCaseAdapter {
         List<TestUserBean> getUserList();
 
         /**
-         * 1st parametterpassed by reference, 2nd by value (by injecting result of toString() into SQL).
+         * 2nd by value (by injecting result of toString() into SQL).
+         * @param tableName - reffered in query text by enclosing prameter number in dollar sign ('$0$'),
+         * it means parametter passed by binding it as JDBC prepared statement parameter.
+         * @param size - reffered in query text by enclosing parameter number in pound sign ('#1#'),
+         * it means parameter's value will be injected 
          */
         @Select("select id, name from $0$ limit #1#")
         TestUserBean[] getUserArray(String tableName, int size);

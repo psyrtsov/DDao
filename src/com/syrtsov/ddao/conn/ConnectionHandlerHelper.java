@@ -31,24 +31,20 @@ import java.util.List;
  * Time: 10:50:45 PM
  */
 public abstract class ConnectionHandlerHelper implements InvocationHandler {
-    private static final ThreadLocal<Connection> connectionOnHold = new ThreadLocal<Connection>();
     private DaoInvocationHandler daoInvocationHandler;
+    protected volatile ConnectionHolderHelper connectionHolderHelper = null;
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Class<?> declaringClass = method.getDeclaringClass();
-        if (declaringClass == Connection.class) {
-            Connection connection;
-            if ("close".equals(method.getName())) {
-                connection = releaseConnectionOnHold();
-                if (connection == null) {
-                    return null;
-                }
-            } else {
-                connection = getConnection(true);
-            }
-            return method.invoke(connection, args);
+        Connection connection = getConnection(method, args);
+        return invoke(connection, method, args);
+    }
+
+    public Object invoke(Connection connection, Method method, Object[] args) throws Throwable {
+        // psdo: we could generalize this by introducing meta tag for connection handler level
+        TransactionStarter transactionStarter = method.getAnnotation(TransactionStarter.class);
+        if (transactionStarter != null) {
+            return putConnectionOnHold(connection);
         }
-        Connection connection = getConnection(false);
         try {
             return daoInvocationHandler.invoke(connection, method, args);
         } finally {
@@ -56,36 +52,26 @@ public abstract class ConnectionHandlerHelper implements InvocationHandler {
         }
     }
 
-    private Connection releaseConnectionOnHold() {
-        Connection res = connectionOnHold.get();
-        if (res != null) {
-            connectionOnHold.remove();
+    public Connection getConnection(Method method, Object[] args) throws SQLException {
+        if (connectionHolderHelper != null) {
+            Connection res = connectionHolderHelper.getConnectionProxy();
+            if (res != null) {
+                return res;
+            }
         }
-        return res;
+        return createConnection(method, args);
     }
 
-    private void closeIfNotOnHold(Connection connection) throws SQLException {
-        if (connectionOnHold.get() != connection) {
-            connection.close();
+    public void closeIfNotOnHold(Connection connection) throws SQLException {
+        if (connectionHolderHelper != null && connectionHolderHelper.hasConnectionOnHold()) {
+            return;
         }
+        connection.close();
     }
 
-    private Connection getConnection(boolean putOnHold) throws SQLException {
-        Connection res = connectionOnHold.get();
-        if (res != null) {
-            return res;
-        }
-        res = createConnection();
-        if (putOnHold) {
-            connectionOnHold.set(res);
-        }
-        return res;
-    }
-
-    protected abstract Connection createConnection() throws SQLException;
+    public abstract Connection createConnection(Method method, Object[] args) throws SQLException;
 
     public void init(Class<?> iFace, Annotation annotation, List<Class<?>> iFaceList) throws InitializerException {
-        iFaceList.add(Connection.class);
     }
 
     @Inject
@@ -93,7 +79,13 @@ public abstract class ConnectionHandlerHelper implements InvocationHandler {
         this.daoInvocationHandler = daoInvocationHandler;
     }
 
-    public DaoInvocationHandler getDaoInvocationHandler() {
-        return daoInvocationHandler;
+    public Connection putConnectionOnHold(Connection connection) {
+        synchronized (this) {
+            if (connectionHolderHelper == null) {
+                connectionHolderHelper = new ConnectionHolderHelper();
+            }
+        }
+        connectionHolderHelper.putConnectionOnHold(connection);
+        return connectionHolderHelper.getConnectionProxy();
     }
 }

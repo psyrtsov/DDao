@@ -22,6 +22,7 @@ import com.syrtsov.ddao.JDBCDao;
 import com.syrtsov.handler.Intializible;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -36,7 +37,7 @@ import java.util.List;
 public class JDBCConnectionHandler extends ConnectionHandlerHelper implements Intializible {
     private JDBCDao jdbcDao;
 
-    protected Connection createConnection() throws SQLException {
+    public Connection createConnection(Method method, Object[] args) throws SQLException {
         Connection res;
         if (jdbcDao.user() == null || jdbcDao.user().length() == 0) {
             res = DriverManager.getConnection(jdbcDao.value());

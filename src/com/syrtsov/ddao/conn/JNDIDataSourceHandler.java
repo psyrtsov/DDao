@@ -24,6 +24,7 @@ import com.syrtsov.handler.Intializible;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Hashtable;
@@ -36,10 +37,10 @@ import java.util.List;
  * Time: 9:39:39 PM
  */
 public class JNDIDataSourceHandler extends ConnectionHandlerHelper implements Intializible {
-    public static final String DS_CTX_PREFIX = "java:comp/env/";
+    public static final String DS_CTX_PREFIX = "";//java:comp/env/";
     private DataSource dataSource;
 
-    protected Connection createConnection() throws SQLException {
+    public Connection createConnection(Method method, Object[] args) throws SQLException {
         return dataSource.getConnection();
     }
 
