@@ -25,8 +25,8 @@ import com.syrtsov.alinker.FactoryException;
 import com.syrtsov.alinker.initializer.InitializerException;
 import com.syrtsov.ddao.conn.JNDIDataSourceHandler;
 import com.syrtsov.ddao.factory.param.ThreadLocalStatementParameter;
-import com.syrtsov.shards.ShardedJNDIDao;
 import com.syrtsov.shards.ShardKey;
+import com.syrtsov.shards.ShardedJNDIDao;
 import junit.framework.TestCase;
 import org.mockejb.jndi.MockContextFactory;
 
@@ -56,13 +56,13 @@ public class ShardedJNDIDaoTest extends TestCase {
          * and refer to property by name. It works same way for Map.
          */
         @Select("select id, name from user where id = #id#")
-        TestUserBean getUser(@ShardKey("id") TestUserBean userBean);
+        TestUserBean getUser(@ShardKey("id")TestUserBean userBean);
 
         @Select("select id, name from user_data where user_id = #0#")
         List<TestUserBean> getUserDataList(@ShardKey int userId);
 
         /**
-         * 1st parametterpassed by reference, 2nd by value (by injecting result of toString() into SQL).
+         * 1st parameter passed by reference, 2nd by value (by injecting result of toString() into SQL).
          */
         @Select("select id, name from $0$ where user_id = #2# limit #1#")
         TestUserBean[] getUserDataArray(String tableName, int size, @ShardKey int userId);
@@ -99,7 +99,7 @@ public class ShardedJNDIDaoTest extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
         MockContextFactory.revertSetAsInitial();
-        shardControlDBMockFactory1.restoreDrivers();        
+        shardControlDBMockFactory1.restoreDrivers();
     }
 
     private void createResultSet(JDBCTestModule testModule, Object... data) {
@@ -114,7 +114,7 @@ public class ShardedJNDIDaoTest extends TestCase {
     }
 
     private void setupShardData() {
-        createResultSet(shardControlDBModule, "startId", new Object[]{1,11}, "endId", new Object[]{10, 20}, "dsName", new Object[]{SHARD1, SHARD2});
+        createResultSet(shardControlDBModule, "startId", new Object[]{1, 11}, "endId", new Object[]{10, 20}, "dsName", new Object[]{SHARD1, SHARD2});
     }
 
     public void testSingleRecordGet() throws Exception {
@@ -122,7 +122,7 @@ public class ShardedJNDIDaoTest extends TestCase {
         TestUserDao dao = factory.create(TestUserDao.class);
 
         // reuse it for multiple invocations
-        getUserOnce(testModule1, dao,  1, "foo1");
+        getUserOnce(testModule1, dao, 1, "foo1");
         getUserOnce(testModule1, dao, 10, "foo2");
         getUserOnce(testModule2, dao, 11, "bar1");
         getUserOnce(testModule2, dao, 20, "bar2");
@@ -245,7 +245,7 @@ public class ShardedJNDIDaoTest extends TestCase {
 
     public void testUsingStaticFunction() throws Exception {
         TestUserDao dao = factory.create(TestUserDao.class);
-        getUserData(dao,  1, testModule1, 0);
+        getUserData(dao, 1, testModule1, 0);
         getUserData(dao, 10, testModule1, 1);
         getUserData(dao, 11, testModule2, 0);
         getUserData(dao, 20, testModule2, 1);

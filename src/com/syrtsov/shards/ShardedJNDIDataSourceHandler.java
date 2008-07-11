@@ -19,10 +19,10 @@ package com.syrtsov.shards;
 import com.syrtsov.alinker.initializer.InitializerException;
 import com.syrtsov.alinker.inject.Inject;
 import com.syrtsov.ddao.DaoException;
-import com.syrtsov.ddao.factory.param.StatementParameterException;
 import com.syrtsov.ddao.conn.ConnectionHandlerHelper;
 import com.syrtsov.ddao.conn.JNDIDataSourceHandler;
 import com.syrtsov.handler.Intializible;
+import org.apache.commons.beanutils.PropertyUtils;
 
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
@@ -32,8 +32,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 
-import org.apache.commons.beanutils.PropertyUtils;
-
 /**
  * psdo: add class comments
  * Created-By: Pavel Syrtsov
@@ -42,7 +40,7 @@ import org.apache.commons.beanutils.PropertyUtils;
  */
 // psfix: how do we deal with multishard requests?
 public class ShardedJNDIDataSourceHandler extends ConnectionHandlerHelper implements Intializible {
-    private final Comparator<Comparable> shardComparator = new  Comparator<Comparable>() {
+    private final Comparator<Comparable> shardComparator = new Comparator<Comparable>() {
         public int compare(Comparable comparable1, Comparable comparable2) {
             if (comparable1 instanceof Shard) {
                 Shard shard = (Shard) comparable1;
@@ -53,7 +51,7 @@ public class ShardedJNDIDataSourceHandler extends ConnectionHandlerHelper implem
         }
     };
 
-    private SortedMap<Shard,Shard> shardMap = new TreeMap<Shard, Shard>(shardComparator);
+    private SortedMap<Shard, Shard> shardMap = new TreeMap<Shard, Shard>(shardComparator);
     private ShardControlDao shardControlDao;
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -92,8 +90,11 @@ public class ShardedJNDIDataSourceHandler extends ConnectionHandlerHelper implem
                 try {
                     shardKey = PropertyUtils.getProperty(shardKey, name);
                 } catch (Exception e) {
-                    throw new ShardException("Failed to get sjhard key " + name + " from " + shardKey);
+                    throw new ShardException("Failed to get shard key " + name + " from " + shardKey, e);
                 }
+            }
+            if (shardKey == null) {
+                throw new ShardException("Failed to find shard key ");
             }
         }
         return (Comparable) shardKey;
@@ -104,7 +105,7 @@ public class ShardedJNDIDataSourceHandler extends ConnectionHandlerHelper implem
         String shardSetKey = daoAnnotation.value();
         List<Shard> shardList = shardControlDao.getShardList(shardSetKey);
         // make sure we deal with situation when we have few shards on same DataSource
-        Map<String,DataSource> dsMap = new HashMap<String, DataSource>();
+        Map<String, DataSource> dsMap = new HashMap<String, DataSource>();
         for (Shard shard : shardList) {
             String dsName = shard.getDsName();
             DataSource ds = dsMap.get(dsName);

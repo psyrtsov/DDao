@@ -30,7 +30,6 @@ import java.util.Map;
  * Date: Nov 5, 2007
  * Time: 8:48:16 PM
  */
-// psdo: implement support for static method calls from template
 public class StatementParameterImpl extends StatementParameterHelper {
     private Integer num = null;
 
@@ -55,7 +54,7 @@ public class StatementParameterImpl extends StatementParameterHelper {
         try {
             return PropertyUtils.getProperty(param, name);
         } catch (Exception e) {
-            throw new StatementParameterException("Failed to get statement paramter " + name + " from " + param);
+            throw new StatementParameterException("Failed to get statement parameter " + name + " from " + param, e);
         }
     }
 
