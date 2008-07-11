@@ -33,6 +33,7 @@ public class AllTests {
         suite.addTestSuite(UseStatementFactoryTest.class);
         suite.addTestSuite(JNDIDaoTest.class);
         suite.addTestSuite(JDBCDaoTest.class);
+        suite.addTestSuite(ShardedJNDIDaoTest.class);
         //$JUnit-END$
         return suite;
     }

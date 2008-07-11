@@ -22,7 +22,7 @@ body {
 }
 
 #contentcolumn {
-    margin-left: 200px; /*Set left margin to LeftColumnWidth*/
+    margin-left: 210px; /*Set left margin to LeftColumnWidth*/
 }
 
 #leftcolumn {
@@ -32,6 +32,11 @@ body {
 }
 
 .logo {
+    padding-top: 10px
+}
+
+.sharethis {
+    font: 14px Arial;
     padding-top: 10px
 }
 

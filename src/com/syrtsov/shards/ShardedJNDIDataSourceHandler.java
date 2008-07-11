@@ -19,6 +19,7 @@ package com.syrtsov.shards;
 import com.syrtsov.alinker.initializer.InitializerException;
 import com.syrtsov.alinker.inject.Inject;
 import com.syrtsov.ddao.DaoException;
+import com.syrtsov.ddao.factory.param.StatementParameterException;
 import com.syrtsov.ddao.conn.ConnectionHandlerHelper;
 import com.syrtsov.ddao.conn.JNDIDataSourceHandler;
 import com.syrtsov.handler.Intializible;
@@ -31,6 +32,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 
+import org.apache.commons.beanutils.PropertyUtils;
+
 /**
  * psdo: add class comments
  * Created-By: Pavel Syrtsov
@@ -39,7 +42,18 @@ import java.util.*;
  */
 // psfix: how do we deal with multishard requests?
 public class ShardedJNDIDataSourceHandler extends ConnectionHandlerHelper implements Intializible {
-    private SortedMap<Shard,Shard> shardMap = new TreeMap<Shard, Shard>();
+    private final Comparator<Comparable> shardComparator = new  Comparator<Comparable>() {
+        public int compare(Comparable comparable1, Comparable comparable2) {
+            if (comparable1 instanceof Shard) {
+                Shard shard = (Shard) comparable1;
+                return shard.compareTo(comparable2);
+            }
+            Shard shard = (Shard) comparable2;
+            return -shard.compareTo(comparable1);
+        }
+    };
+
+    private SortedMap<Shard,Shard> shardMap = new TreeMap<Shard, Shard>(shardComparator);
     private ShardControlDao shardControlDao;
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -60,12 +74,29 @@ public class ShardedJNDIDataSourceHandler extends ConnectionHandlerHelper implem
         for (int i = 0; i < parametersAnnotations.length; i++) {
             Annotation[] parameterAnnotations = parametersAnnotations[i];
             for (Annotation parameterAnnotation : parameterAnnotations) {
-                if (parameterAnnotation.getClass().equals(ShardKey.class)) {
-                    return (Comparable) args[i];
+                if (parameterAnnotation instanceof ShardKey) {
+                    ShardKey shardKey = (ShardKey) parameterAnnotation;
+                    return extractShardKey(shardKey.value(), args[i]);
                 }
             }
         }
         throw new ShardException("Expected parameter with annotation " + ShardKey.class + " at method " + method);
+    }
+
+    private Comparable extractShardKey(String name, Object shardKey) {
+        if (name.length() > 0) {
+            // if name defined then key is either mapped value or bean property
+            if (shardKey instanceof Map) {
+                shardKey = ((Map) shardKey).get(name);
+            } else {
+                try {
+                    shardKey = PropertyUtils.getProperty(shardKey, name);
+                } catch (Exception e) {
+                    throw new ShardException("Failed to get sjhard key " + name + " from " + shardKey);
+                }
+            }
+        }
+        return (Comparable) shardKey;
     }
 
     public void init(Class<?> iFace, Annotation annotation, List<Class<?>> iFaceList) throws InitializerException {
@@ -100,4 +131,5 @@ public class ShardedJNDIDataSourceHandler extends ConnectionHandlerHelper implem
     public void setShardControlDao(ShardControlDao shardControlDao) {
         this.shardControlDao = shardControlDao;
     }
+
 }

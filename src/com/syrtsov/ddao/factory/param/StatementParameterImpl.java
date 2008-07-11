@@ -43,6 +43,9 @@ public class StatementParameterImpl extends StatementParameterHelper {
 
     public Object extractData(Object[] args) throws StatementParameterException {
         if (num != null) {
+            if (args.length <= num) {
+                throw new StatementParameterException("Query refers to argument #" + num + ", while method has only " + args.length + " arguments");
+            }
             return args[num];
         }
         Object param = args[0];
