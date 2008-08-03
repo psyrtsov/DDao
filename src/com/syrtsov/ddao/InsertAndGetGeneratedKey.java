@@ -16,7 +16,7 @@
 
 package com.syrtsov.ddao;
 
-import com.syrtsov.ddao.ops.InsertAndGetIdSqlOperation;
+import com.syrtsov.ddao.ops.InsertAndGetGeneratedKeySqlOperation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@SqlAnnotation(InsertAndGetIdSqlOperation.class)
-public @interface InsertAndGetId {
+@SqlAnnotation(InsertAndGetGeneratedKeySqlOperation.class)
+public @interface InsertAndGetGeneratedKey {
     String value();
 }

@@ -69,7 +69,10 @@ public class SelectSqlOperation implements SqlOperation {
 
     public void init(Method method) throws InitializerException {
         Select selectSql = method.getAnnotation(Select.class);
-        String sql = selectSql.value();
+        init(method, selectSql.value());
+    }
+
+    public void init(Method method, String sql) throws InitializerException {
         try {
             statementFactory = StatementFactoryManager.createStatementFactory(method, sql);
         } catch (StatementFactoryException e) {

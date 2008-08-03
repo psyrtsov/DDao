@@ -18,7 +18,7 @@ package com.syrtsov.ddao.ops;
 
 import com.syrtsov.alinker.initializer.InitializerException;
 import com.syrtsov.ddao.DaoException;
-import com.syrtsov.ddao.InsertAndGetId;
+import com.syrtsov.ddao.InsertAndGetGeneratedKey;
 import com.syrtsov.ddao.SqlOperation;
 import com.syrtsov.ddao.factory.StatementFactory;
 import com.syrtsov.ddao.factory.StatementFactoryException;
@@ -34,7 +34,7 @@ import java.sql.ResultSet;
  * Date: Aug 11, 2007
  * Time: 2:47:16 PM
  */
-public class InsertAndGetIdSqlOperation implements SqlOperation {
+public class InsertAndGetGeneratedKeySqlOperation implements SqlOperation {
     private StatementFactory statementFactory;
 
     public Object invoke(Connection connection, Method method, Object[] args) {
@@ -58,8 +58,8 @@ public class InsertAndGetIdSqlOperation implements SqlOperation {
     }
 
     public void init(Method method) throws InitializerException {
-        InsertAndGetId insertAndGetId = method.getAnnotation(InsertAndGetId.class);
-        String sql = insertAndGetId.value();
+        InsertAndGetGeneratedKey insertAndGetGeneratedKey = method.getAnnotation(InsertAndGetGeneratedKey.class);
+        String sql = insertAndGetGeneratedKey.value();
         try {
             statementFactory = StatementFactoryManager.createStatementFactory(method, sql);
         } catch (StatementFactoryException e) {
