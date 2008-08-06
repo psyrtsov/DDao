@@ -21,6 +21,8 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * Created-By: Pavel Syrtsov
@@ -28,6 +30,7 @@ import java.sql.Types;
  * Time: 4:30:20 PM
  */
 public abstract class StatementParameterHelper implements StatementParameter {
+    public static final Logger log = Logger.getLogger(StatementParameterHelper.class.getName());
     protected String name;
 
     public void init(Method method, String name) {
@@ -43,6 +46,7 @@ public abstract class StatementParameterHelper implements StatementParameter {
 
     public void bind(PreparedStatement preparedStatement, int idx, Object[] args) throws StatementParameterException {
         Object param = extractData(args);
+        log.log(Level.FINE, "query parameter '{0}'", param);
         try {
             if (param == null) {
                 preparedStatement.setNull(idx, Types.NULL);

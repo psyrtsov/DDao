@@ -26,6 +26,7 @@ import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * DefaultStatementFactory creates new prepared statment using simplified IBATIS like query syntax: <br/>
@@ -44,6 +45,7 @@ import java.util.List;
  * Time: 9:24:44 PM
  */
 public class DefaultStatementFactory implements StatementFactory {
+    public static final Logger log = Logger.getLogger(DefaultStatementFactory.class.getName());
     private List<StatementParameter> inlineParametersList = new ArrayList<StatementParameter>();
     private List<StatementParameter> refParametersList = new ArrayList<StatementParameter>();
     private List<String> stmtTokens = new ArrayList<String>();
@@ -109,6 +111,7 @@ public class DefaultStatementFactory implements StatementFactory {
                 }
                 stmt = sb.toString();
             }
+            log.fine(stmt);
             PreparedStatement preparedStatement = connection.prepareStatement(stmt);
             int i = 1;
             for (StatementParameter statementParameter : refParametersList) {
