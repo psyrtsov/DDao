@@ -37,7 +37,7 @@ import java.util.List;
  * Time: 9:39:39 PM
  */
 public class JNDIDataSourceHandler extends ConnectionHandlerHelper implements Intializible {
-    public static final String DS_CTX_PREFIX = "";//java:comp/env/";
+    public static String DS_CTX_PREFIX = "java:comp/env/";
     private DataSource dataSource;
 
     public Connection createConnection(Method method, Object[] args) throws SQLException {
