@@ -27,8 +27,8 @@ import java.util.concurrent.Callable;
  * Time: 2:18:03 PM
  */
 public class DaoUtils {
-    public static <T> T execInTx(Object dao, Callable<T> callable) throws Exception {
-        Connection conn = (Connection) dao;
+    public static <T> T execInTx(TransactionableDao dao, Callable<T> callable) throws Exception {
+        Connection conn = dao.startTransaction();
         boolean success = false;
         try {
             conn.setAutoCommit(false);
@@ -44,7 +44,7 @@ public class DaoUtils {
         }
     }
 
-    public static void execInTx(Object dao, final Runnable runnable) throws Exception {
+    public static void execInTx(TransactionableDao dao, final Runnable runnable) throws Exception {
         execInTx(dao, new Callable<Object>() {
             public Object call() throws Exception {
                 runnable.run();

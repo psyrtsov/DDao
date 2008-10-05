@@ -37,7 +37,7 @@ import java.util.List;
  */
 public class JNDIDaoTest extends BasicJDBCTestCaseAdapter {
     ALinker factory;
-    private static final String PART_NAME = "global(partName)";
+    private static final String PART_NAME = "partName";
 
     @JNDIDao("jdbc/testdb")
     public static interface TestUserDao {
@@ -59,7 +59,8 @@ public class JNDIDaoTest extends BasicJDBCTestCaseAdapter {
          * @param tableName - reffered in query text by enclosing prameter number in dollar sign ('$0$'),
          * it means parametter passed by binding it as JDBC prepared statement parameter.
          * @param size - reffered in query text by enclosing parameter number in pound sign ('#1#'),
-         * it means parameter's value will be injected 
+         * it means parameter's value will be injected
+         * @return - array of TestUserBeans built from data returned by SQL 
          */
         @Select("select id, name from $0$ limit #1#")
         TestUserBean[] getUserArray(String tableName, int size);
@@ -70,8 +71,10 @@ public class JNDIDaoTest extends BasicJDBCTestCaseAdapter {
         /**
          * values that have '()' assumed to be call to static function,
          * at this point we have only function that allows to pass value thrue ThreadLocal
+         * @param name - name
+         * @return id
          */
-        @Select("select id from user where part = '$" + PART_NAME + "$' and name = #0#")
+        @Select("select id from user where part = '$global(" + PART_NAME + ")$' and name = #0#")
         int getUserIdByName(String name);
     }
 

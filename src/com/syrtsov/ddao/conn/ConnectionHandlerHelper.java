@@ -53,7 +53,7 @@ public abstract class ConnectionHandlerHelper implements InvocationHandler {
     }
 
     public Connection getConnection(Method method, Object[] args) throws SQLException {
-        if (connectionHolderHelper != null) {
+        if (connectionHolderHelper != null && connectionHolderHelper.hasConnectionOnHold()) {
             Connection res = connectionHolderHelper.getConnectionProxy();
             if (res != null) {
                 return res;

@@ -75,7 +75,7 @@ public class BeanResultSetMapper implements ResultSetMapper {
         Map<String, Integer> colNames = new HashMap<String, Integer>();
         int count = metaData.getColumnCount();
         for (int i = 1; i <= count; i++) {
-            colNames.put(metaData.getColumnName(i), i);
+            colNames.put(metaData.getColumnName(i).toLowerCase(), i);
         }
         mapperList = new PropertyMapper[count];
         BeanInfo beanInfo = java.beans.Introspector.getBeanInfo(itemType);
@@ -85,6 +85,7 @@ public class BeanResultSetMapper implements ResultSetMapper {
                 continue;
             }
             String name = propertyDescriptor.getName();
+            name = name.toLowerCase();
             Integer i = colNames.remove(name);
             if (i == null) {
                 continue;

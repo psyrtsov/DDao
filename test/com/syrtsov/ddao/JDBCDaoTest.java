@@ -36,13 +36,15 @@ import java.util.List;
  */
 public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
     ALinker factory;
-    private static final String PART_NAME = "global(partName)";
+    private static final String PART_NAME = "partName";
 
     @JDBCDao(value = "jdbc://test", driver = "com.mockrunner.mock.jdbc.MockDriver")
     public static interface TestUserDao {
         /**
          * in this statement we assume that 1st method arg is Java Bean
          * and refer to property by name. It works same way for Map.
+         * @param userBean - parameter object
+         * @return - TestUserBean created using data from SQL
          */
         @Select("select id, name from user where id = #id#")
         TestUserBean getUser(TestUserBean userBean);
@@ -52,6 +54,9 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
 
         /**
          * 1st parametterpassed by reference, 2nd by value (by injecting result of toString() into SQL).
+         * @param tableName - paramter object
+         * @param size - max size of return array
+         * @return array of TestUserBeans created using data returned by SQL query
          */
         @Select("select id, name from $0$ limit #1#")
         TestUserBean[] getUserArray(String tableName, int size);
@@ -62,8 +67,10 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         /**
          * values that have '()' assumed to be call to static function,
          * at this point we have only function that allows to pass value thrue ThreadLocal
+         * @param name - query parameter
+         * @return id
          */
-        @Select("select id from user where part = '$" + PART_NAME + "$' and name = #0#")
+        @Select("select id from user where part = '$global(" + PART_NAME + ")$' and name = #0#")
         int getUserIdByName(String name);
     }
 

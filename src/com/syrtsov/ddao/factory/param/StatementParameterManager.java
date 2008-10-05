@@ -30,7 +30,7 @@ public class StatementParameterManager {
     static Map<String, Class<? extends StatementParameter>> paramTypeMap = new HashMap<String, Class<? extends StatementParameter>>();
 
     static {
-        paramTypeMap.put("global", ThreadLocalStatementParameter.class);
+        paramTypeMap.put(ThreadLocalStatementParameter.FUNC_NAME, ThreadLocalStatementParameter.class);
     }
 
     public static StatementParameter createStatementParameter(Method method, String name) throws StatementParameterException {

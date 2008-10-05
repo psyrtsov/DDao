@@ -26,6 +26,7 @@ import java.util.Map;
  */
 public class ThreadLocalStatementParameter extends StatementParameterHelper {
     private static ThreadLocal<Map<String, Object>> data = new ThreadLocal<Map<String, Object>>();
+    public static final String FUNC_NAME = "global";
 
     @Override
     public Object extractData(Object[] args) throws StatementParameterException {
@@ -37,6 +38,7 @@ public class ThreadLocalStatementParameter extends StatementParameterHelper {
     }
 
     public static Object put(String key, Object value) {
+        key = FUNC_NAME + "(" + key + ")";
         Map<String, Object> dataMap = data.get();
         if (dataMap == null) {
             dataMap = new HashMap<String, Object>();

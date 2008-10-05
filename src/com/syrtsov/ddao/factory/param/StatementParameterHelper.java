@@ -41,6 +41,9 @@ public abstract class StatementParameterHelper implements StatementParameter {
 
     public String extractParam(Object[] args) throws StatementParameterException {
         Object data = extractData(args);
+        if (data == null) {
+            throw new StatementParameterException("Parameter '" + this.name + "' is not defined");
+        }
         return data.toString();
     }
 
