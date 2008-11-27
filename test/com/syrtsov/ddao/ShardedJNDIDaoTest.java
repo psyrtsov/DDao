@@ -20,13 +20,13 @@ import com.mockrunner.jdbc.JDBCTestModule;
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.JDBCMockObjectFactory;
 import com.mockrunner.mock.jdbc.MockResultSet;
-import com.syrtsov.alinker.ALinker;
-import com.syrtsov.alinker.FactoryException;
-import com.syrtsov.alinker.initializer.InitializerException;
+import com.syrtsov.ddao.alinker.ALinker;
+import com.syrtsov.ddao.alinker.FactoryException;
+import com.syrtsov.ddao.alinker.initializer.InitializerException;
 import com.syrtsov.ddao.conn.JNDIDataSourceHandler;
 import com.syrtsov.ddao.factory.param.ThreadLocalStatementParameter;
-import com.syrtsov.shards.ShardKey;
-import com.syrtsov.shards.ShardedJNDIDao;
+import com.syrtsov.ddao.shards.ShardKey;
+import com.syrtsov.ddao.shards.ShardedJNDIDao;
 import junit.framework.TestCase;
 import org.mockejb.jndi.MockContextFactory;
 

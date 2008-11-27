@@ -14,12 +14,9 @@
  * under the License.
  */
 
-package com.syrtsov.ddao;
+package com.syrtsov.ddao.alinker.initializer;
 
-import com.syrtsov.ddao.alinker.factory.UseFactory;
-import com.syrtsov.ddao.conn.JDBCConnectionHandler;
-import com.syrtsov.ddao.handler.HandlerAnnotation;
-import com.syrtsov.ddao.handler.HandlerFactory;
+import com.syrtsov.ddao.alinker.Initializer;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -27,24 +24,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * psdo: comments
- * Created by: Pavel Syrtsov
- * Date: Apr 1, 2007
- * Time: 11:56:36 PM
+ * psdo: add class comments
+ * Created-By: Pavel Syrtsov
+ * Date: Apr 10, 2008
+ * Time: 10:47:05 PM
  */
-@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@HandlerAnnotation(JDBCConnectionHandler.class)
-@UseFactory(HandlerFactory.class)
-public @interface JDBCDao {
-    /**
-     * @return connection URL
-     */
-    String value();
-
-    String driver() default "";
-
-    String user() default "";
-
-    String pwd() default "";
+@Target({ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
+public @interface UseInitializer {
+    Class<? extends Initializer> value();
 }

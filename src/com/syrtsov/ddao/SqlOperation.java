@@ -16,7 +16,7 @@
 
 package com.syrtsov.ddao;
 
-import com.syrtsov.alinker.initializer.InitializerException;
+import com.syrtsov.ddao.alinker.initializer.InitializerException;
 
 import java.lang.reflect.Method;
 import java.sql.Connection;

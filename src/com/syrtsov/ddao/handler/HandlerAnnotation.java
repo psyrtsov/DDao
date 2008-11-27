@@ -14,37 +14,21 @@
  * under the License.
  */
 
-package com.syrtsov.ddao;
-
-import com.syrtsov.ddao.alinker.factory.UseFactory;
-import com.syrtsov.ddao.conn.JDBCConnectionHandler;
-import com.syrtsov.ddao.handler.HandlerAnnotation;
-import com.syrtsov.ddao.handler.HandlerFactory;
+package com.syrtsov.ddao.handler;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.InvocationHandler;
 
 /**
- * psdo: comments
  * Created by: Pavel Syrtsov
  * Date: Apr 1, 2007
- * Time: 11:56:36 PM
+ * Time: 11:53:50 PM
  */
-@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@HandlerAnnotation(JDBCConnectionHandler.class)
-@UseFactory(HandlerFactory.class)
-public @interface JDBCDao {
-    /**
-     * @return connection URL
-     */
-    String value();
-
-    String driver() default "";
-
-    String user() default "";
-
-    String pwd() default "";
+@Target({ElementType.ANNOTATION_TYPE})
+public @interface HandlerAnnotation {
+    Class<? extends InvocationHandler> value();
 }

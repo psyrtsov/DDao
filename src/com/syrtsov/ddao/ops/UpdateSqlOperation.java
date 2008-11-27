@@ -16,7 +16,7 @@
 
 package com.syrtsov.ddao.ops;
 
-import com.syrtsov.alinker.initializer.InitializerException;
+import com.syrtsov.ddao.alinker.initializer.InitializerException;
 import com.syrtsov.ddao.DaoException;
 import com.syrtsov.ddao.SqlOperation;
 import com.syrtsov.ddao.Update;

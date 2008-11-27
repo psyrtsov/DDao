@@ -16,10 +16,10 @@
 
 package com.syrtsov.ddao;
 
-import com.syrtsov.alinker.factory.UseFactory;
+import com.syrtsov.ddao.alinker.factory.UseFactory;
 import com.syrtsov.ddao.conn.JNDIDataSourceHandler;
-import com.syrtsov.handler.HandlerAnnotation;
-import com.syrtsov.handler.HandlerFactory;
+import com.syrtsov.ddao.handler.HandlerAnnotation;
+import com.syrtsov.ddao.handler.HandlerFactory;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

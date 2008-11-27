@@ -15,8 +15,8 @@
  */
 package com.syrtsov.ddao.conn;
 
-import com.syrtsov.alinker.initializer.InitializerException;
-import com.syrtsov.alinker.inject.Inject;
+import com.syrtsov.ddao.alinker.initializer.InitializerException;
+import com.syrtsov.ddao.alinker.inject.Inject;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;

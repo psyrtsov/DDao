@@ -2,13 +2,11 @@ package com.syrtsov.ddao.ops;
 
 import com.syrtsov.ddao.factory.StatementFactory;
 import com.syrtsov.ddao.factory.StatementFactoryManager;
-import com.syrtsov.ddao.factory.StatementFactoryException;
 import com.syrtsov.ddao.factory.param.ThreadLocalStatementParameter;
 import com.syrtsov.ddao.DaoException;
-import com.syrtsov.ddao.Update;
 import com.syrtsov.ddao.SqlOperation;
 import com.syrtsov.ddao.SelectThenInsert;
-import com.syrtsov.alinker.initializer.InitializerException;
+import com.syrtsov.ddao.alinker.initializer.InitializerException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -13,21 +13,27 @@
  * See the License for the specific language governing permissions and limitations
  * under the License.
  */
-package com.syrtsov.ddao.conn;
 
-import com.syrtsov.ddao.alinker.factory.ImplementedBy;
+package com.syrtsov.ddao.ir;
 
-import java.lang.reflect.Method;
-import java.sql.Connection;
+import com.syrtsov.ddao.alinker.factory.UseFactory;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * psdo: add class comments
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
- * Time: 9:39:39 PM
+ * Time: 6:22:00 PM
  */
-
-@ImplementedBy(DaoInvocationHandlerImpl.class)
-public interface DaoInvocationHandler {
-    Object invoke(Connection connection, Method method, Object[] args) throws Throwable;
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@UseFactory(IRFactory.class)
+public @interface IRSpace {
+    /**
+     * @return name of space this InvocationHandler connected to
+     */
+    String value();
 }

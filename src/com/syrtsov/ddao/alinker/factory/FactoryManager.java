@@ -14,21 +14,19 @@
  * under the License.
  */
 
-package com.syrtsov.ddao.ops;
+package com.syrtsov.ddao.alinker.factory;
 
-import com.syrtsov.ddao.alinker.initializer.InitializerException;
-import com.syrtsov.ddao.Delete;
-
-import java.lang.reflect.Method;
+import com.syrtsov.ddao.alinker.ALinker;
+import com.syrtsov.ddao.alinker.Context;
+import com.syrtsov.ddao.alinker.Factory;
+import com.syrtsov.ddao.alinker.FactoryException;
 
 /**
- * Created by: Pavel Syrtsov
- * Date: Apr 24, 2007
- * Time: 1:44:52 AM
+ * psdo: add class comments
+ * Created-By: Pavel Syrtsov
+ * Date: Apr 10, 2008
+ * Time: 8:45:47 PM
  */
-public class DeleteSqlOperation extends UpdateSqlOperation {
-    public void init(Method method) throws InitializerException {
-        Delete deleteAnnotation = method.getAnnotation(Delete.class);
-        init(method, deleteAnnotation.value());
-    }
+public interface FactoryManager {
+    <T> Factory<T> getFactory(ALinker aLinker, Context<T> ctx) throws FactoryException;
 }

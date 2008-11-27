@@ -21,7 +21,7 @@ import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.JDBCMockObjectFactory;
 import com.mockrunner.mock.jdbc.MockDataSource;
 import com.mockrunner.mock.jdbc.MockResultSet;
-import com.syrtsov.alinker.ALinker;
+import com.syrtsov.ddao.alinker.ALinker;
 import com.syrtsov.ddao.conn.JNDIDataSourceHandler;
 import com.syrtsov.ddao.factory.param.ThreadLocalStatementParameter;
 import org.mockejb.jndi.MockContextFactory;

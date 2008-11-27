@@ -16,10 +16,10 @@
 
 package com.syrtsov.ddao.conn;
 
-import com.syrtsov.alinker.initializer.InitializerException;
+import com.syrtsov.ddao.alinker.initializer.InitializerException;
 import com.syrtsov.ddao.DaoException;
 import com.syrtsov.ddao.JNDIDao;
-import com.syrtsov.handler.Intializible;
+import com.syrtsov.ddao.handler.Intializible;
 
 import javax.naming.InitialContext;
 import javax.sql.DataSource;

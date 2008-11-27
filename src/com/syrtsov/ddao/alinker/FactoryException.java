@@ -14,21 +14,24 @@
  * under the License.
  */
 
-package com.syrtsov.ddao.ops;
-
-import com.syrtsov.ddao.alinker.initializer.InitializerException;
-import com.syrtsov.ddao.Delete;
-
-import java.lang.reflect.Method;
+package com.syrtsov.ddao.alinker;
 
 /**
- * Created by: Pavel Syrtsov
- * Date: Apr 24, 2007
- * Time: 1:44:52 AM
+ * psdo: add class comments
+ * Created-By: Pavel Syrtsov
+ * Date: Apr 10, 2008
+ * Time: 9:33:12 PM
  */
-public class DeleteSqlOperation extends UpdateSqlOperation {
-    public void init(Method method) throws InitializerException {
-        Delete deleteAnnotation = method.getAnnotation(Delete.class);
-        init(method, deleteAnnotation.value());
+public class FactoryException extends Exception {
+    public FactoryException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public FactoryException(String message) {
+        super(message);
+    }
+
+    public FactoryException(Throwable cause) {
+        super(cause);
     }
 }
