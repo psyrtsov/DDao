@@ -3,7 +3,6 @@
     <property name="version" value="0.3"/>
     <property name="name" value="ddao${version}"/>
     <property name="lib.dir" value="lib"/>
-    <property name="src.dir" value="src"/>
     <property name="src.tests" value="test"/>
     <property name="src.docs" value="docs"/>
     <property name="build.dir" value="build"/>
@@ -16,6 +15,11 @@
     <property name="dist.javadoc" value="docs/javadoc"/>
     <property name="testlib.dir" value="testlib"/>
     <property name="reports.tests" value="build"/>
+    <path id="src.path">
+        <path path="src/java/alinker"/>
+        <path path="src/java/main"/>
+        <path path="src/java/shards"/>
+    </path>
     <path id="runtime-libs">
         <fileset dir="${lib.dir}">
             <include name="*.jar"/>
@@ -91,10 +95,10 @@
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${build.classes}"/>
         <mkdir dir="${build.lib}"/>
-        <javac srcdir="${src.dir}"
-               destdir="${build.classes}"
+        <javac destdir="${build.classes}"
                debug="true"
                deprecation="true">
+            <src refid="src.path"/>
             <classpath refid="runtime-libs"/>
         </javac>
     </target>
