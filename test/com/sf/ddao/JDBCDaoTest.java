@@ -26,6 +26,7 @@ import org.mockejb.jndi.MockContextFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  * JDBCDaoTest is testing basic DDao functionality executed upon simple JDBC connection created by JDBC DriverManager call.
@@ -39,7 +40,7 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
     private static final String PART_NAME = "partName";
 
     @JDBCDao(value = "jdbc://test", driver = "com.mockrunner.mock.jdbc.MockDriver")
-    public static interface TestUserDao {
+    public static interface TestUserDao extends TransactionableDao {
         /**
          * in this statement we assume that 1st method arg is Java Bean
          * and refer to property by name. It works same way for Map.
@@ -72,6 +73,9 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
          */
         @Select("select id from user where part = '$global(" + PART_NAME + ")$' and name = #0#")
         int getUserIdByName(String name);
+
+        @SelectThenInsert({"select nextval from userIdSequence","insert into user(id,name) values(#global(id)#, #name#)"})
+        int addUser(TestUserBean user);
     }
 
     protected void setUp() throws Exception {
@@ -217,6 +221,34 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
 
         verifySQLStatementExecuted("select id from user where part = '" + testPart + "' and name = ?");
         verifyPreparedStatementParameter(0, 1, testName);
+        verifyAllResultSetsClosed();
+        verifyAllStatementsClosed();
+        verifyConnectionClosed();
+    }
+
+    public void testTx() throws Exception {
+        final int id = 77;
+        final String testName = "testName";
+        createResultSet("nextval", new Object[]{id});
+
+        // execute dao method
+        final TestUserDao dao = factory.create(TestUserDao.class);
+        final TestUserBean user = new TestUserBean();
+        user.setName(testName);
+        int res = DaoUtils.execInTx(dao, new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                verifyNotCommitted();
+                return dao.addUser(user);
+            }
+        });
+        assertEquals(id, res);
+        
+        verifyCommitted();
+        verifySQLStatementExecuted("select nextval from userIdSequence");
+        verifySQLStatementExecuted("insert into user(id,name) values(?, ?)");
+        verifyPreparedStatementParameter(1, 1, id);
+        verifyPreparedStatementParameter(1, 2, testName);
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
         verifyConnectionClosed();

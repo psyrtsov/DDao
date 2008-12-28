@@ -36,6 +36,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 @SqlAnnotation(SelectThenInsertSqlOperation.class)
+//psdo: problem with this approach is that sequence has to be in same shard as data table
 public @interface SelectThenInsert {
     public abstract String[] value();
 }

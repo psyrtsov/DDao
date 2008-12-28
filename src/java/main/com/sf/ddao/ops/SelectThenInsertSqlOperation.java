@@ -19,22 +19,16 @@ import java.util.Arrays;
  * Time: 9:12:57 PM
  * psdo: provide comments for class ${CLASSNAME}
  */
-public class SelectThenInsertSqlOperation implements SqlOperation {
+public class SelectThenInsertSqlOperation extends UpdateSqlOperation {
     private SelectSqlOperation selectSqlOp;
-    private StatementFactory insertStatementFactory;
     public static final String ID_FIELD_NAME = "id";
 
     public Object invoke(Connection connection, Method method, Object[] args) {
         try {
             Object res = selectSqlOp.invoke(connection, method, args);
             ThreadLocalStatementParameter.put(ID_FIELD_NAME, res);
-            PreparedStatement preparedStatement = insertStatementFactory.createStatement(connection, args);
-            preparedStatement = insertStatementFactory.createStatement(connection, args);
-            preparedStatement.executeUpdate();
-            preparedStatement.close();
+            super.invoke(connection,method,args);
             return res;
-        } catch (Exception t) {
-            throw new DaoException("Failed to execute sql operation for " + method, t);
         } finally {
             ThreadLocalStatementParameter.remove(ID_FIELD_NAME);            
         }
@@ -50,9 +44,9 @@ public class SelectThenInsertSqlOperation implements SqlOperation {
         try {
             selectSqlOp = new SelectSqlOperation();
             selectSqlOp.init(method, sql[0]);
-            insertStatementFactory = StatementFactoryManager.createStatementFactory(method, sql[1]);
+            super.init(method, sql[1]);
         } catch (Exception e) {
-            throw new InitializerException("Failed to setup sql operation " + Arrays.toString(sql) + " for method " + method, e);
+            throw new InitializerException("Failed to setup sql operations " + Arrays.toString(sql) + " for method " + method, e);
         }
     }
 }

@@ -45,9 +45,6 @@ public class DaoInvocationHandlerImpl implements Intializible, DaoInvocationHand
     }
 
     private SqlOperation getSqlOp(Method method) throws InitializerException {
-        if (sqlOpMap == null) {
-            init(method.getDeclaringClass());
-        }
         SqlOperation sqlOperation = sqlOpMap.get(method);
         if (sqlOperation == null) {
             throw new DaoException("Method " + method + "has to have annotation annotated with " + SqlAnnotation.class);
@@ -56,13 +53,7 @@ public class DaoInvocationHandlerImpl implements Intializible, DaoInvocationHand
     }
 
     public void init(Class<?> iFace, Annotation annotation, List<Class<?>> iFaceList) throws InitializerException {
-        if (!Boolean.getBoolean("LAZY_INIT")) {
-            init(iFace);
-        }
-    }
-
-    private synchronized void init(Class<?> iFace) throws InitializerException {
-        final HashMap<Method, SqlOperation> res = new HashMap<Method, SqlOperation>();
+        sqlOpMap = new HashMap<Method, SqlOperation>();
         for (Method method : iFace.getMethods()) {
             SqlAnnotation sqlAnnotation = Annotations.findAnnotation(method, SqlAnnotation.class);
             if (sqlAnnotation == null) { // we'll skip it here , but will enforce it at execution time
@@ -76,8 +67,7 @@ public class DaoInvocationHandlerImpl implements Intializible, DaoInvocationHand
                 throw new InitializerException("Failed to create sql operation handler for " + method, e);
             }
             sqlOperation.init(method);
-            res.put(method, sqlOperation);
+            sqlOpMap.put(method, sqlOperation);
         }
-        sqlOpMap = res;
     }
 }
