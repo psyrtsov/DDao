@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Dynamic Dao" default="dist" basedir=".">
-    <property name="version" value="0.3"/>
-    <property name="name" value="ddao${version}"/>
+<project name="Dynamic Dao" default="dist" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+    <import file="ivyutil.xml"/>
     <property name="lib.dir" value="lib"/>
     <property name="src.tests" value="test"/>
     <property name="src.docs" value="docs"/>
     <property name="build.dir" value="build"/>
-    <property name="build.classes" value="build/classes"/>
-    <property name="build.lib" value="build/lib"/>
+    <property name="build.classes.dir" value="build/classes"/>
+    <property name="build.jar.dir" value="build/lib"/>
     <property name="build.docs" value="build/docs"/>
     <property name="build.javadoc" value="build/docs/javadoc"/>
     <property name="dist.dir" value="dist"/>
@@ -24,6 +23,9 @@
         <fileset dir="${lib.dir}">
             <include name="*.jar"/>
         </fileset>
+        <fileset dir="${ivylib.dir}">
+            <include name="*.jar"/>
+        </fileset>
     </path>
     <path id="test-libs">
         <fileset dir="${testlib.dir}">
@@ -31,24 +33,26 @@
         </fileset>
         <path refid="runtime-libs"/>
     </path>
-    <target name="dist" depends="jars, docs">
+    <target name="prep-publish" depends="jars" description="--> used by publish targets from util.xml"/>
+    <target name="dist" depends="clean,jars,docs">
         <mkdir dir="${dist.dir}"/>
-        <zip destfile="${dist.dir}/${name}-bin.zip">
-            <zipfileset dir="${lib.dir}" prefix="${name}/lib"/>
-            <zipfileset dir="${build.lib}" prefix="${name}/lib"/>
-            <zipfileset dir="${build.docs}" prefix="${name}/docs"/>
-            <zipfileset dir="${src.tests}" prefix="${name}/test"/>
+        <ivy:info file="${ivy.file}" />
+        <zip destfile="${dist.dir}/${ivy.module}-bin.zip">
+            <zipfileset dir="${lib.dir}" prefix="${ivy.module}/lib"/>
+            <zipfileset dir="${build.jar.dir}" prefix="${ivy.module}/lib"/>
+            <zipfileset dir="${build.docs}" prefix="${ivy.module}/docs"/>
+            <zipfileset dir="${src.tests}" prefix="${ivy.module}/test"/>
         </zip>
-        <zip destfile="${dist.dir}/${name}-src.zip">
-            <zipfileset dir="." prefix="${name}" excludes="${build.dir}/**,${dist.dir}/**"/>
+        <zip destfile="${dist.dir}/${ivy.module}-src.zip">
+            <zipfileset dir="." prefix="${ivy.module}" excludes="build/**,dist/**"/>
         </zip>
     </target>
     <target name="jars"
             depends="compile">
-        <jar destfile="${build.lib}/${name}.jar"
-             basedir="${build.classes}">
+        <jar destfile="${build.jar.dir}/${ivy.module}.jar"
+             basedir="${build.classes.dir}">
             <manifest>
-                <attribute name="Jar-Version" value="${version}"/>
+                <attribute name="Jar-Version" value="${ivy.new.revision}"/>
             </manifest>
         </jar>
     </target>
@@ -56,7 +60,7 @@
         <junit haltonfailure="yes">
             <classpath>
                 <path refid="test-libs"/>
-                <dirset dir="${build.classes}"/>
+                <dirset dir="${build.classes.dir}"/>
             </classpath>
             <formatter type="plain"/>
             <batchtest fork="yes" todir="${reports.tests}">
@@ -87,15 +91,14 @@
         </copy>
         <javadoc sourcepath="src" destdir="${build.javadoc}"/>
     </target>
-    <target name="clean">
-        <delete dir="${build.dir}"/>
+    <target name="clean" depends="clean-build, clean-ivylib">
         <delete dir="${dist.dir}"/>
     </target>
-    <target name="compile">
+    <target name="compile" depends="ivy-resolve">
         <mkdir dir="${build.dir}"/>
-        <mkdir dir="${build.classes}"/>
-        <mkdir dir="${build.lib}"/>
-        <javac destdir="${build.classes}"
+        <mkdir dir="${build.classes.dir}"/>
+        <mkdir dir="${build.jar.dir}"/>
+        <javac destdir="${build.classes.dir}"
                debug="true"
                deprecation="true">
             <src refid="src.path"/>
@@ -104,7 +107,7 @@
     </target>
     <target name="compile-test">
         <javac srcdir="${src.tests}"
-               destdir="${build.classes}"
+               destdir="${build.classes.dir}"
                debug="true"
                deprecation="true">
             <classpath refid="test-libs"/>

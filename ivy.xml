@@ -1,0 +1,7 @@
+<ivy-module version="1.0">
+    <info organisation="net.sf" module="ddao" revision="0.4"/>
+    <dependencies>
+        <dependency org="commons-lang" name="commons-lang" rev="2.+"/>
+        <dependency org="commons-beanutils" name="commons-beanutils" rev="1.+"/>
+    </dependencies>
+</ivy-module>
