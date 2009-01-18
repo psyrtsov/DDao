@@ -55,7 +55,11 @@
         </zip>
     </target>
     <target name="src-zip" depends="ivy-setup">
-        <zip destfile="${build.jar.dir}/${ivy.module}-src.zip" basedir="src"/>
+        <zip destfile="${build.jar.dir}/${ivy.module}-src.zip">
+            <zipfileset dir="src/java/alinker"/>
+            <zipfileset dir="src/java/main"/>
+            <zipfileset dir="src/java/shards"/>
+        </zip>
     </target>
     <target name="jars"
             depends="compile">

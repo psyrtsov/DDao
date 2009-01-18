@@ -22,18 +22,18 @@ public class CtxBuilder<T> {
         this.clazz = clazz;
     }
 
-    public static<T> CtxBuilder create(Class<T> clazz) {
-        return new CtxBuilder<T>(clazz);
+    public static<C> CtxBuilder<C> create(Class<C> clazz) {
+        return new CtxBuilder<C>(clazz);
     }
 
-    public CtxBuilder add(Class<? extends Annotation> annClass, Object ... values) {
+    public CtxBuilder<T> add(Class<? extends Annotation> annClass, Object ... values) {
         InvocationHandler ih = new AnnotationInvocationHandler(annClass, values);
         Annotation ann = (Annotation) Proxy.newProxyInstance(clazz.getClassLoader(), new Class<?>[]{annClass}, ih);
         annotations.add(ann);
         return this;
     }
 
-    public Context get() {
+    public Context<T> get() {
         Annotation[] aArray = annotations.toArray(new Annotation[annotations.size()]);
         return new Context<T>(clazz, aArray);
     }
@@ -58,7 +58,7 @@ public class CtxBuilder<T> {
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             Class<?> declaringClass = method.getDeclaringClass();
             if (declaringClass.equals(Object.class)) {
-                return method.invoke(valueMap);
+                return method.invoke(valueMap, args);
             }
             if (declaringClass.equals(Annotation.class)) {
                 return annClass;

@@ -21,8 +21,6 @@ package com.sf.ddao.alinker;
  * Time: 3:22:56 PM
  */
 
-import com.sf.ddao.alinker.ALinker;
-import com.sf.ddao.alinker.inject.Inject;
 import com.sf.ddao.alinker.factory.InjectValue;
 import com.sf.ddao.alinker.factory.UseFactory;
 import junit.framework.TestCase;

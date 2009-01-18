@@ -2,7 +2,7 @@
     <info organisation="net.sf" module="ddao" revision="0.5"/>
     <publications>
         <artifact/>
-        <artifact name="${ivy.module}-src" type="source" ext="zip"/>    
+        <artifact name="${ivy.module}-src" type="source" ext="zip"/>
     </publications>
     <dependencies>
         <dependency org="commons-lang" name="commons-lang" rev="2.+"/>
