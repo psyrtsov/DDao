@@ -33,7 +33,14 @@
         </fileset>
         <path refid="runtime-libs"/>
     </path>
-    <target name="prep-publish" depends="jars" description="--> used by publish targets from util.xml"/>
+
+    <!-- targets overriden from ivyttool.xml -->
+    <target name="prep-publish" depends="jars,src-zip" description="--> used by publish targets from util.xml"/>
+    <target name="clean" depends="clean-ivylib">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+    </target>
+    
     <target name="dist" depends="clean,jars,docs">
         <mkdir dir="${dist.dir}"/>
         <ivy:info file="${ivy.file}" />
@@ -46,6 +53,9 @@
         <zip destfile="${dist.dir}/${ivy.module}-src.zip">
             <zipfileset dir="." prefix="${ivy.module}" excludes="build/**,dist/**"/>
         </zip>
+    </target>
+    <target name="src-zip" depends="ivy-setup">
+        <zip destfile="${build.jar.dir}/${ivy.module}-src.zip" basedir="src"/>
     </target>
     <target name="jars"
             depends="compile">
@@ -90,9 +100,6 @@
             </filterchain>
         </copy>
         <javadoc sourcepath="src" destdir="${build.javadoc}"/>
-    </target>
-    <target name="clean" depends="clean-build, clean-ivylib">
-        <delete dir="${dist.dir}"/>
     </target>
     <target name="compile" depends="ivy-resolve">
         <mkdir dir="${build.dir}"/>

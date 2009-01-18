@@ -3,11 +3,15 @@
          xmlns:ivy="antlib:org.apache.ivy.ant">
 
     <!--
-         target that should bew overriten by project build file,
+         targets that should bew overriten by project build file,
          also look at props below that might need to be overriten
      -->
     <target name="prep-publish" depends="ivy-resolve" description="--> ERROR!!! this target should be overriden">
         <fail message="Target prep-publish should be defined in project build file!"/>
+    </target>
+
+    <target name="clean" depends="clean-ivylib" description="--> ERROR!!! this target should be overriden">
+        <fail message="Target clean should be defined in project build file!"/>
     </target>
 
     <dirname property="root.dir" file="${ant.file}"/>
@@ -89,7 +93,7 @@ build-time=${now}
 </echo>
     </target>
 
-    <target name="publish-shared" depends="clean-build, shared-version, build-info, prep-publish" description="--> publish this project in the ivy repository">
+    <target name="publish-shared" depends="clean-ivylib, clean, shared-version, build-info, prep-publish" description="--> publish this project in the shared ivy repository">
     	<ivy:publish artifactspattern="${build.jar.dir}/[artifact].[ext]"
     			           resolver="shared-publisher"
     			           pubrevision="${ivy.new.revision}"
@@ -99,7 +103,7 @@ build-time=${now}
         <echo message="project ${ant.project.name} released with version ${ivy.new.revision}" />
     </target>
 
-    <target name="publish-local" depends="local-version, build-info, prep-publish" description="--> publish this project in the local ivy repository">
+    <target name="publish-local" depends="clean-ivylib, clean, local-version, build-info, prep-publish" description="--> publish this project in the local ivy repository">
     	<ivy:publish artifactspattern="${build.jar.dir}/[artifact].[ext]"
     			        resolver="local"
     			        pubrevision="${ivy.new.revision}"
@@ -116,22 +120,8 @@ build-time=${now}
 	   <delete dir="${ivy.local.default.root}/${ivy.organisation}/${ivy.module}"/>
 	</target>
 
-	<!-- =================================
-          target: clean-lib
-         ================================= -->
     <target name="clean-ivylib" description="--> clean the project libraries directory (dependencies)">
         <delete includeemptydirs="true" dir="${ivylib.dir}"/>
     </target>
 
-    <!-- =================================
-          target: clean-build
-         ================================= -->
-    <target name="clean-build" description="--> clean the project built files">
-        <delete includeemptydirs="true" dir="${build.dir}"/>
-    </target>
-
-    <!-- =================================
-          target: clean
-         ================================= -->
-    <target name="clean" depends="clean-build, clean-ivylib" description="--> clean the project" />
 </project>
