@@ -40,10 +40,11 @@
     </target>
 
     <target name="ivy-config" if="ivySettingFilePresent">
-        <ivy:configure file="${repository.dir}/ivysettings.xml"/>
+        <echo message="Use ivy settings file ${repository.dir}/ivysettings.xml"/>
+        <property name="ivy.settings.file" value="${repository.dir}/ivysettings.xml"/>
     </target>
 
-    <target name="ivy-setup" depends="ivy-load,ivy-config"/>
+    <target name="ivy-setup" depends="ivy-config,ivy-load"/>
 
     <target name="ivy-resolve" depends="ivy-setup" description="--> resolve and retrieve dependencies with ivy">
         <mkdir dir="${ivylib.dir}"/>
@@ -93,6 +94,7 @@ build-time=${now}
     			           resolver="shared-publisher"
     			           pubrevision="${ivy.new.revision}"
     			           status="release"
+                           overwrite="false"
     	/>
         <echo message="project ${ant.project.name} released with version ${ivy.new.revision}" />
     </target>
