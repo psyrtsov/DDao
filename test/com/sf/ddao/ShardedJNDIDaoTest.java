@@ -127,7 +127,7 @@ public class ShardedJNDIDaoTest extends TestCase {
 
     public void testSingleRecordGet() throws Exception {
         // create dao object
-        TestUserDao dao = factory.create(TestUserDao.class);
+        TestUserDao dao = factory.create(TestUserDao.class, null);
 
         // reuse it for multiple invocations
         getUserOnce(testModule1, dao, 1, "foo1");
@@ -158,7 +158,7 @@ public class ShardedJNDIDaoTest extends TestCase {
     }
 
     public void testGetRecordList() throws Exception {
-        TestUserDao dao = factory.create(TestUserDao.class);
+        TestUserDao dao = factory.create(TestUserDao.class, null);
         getUserDataList(dao, testModule1, 1);
         getUserDataList(dao, testModule1, 10);
         getUserDataList(dao, testModule2, 11);
@@ -189,7 +189,7 @@ public class ShardedJNDIDaoTest extends TestCase {
 
     public void testGetUserArray() throws Exception {
         // execute dao method
-        TestUserDao dao = factory.create(TestUserDao.class);
+        TestUserDao dao = factory.create(TestUserDao.class, null);
         getUserDataArray(dao, testModule1, 1);
         getUserDataArray(dao, testModule1, 10);
         getUserDataArray(dao, testModule2, 11);
@@ -219,7 +219,7 @@ public class ShardedJNDIDaoTest extends TestCase {
     }
 
     public void testSelectCallback() throws Exception {
-        TestUserDao dao = factory.create(TestUserDao.class);
+        TestUserDao dao = factory.create(TestUserDao.class, null);
         processUserData(dao, testModule1);
 
     }
@@ -252,7 +252,7 @@ public class ShardedJNDIDaoTest extends TestCase {
     }
 
     public void testUsingStaticFunction() throws Exception {
-        TestUserDao dao = factory.create(TestUserDao.class);
+        TestUserDao dao = factory.create(TestUserDao.class, null);
         getUserData(dao, 1, testModule1, 0);
         getUserData(dao, 10, testModule1, 1);
         getUserData(dao, 11, testModule2, 0);

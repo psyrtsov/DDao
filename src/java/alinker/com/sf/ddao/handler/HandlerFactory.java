@@ -47,7 +47,7 @@ public class HandlerFactory<T> implements CachingFactory<T> {
             if (ah != null) {
                 Class<? extends InvocationHandler> clazz = ah.value();
                 try {
-                    InvocationHandler ih = aLinker.create(clazz);
+                    InvocationHandler ih = aLinker.create(clazz, null);
                     if (ih instanceof Intializible) {
                         Intializible conf = (Intializible) ih;
                         conf.init(iFace, annotation, iFaceList);

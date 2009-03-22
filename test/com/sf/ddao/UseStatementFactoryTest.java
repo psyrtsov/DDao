@@ -84,7 +84,7 @@ public class UseStatementFactoryTest extends BasicJDBCTestCaseAdapter {
     }
 
     public void testGetUser() throws Exception {
-        UserDao dao = aLinker.create(UserDao.class);
+        UserDao dao = aLinker.create(UserDao.class, null);
         createResultSet("id", new Object[]{1}, "name", new Object[]{"foobar"});
         TestUserBean res = dao.getUser(1);
         assertNotNull(res);
@@ -98,7 +98,7 @@ public class UseStatementFactoryTest extends BasicJDBCTestCaseAdapter {
     }
 
     public void testGetUserList() throws Exception {
-        UserDao dao = aLinker.create(UserDao.class);
+        UserDao dao = aLinker.create(UserDao.class, null);
         createResultSet("id", new Object[]{1, 2}, "name", new Object[]{"foo", "bar"});
         List<TestUserBean> res = dao.getUserList();
         assertNotNull(res);
@@ -115,7 +115,7 @@ public class UseStatementFactoryTest extends BasicJDBCTestCaseAdapter {
     }
 
     public void testGetUserArray() throws Exception {
-        UserDao dao = aLinker.create(UserDao.class);
+        UserDao dao = aLinker.create(UserDao.class, null);
         createResultSet("id", new Object[]{1, 2}, "name", new Object[]{"foo", "bar"});
         TestUserBean[] res = dao.getUserArray(2);
         assertNotNull(res);
@@ -132,7 +132,7 @@ public class UseStatementFactoryTest extends BasicJDBCTestCaseAdapter {
     }
 
     public void testSelectCallback() throws Exception {
-        UserDao dao = aLinker.create(UserDao.class);
+        UserDao dao = aLinker.create(UserDao.class, null);
         createResultSet("id", new Object[]{1, 2}, "name", new Object[]{"foo", "bar"});
         final List<TestUserBean> res = new ArrayList<TestUserBean>();
         dao.processUsers(new SelectCallback<TestUserBean>() {

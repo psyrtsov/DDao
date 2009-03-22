@@ -78,7 +78,7 @@ public class DefaultInitializerManager implements InitializerManager {
             if (annotation instanceof UseInitializer) {
                 UseInitializer useInitializer = (UseInitializer) annotation;
                 Class<? extends Initializer> aClass = useInitializer.value();
-                Initializer initializer = aLinker.create(aClass);
+                Initializer initializer = aLinker.create(aClass, aClass);
                 list.add(initializer);
             }
         }
@@ -86,7 +86,7 @@ public class DefaultInitializerManager implements InitializerManager {
             UseInitializer useInitializer = annotation.annotationType().getAnnotation(UseInitializer.class);
             if (useInitializer != null) {
                 Class<? extends Initializer> aClass = useInitializer.value();
-                Initializer initializer = aLinker.create(aClass);
+                Initializer initializer = aLinker.create(aClass, aClass);
                 list.add(initializer);
             }
         }

@@ -60,7 +60,7 @@ public class DependencyInjector<T> implements Initializer<T> {
     @SuppressWarnings({"unchecked"})
     public static void injectField(ALinker aLinker, Object subj, Field field) throws InitializerException {
         try {
-            Context ctx = new Context(field.getType(), field.getDeclaredAnnotations());
+            Context ctx = new Context(field.getType(), field.getDeclaredAnnotations(), field, -1);
             Object obj = aLinker.create(ctx);
             field.set(subj, obj);
         } catch (Exception e) {
@@ -75,7 +75,7 @@ public class DependencyInjector<T> implements Initializer<T> {
             final Class<?>[] parameterTypes = method.getParameterTypes();
             Object args[] = new Object[parameterTypes.length];
             for (int i = 0; i < args.length; i++) {
-                Context ctx = new Context(parameterTypes[i], parameterAnnotations[i]);
+                Context ctx = new Context(parameterTypes[i], parameterAnnotations[i], method, i);
                 Object arg = aLinker.create(ctx);
                 args[i] = arg;
             }
@@ -92,7 +92,7 @@ public class DependencyInjector<T> implements Initializer<T> {
             final Class<?>[] parameterTypes = constructor.getParameterTypes();
             Object args[] = new Object[parameterTypes.length];
             for (int i = 0; i < args.length; i++) {
-                Context ctx = new Context(parameterTypes[i], parameterAnnotations[i]);
+                Context ctx = new Context(parameterTypes[i], parameterAnnotations[i], constructor, i);
                 Object arg = aLinker.create(ctx);
                 args[i] = arg;
             }

@@ -22,6 +22,8 @@ import com.sf.ddao.alinker.initializer.DefaultInitializerManager;
 import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.alinker.initializer.InitializerManager;
 
+import java.lang.reflect.AnnotatedElement;
+
 /**
  * psdo: add class commwwwents
  * <p/>
@@ -43,15 +45,20 @@ public class ALinker {
         this.initializerManager = initializerManager;
     }
 
+    public <T> T create(Class<T> clazz, AnnotatedElement destination) throws FactoryException, InitializerException {
+        Context<T> ctx = new Context<T>(clazz, null, destination, -1);
+        return create(ctx);
+    }
+
     public <T> T create(Class<T> clazz) throws FactoryException, InitializerException {
-        Context<T> ctx = new Context<T>(clazz, null);
+        Context<T> ctx = new Context<T>(clazz, null, null, -1);
         return create(ctx);
     }
 
     public void init(Object subj) throws InitializerException {
         Class aClass = subj.getClass();
         //noinspection unchecked
-        Context<Object> ctx = new Context<Object>(aClass, null);
+        Context<Object> ctx = new Context<Object>(aClass, null, null, -1);
         init(subj, ctx);
     }
 

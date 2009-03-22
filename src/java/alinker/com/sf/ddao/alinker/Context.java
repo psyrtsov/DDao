@@ -17,6 +17,7 @@
 package com.sf.ddao.alinker;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
 
 /**
@@ -28,10 +29,14 @@ import java.util.Arrays;
 public class Context<T> {
     private final Class<T> subjClass;
     private final Annotation[] annotations;
+    private final AnnotatedElement destination;
+    private final int pos;
 
-    public Context(Class<T> subjClass, Annotation[] annotations) {
+    public Context(Class<T> subjClass, Annotation[] annotations, AnnotatedElement destination, int pos) {
         this.subjClass = subjClass;
         this.annotations = annotations;
+        this.destination = destination;
+        this.pos = pos;
     }
 
     public Class<T> getSubjClass() {
@@ -60,5 +65,13 @@ public class Context<T> {
         result = (subjClass != null ? subjClass.hashCode() : 0);
         result = 31 * result + (annotations != null ? Arrays.hashCode(annotations) : 0);
         return result;
+    }
+
+    public AnnotatedElement getDestination() {
+        return destination;
+    }
+
+    public int getPos() {
+        return pos;
     }
 }

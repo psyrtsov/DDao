@@ -63,7 +63,7 @@ public class DefaultFactoryManager implements FactoryManager {
         Factory factory;
         Class<? extends Factory> factoryClass = getFactoryClass(ctx);
         if (factoryClass != null) {
-            factory = aLinker.create(factoryClass);
+            factory = aLinker.create(factoryClass, factoryClass);
         } else {
             factory = defaultFactory;
         }

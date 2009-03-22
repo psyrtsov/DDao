@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.AnnotatedElement;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -17,13 +18,19 @@ import java.util.HashMap;
 public class CtxBuilder<T> {
     private final Class<T> clazz;
     private final List<Annotation> annotations = new ArrayList<Annotation>();
+    private final AnnotatedElement destination;
 
-    public CtxBuilder(Class<T> clazz) {
+    public CtxBuilder(Class<T> clazz, AnnotatedElement destination) {
         this.clazz = clazz;
+        this.destination = destination;
+    }
+
+    public static<C> CtxBuilder<C> create(Class<C> clazz, AnnotatedElement destination) {
+        return new CtxBuilder<C>(clazz, destination);
     }
 
     public static<C> CtxBuilder<C> create(Class<C> clazz) {
-        return new CtxBuilder<C>(clazz);
+        return new CtxBuilder<C>(clazz, null);
     }
 
     public CtxBuilder<T> add(Class<? extends Annotation> annClass, Object ... values) {
@@ -35,7 +42,7 @@ public class CtxBuilder<T> {
 
     public Context<T> get() {
         Annotation[] aArray = annotations.toArray(new Annotation[annotations.size()]);
-        return new Context<T>(clazz, aArray);
+        return new Context<T>(clazz, aArray, destination, -1);
     }
 
     public static class AnnotationInvocationHandler implements InvocationHandler {

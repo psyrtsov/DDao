@@ -106,7 +106,7 @@ public class JNDIDaoTest extends BasicJDBCTestCaseAdapter {
 
     public void testSingleRecordGet() throws Exception {
         // create dao object
-        TestUserDao dao = factory.create(TestUserDao.class);
+        TestUserDao dao = factory.create(TestUserDao.class, null);
 
         // ruse it for multiple invocations
         getUserOnce(dao, 1, "foo");
@@ -139,7 +139,7 @@ public class JNDIDaoTest extends BasicJDBCTestCaseAdapter {
         createResultSet("id", new Object[]{1, 2}, "name", new Object[]{"foo", "bar"});
 
         // execute dao method
-        TestUserDao dao = factory.create(TestUserDao.class);
+        TestUserDao dao = factory.create(TestUserDao.class, null);
         List<TestUserBean> res = dao.getUserList();
 
         // verify result
@@ -161,7 +161,7 @@ public class JNDIDaoTest extends BasicJDBCTestCaseAdapter {
         createResultSet("id", new Object[]{1, 2}, "name", new Object[]{"foo", "bar"});
 
         // execute dao method
-        TestUserDao dao = factory.create(TestUserDao.class);
+        TestUserDao dao = factory.create(TestUserDao.class, null);
         TestUserBean[] res = dao.getUserArray("user", 2);
 
         // verify result
@@ -185,7 +185,7 @@ public class JNDIDaoTest extends BasicJDBCTestCaseAdapter {
         final List<TestUserBean> res = new ArrayList<TestUserBean>();
 
         // execute dao method
-        TestUserDao dao = factory.create(TestUserDao.class);
+        TestUserDao dao = factory.create(TestUserDao.class, null);
         dao.processUsers(new SelectCallback<TestUserBean>() {
             public boolean processRecord(TestUserBean record) {
                 res.add(record);
@@ -216,7 +216,7 @@ public class JNDIDaoTest extends BasicJDBCTestCaseAdapter {
         ThreadLocalStatementParameter.put(PART_NAME, testPart);
 
         // execute dao method
-        TestUserDao dao = factory.create(TestUserDao.class);
+        TestUserDao dao = factory.create(TestUserDao.class, null);
         int res = dao.getUserIdByName(testName);
 
         // verify result

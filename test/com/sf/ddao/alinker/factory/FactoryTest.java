@@ -43,12 +43,12 @@ public class FactoryTest extends TestCase {
     }
 
     public void testSimpleCreate() throws Exception {
-        StringBuilder sb = aLinker.create(StringBuilder.class);
+        StringBuilder sb = aLinker.create(StringBuilder.class, null);
         assertNotNull(sb);
     }
 
     public void testInjectedConstructor() throws Exception {
-        final InjectedConstructorTest injectedConstructorTest = aLinker.create(InjectedConstructorTest.class);
+        final InjectedConstructorTest injectedConstructorTest = aLinker.create(InjectedConstructorTest.class, null);
         assertNotNull(injectedConstructorTest);
         assertNotNull(injectedConstructorTest.sb);
         assertEquals("injectedString", injectedConstructorTest.injectedString);
@@ -66,7 +66,7 @@ public class FactoryTest extends TestCase {
     }
 
     public void testUseFactory() throws Exception {
-        final UseFactoryTest useFactoryTest = aLinker.create(UseFactoryTest.class);
+        final UseFactoryTest useFactoryTest = aLinker.create(UseFactoryTest.class, null);
         assertNotNull(useFactoryTest);
         assertEquals(useFactoryTest.getClass(), UseFactoryTestImpl.class);
     }
@@ -86,10 +86,10 @@ public class FactoryTest extends TestCase {
     }
 
     public void testCachingFactory() throws Exception {
-        final CachingFactoryTest cachingFactoryTest1 = aLinker.create(CachingFactoryTest.class);
+        final CachingFactoryTest cachingFactoryTest1 = aLinker.create(CachingFactoryTest.class, null);
         assertNotNull(cachingFactoryTest1);
         assertEquals(cachingFactoryTest1.getClass(), CachingFactoryTestImpl.class);
-        final CachingFactoryTest cachingFactoryTest2 = aLinker.create(CachingFactoryTest.class);
+        final CachingFactoryTest cachingFactoryTest2 = aLinker.create(CachingFactoryTest.class, null);
         assertNotNull(cachingFactoryTest2);
         assertEquals(cachingFactoryTest2.getClass(), CachingFactoryTestImpl.class);
         // should be same object
@@ -119,7 +119,7 @@ public class FactoryTest extends TestCase {
     public void testErrorOnInterfaceInstantiation() throws Exception {
         try {
             // just use some random iface to check that it throws exception
-            aLinker.create(InvocationHandler.class);
+            aLinker.create(InvocationHandler.class, null);
             fail("Expected exception");
         } catch (FactoryException ex) {
             // ignore

@@ -42,7 +42,7 @@ public class InitializerTest extends TestCase {
     }
 
     public void testGetInitializers() throws Exception {
-        final UseInitializerTest useInitializerTest = aLinker.create(UseInitializerTest.class);
+        final UseInitializerTest useInitializerTest = aLinker.create(UseInitializerTest.class, null);
         assertEquals(33, useInitializerTest.getValue());
     }
 
