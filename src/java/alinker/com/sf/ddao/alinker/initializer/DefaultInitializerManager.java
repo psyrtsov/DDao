@@ -58,6 +58,8 @@ public class DefaultInitializerManager implements InitializerManager {
 
     private List<Initializer> createInitializerList(ALinker aLinker, Context ctx) throws FactoryException, InitializerException {
         List<Initializer> list = new ArrayList<Initializer>();
+        // add default initializer 1st so that all dependencies are there to prceeed with next init steps
+        list.add(defaultInitializer);
         Annotation[] annotations;
         Class subjClass = ctx.getSubjClass();
         if (subjClass != null) {
@@ -66,7 +68,6 @@ public class DefaultInitializerManager implements InitializerManager {
         }
         annotations = ctx.getAnnotations();
         addInitializers(aLinker, annotations, list);
-        list.add(defaultInitializer);
         return list;
     }
 
