@@ -60,6 +60,8 @@ public abstract class StatementParameterHelper implements StatementParameter {
                 preparedStatement.setInt(idx, (Integer) param);
             } else if (clazz == String.class) {
                 preparedStatement.setString(idx, (String) param);
+            } else if (clazz == Long.class) {
+                preparedStatement.setLong(idx, (Long) param);
             } else if (Date.class.isAssignableFrom(clazz)) {
                 preparedStatement.setDate(idx, (Date) param);
             } else if (Timestamp.class.isAssignableFrom(clazz)) {

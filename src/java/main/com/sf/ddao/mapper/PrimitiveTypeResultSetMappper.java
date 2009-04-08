@@ -43,6 +43,10 @@ public class PrimitiveTypeResultSetMappper implements ResultSetMapper {
     }
 
     public Object getResult() {
-        return result;
+        try {
+            return result;
+        } finally {
+            result = null;
+        }
     }
 }
