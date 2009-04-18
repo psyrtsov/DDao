@@ -14,9 +14,10 @@
  * under the License.
  */
 
-package com.sf.ddao.mapper;
+package com.sf.ddao.orm;
 
 import com.sf.ddao.DaoException;
+import com.sf.ddao.SelectCallback;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
 
@@ -39,15 +40,17 @@ import java.util.Map;
  * Time: 5:01:14 PM
  */
 public class ResultSetMapperRegistry {
-    public static ResultSetMapper getResultSetMapper(Method method) {
+    public static ResultSetMapper getResultSetMapper(Method method, Object[] args, ResultSet resultSet) throws ResultSetMapperException {
         Class<?> returnClass = method.getReturnType();
         Type returnType = method.getGenericReturnType();
+        if (method.getReturnType() == Void.TYPE) {
+            return createCallbackMapper(args);
+        }
         if (returnClass.isArray()) {
             Class itemType = returnClass.getComponentType();
             ResultSetMapper itemMapper = getResultMapper(itemType);
             return new ArrayResultSetMapper(itemMapper, returnClass);
         }
-        // psdo: use getGenericInterfaces
         if (Collection.class.isAssignableFrom(returnClass)) {
             Type[] actualTypeArguments = ((ParameterizedType) returnType).getActualTypeArguments();
             Type itemType = actualTypeArguments[0];
@@ -56,6 +59,36 @@ public class ResultSetMapperRegistry {
             return new CollectionResultSetMapper(itemMapper, (Class<? extends List>) returnClass);
         }
         return getResultMapper(returnClass);
+    }
+
+    public static ResultSetMapper createCallbackMapper(Object[] args) throws ResultSetMapperException {
+        for (Object arg : args) {
+            if (arg instanceof SelectCallback) {
+                final SelectCallback selectCallback = (SelectCallback) arg;
+                Type[] ifaces = selectCallback.getClass().getGenericInterfaces();
+                for (Type type : ifaces) {
+                    if (type instanceof ParameterizedType && type.toString().startsWith(SelectCallback.class.getName())) {
+                        Type[] actualTypeArguments = ((ParameterizedType) type).getActualTypeArguments();
+                        Type itemType = actualTypeArguments[0];
+                        final ResultSetMapper resultSetMapper = ResultSetMapperRegistry.getResultMapper(itemType);
+                        return new ResultSetMapper() {
+                            public boolean addRecord(ResultSet resultSet) throws Exception {
+                                resultSetMapper.addRecord(resultSet);
+                                Object result = resultSetMapper.getResult();
+                                //noinspection unchecked
+                                return selectCallback.processRecord(result);
+                            }
+
+                            public Object getResult() {
+                                return null;
+                            }
+                        };
+                    }
+                }
+            }
+        }
+        throw new ResultSetMapperException("Method with void return type has to have argument of type "
+                + SelectCallback.class);
     }
 
     public static ResultSetMapper getResultMapper(Type itemType) {

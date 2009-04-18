@@ -5,6 +5,7 @@
         <artifact name="${ivy.module}-src" type="source" ext="zip"/>
     </publications>
     <dependencies>
+        <!--<dependency org="dozer" name="dozer" rev="5.+"/>-->
         <dependency org="commons-lang" name="commons-lang" rev="2.+"/>
         <dependency org="commons-beanutils" name="commons-beanutils" rev="1.+"/>
     </dependencies>

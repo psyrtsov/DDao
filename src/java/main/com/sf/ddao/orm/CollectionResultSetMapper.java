@@ -14,7 +14,7 @@
  * under the License.
  */
 
-package com.sf.ddao.mapper;
+package com.sf.ddao.orm;
 
 import java.sql.ResultSet;
 import java.util.Collection;

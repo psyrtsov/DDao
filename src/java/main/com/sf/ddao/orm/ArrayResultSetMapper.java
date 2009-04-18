@@ -14,25 +14,28 @@
  * under the License.
  */
 
-package com.sf.ddao.mapper;
+package com.sf.ddao.orm;
 
-import java.sql.ResultSet;
+import java.lang.reflect.Array;
+import java.util.Collection;
 
 /**
  * Created by: Pavel Syrtsov
  * Date: Apr 8, 2007
- * Time: 6:10:40 PM
+ * Time: 4:45:07 PM
  */
-public class MapResultSetMapper implements ResultSetMapper {
-    public MapResultSetMapper(Class itemClass) {
-    }
+public class ArrayResultSetMapper extends CollectionResultSetMapper {
+    private Class itemType;
 
-    public boolean addRecord(ResultSet resultSet) {
-        //psdo: review genrated method body
-        return true;
+    public ArrayResultSetMapper(ResultSetMapper resultSetMapper, Class<?> arrayClass) {
+        super(resultSetMapper, Collection.class);
+        itemType = arrayClass.getComponentType();
     }
 
     public Object getResult() {
-        return null;  //psdo: review genrated method body
+        Collection list = getList();
+        Object[] array = (Object[]) Array.newInstance(itemType, list.size());
+        //noinspection unchecked
+        return list.toArray(array);
     }
 }

@@ -14,7 +14,7 @@
  * under the License.
  */
 
-package com.sf.ddao.mapper;
+package com.sf.ddao.orm;
 
 import java.util.ArrayList;
 import java.util.Collection;

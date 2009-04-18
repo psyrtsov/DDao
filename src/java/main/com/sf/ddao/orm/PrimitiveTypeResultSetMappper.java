@@ -14,28 +14,33 @@
  * under the License.
  */
 
-package com.sf.ddao.mapper;
+package com.sf.ddao.orm;
 
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 
 /**
  * Created by: Pavel Syrtsov
- * Date: Apr 15, 2007
- * Time: 2:35:11 PM
+ * Date: Apr 8, 2007
+ * Time: 6:08:21 PM
  */
-public abstract class SingleRecordResultSetMapper implements ResultSetMapper {
-    private Object result;
+public class PrimitiveTypeResultSetMappper implements ResultSetMapper {
+    private Object result = null;
+    private ColumnMapper columnMapper;
+    private final Type itemType;
+
+    public PrimitiveTypeResultSetMappper(Type itemType, ColumnMapper columnMapper) {
+        this.columnMapper = columnMapper;
+        this.itemType = itemType;
+    }
 
     public boolean addRecord(ResultSet resultSet) throws Exception {
         if (result != null) {
-            // for this result set mapper only one row expected
-            throw new ResultSetMapperException("Query returned more then one record");
+            throw new ResultSetMapperException("Expected only one record for result type " + itemType);
         }
-        this.result = mapRecord(resultSet);
+        result = columnMapper.get(resultSet, 1);
         return true;
     }
-
-    public abstract Object mapRecord(ResultSet resultSet) throws Exception;
 
     public Object getResult() {
         try {

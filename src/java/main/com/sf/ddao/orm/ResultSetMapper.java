@@ -14,26 +14,19 @@
  * under the License.
  */
 
-package com.sf.ddao.mapper;
+package com.sf.ddao.orm;
+
+import java.sql.ResultSet;
 
 /**
+ * psdo: add comments
  * Created by: Pavel Syrtsov
- * Date: Apr 14, 2007
- * Time: 4:20:21 PM
+ * Date: Apr 8, 2007
+ * Time: 4:28:38 PM
+ * Note: instances of result set mappers are not thread safe, they created per invocation
  */
-public class ResultSetMapperException extends Exception {
-    public ResultSetMapperException() {
-    }
+public interface ResultSetMapper {
+    boolean addRecord(ResultSet resultSet) throws Exception;
 
-    public ResultSetMapperException(String message) {
-        super(message);
-    }
-
-    public ResultSetMapperException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ResultSetMapperException(Throwable cause) {
-        super(cause);
-    }
+    Object getResult();
 }

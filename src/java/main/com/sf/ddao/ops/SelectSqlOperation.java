@@ -19,18 +19,14 @@ package com.sf.ddao.ops;
 import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.DaoException;
 import com.sf.ddao.Select;
-import com.sf.ddao.SelectCallback;
 import com.sf.ddao.SqlOperation;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
 import com.sf.ddao.factory.StatementFactoryManager;
-import com.sf.ddao.mapper.ResultSetMapper;
-import com.sf.ddao.mapper.ResultSetMapperException;
-import com.sf.ddao.mapper.ResultSetMapperRegistry;
+import com.sf.ddao.orm.ResultSetMapper;
+import com.sf.ddao.orm.ResultSetMapperRegistry;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -46,14 +42,8 @@ public class SelectSqlOperation implements SqlOperation {
     public Object invoke(Connection connection, Method method, Object[] args) {
         try {
             PreparedStatement preparedStatement = statementFactory.createStatement(connection, args);
-
-            ResultSetMapper resultSetMapper;
-            if (method.getReturnType() == Void.TYPE) {
-                resultSetMapper = createCallbackMapper(args);
-            } else {
-                resultSetMapper = ResultSetMapperRegistry.getResultSetMapper(method);
-            }
             ResultSet resultSet = preparedStatement.executeQuery();
+            ResultSetMapper resultSetMapper = ResultSetMapperRegistry.getResultSetMapper(method, args, resultSet);
             while (resultSet.next()) {
                 if (!resultSetMapper.addRecord(resultSet)) {
                     break;
@@ -79,35 +69,4 @@ public class SelectSqlOperation implements SqlOperation {
             throw new InitializerException("Failed to initialize sql operation for " + method, e);
         }
     }
-
-    private ResultSetMapper createCallbackMapper(Object[] args) throws ResultSetMapperException {
-        for (Object arg : args) {
-            if (arg instanceof SelectCallback) {
-                final SelectCallback selectCallback = (SelectCallback) arg;
-                Type[] ifaces = selectCallback.getClass().getGenericInterfaces();
-                for (Type type : ifaces) {
-                    if (type instanceof ParameterizedType && type.toString().startsWith(SelectCallback.class.getName())) {
-                        Type[] actualTypeArguments = ((ParameterizedType) type).getActualTypeArguments();
-                        Type itemType = actualTypeArguments[0];
-                        final ResultSetMapper resultSetMapper = ResultSetMapperRegistry.getResultMapper(itemType);
-                        return new ResultSetMapper() {
-                            public boolean addRecord(ResultSet resultSet) throws Exception {
-                                resultSetMapper.addRecord(resultSet);
-                                Object result = resultSetMapper.getResult();
-                                //noinspection unchecked
-                                return selectCallback.processRecord(result);
-                            }
-
-                            public Object getResult() {
-                                return null;
-                            }
-                        };
-                    }
-                }
-            }
-        }
-        throw new ResultSetMapperException("Method with void return type has to have argument of type "
-                + SelectCallback.class);
-    }
-
 }
