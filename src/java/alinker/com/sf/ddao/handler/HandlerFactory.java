@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Note : all factories are singletons that stored in factory manager upon creation
  * HandlerFactory is utility class that creates chain of InvocationHandler
  * according to annotations attached to given interface.
  * <p/>
@@ -36,6 +37,10 @@ import java.util.List;
  * Time: 10:38:58 PM
  */
 public class HandlerFactory<T> implements CachingFactory<T> {
+    /**
+     * since this factory going to be singleton according to factory manager's code
+     * caching of handler instance in this attribute makes it also singleton
+     */
     private T cachedProxy = null;
 
     public T create(ALinker aLinker, Context<T> ctx) throws FactoryException {
@@ -43,9 +48,9 @@ public class HandlerFactory<T> implements CachingFactory<T> {
         List<Class<?>> iFaceList = new ArrayList<Class<?>>();
         iFaceList.add(iFace);
         for (Annotation annotation : iFace.getAnnotations()) {
-            HandlerAnnotation ah = annotation.annotationType().getAnnotation(HandlerAnnotation.class);
-            if (ah != null) {
-                Class<? extends InvocationHandler> clazz = ah.value();
+            HandlerAnnotation ha = annotation.annotationType().getAnnotation(HandlerAnnotation.class);
+            if (ha != null) {
+                Class<? extends InvocationHandler> clazz = ha.value();
                 try {
                     InvocationHandler ih = aLinker.create(clazz, null);
                     if (ih instanceof Intializible) {
@@ -54,8 +59,11 @@ public class HandlerFactory<T> implements CachingFactory<T> {
                     }
                     Class[] iFaces = iFaceList.toArray(new Class[iFaceList.size()]);
                     //noinspection unchecked
-                    cachedProxy = (T) Proxy.newProxyInstance(iFace.getClassLoader(), iFaces, ih);
-                    return cachedProxy;
+                    T res = (T) Proxy.newProxyInstance(iFace.getClassLoader(), iFaces, ih);
+                    if (ha.singleton()) {
+                        cachedProxy = res;
+                    }
+                    return res;
                 } catch (Exception e) {
                     throw new FactoryException("Failed to create " + clazz, e);
                 }

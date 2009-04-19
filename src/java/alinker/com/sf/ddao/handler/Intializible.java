@@ -37,7 +37,7 @@ public interface Intializible {
      * @param annotation - annotation that been used to create this object
      * @param iFaceList  - output parameter , InvocationHandler can add here
      *                   additional interfaces that it can support
-     * @throws SetupException when fails to setup, leaves object in unusable state
+     * @throws com.sf.ddao.alinker.initializer.InitializerException when fails to initialize
      */
     void init(Class<?> iFace, Annotation annotation, List<Class<?>> iFaceList) throws InitializerException;
 }

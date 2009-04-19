@@ -31,4 +31,5 @@ import java.lang.reflect.InvocationHandler;
 @Target({ElementType.ANNOTATION_TYPE})
 public @interface HandlerAnnotation {
     Class<? extends InvocationHandler> value();
+    boolean singleton() default false;
 }
