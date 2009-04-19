@@ -49,9 +49,8 @@ public interface SqlOperation {
      * initialize instance with data defined by annotations attached to given method
      * @param method - method that should be used to initialize this operation,
      * usually we use annotation attached to this method and that annotation has SQL
-     * @param sqlAnnotation
      * @throws InitializerException - thrown when given method can not be used to
      * initialize this operation
      */
-    void init(Method method, SqlAnnotation sqlAnnotation) throws InitializerException;
+    void init(Method method) throws InitializerException;
 }

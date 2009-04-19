@@ -18,7 +18,6 @@ package com.sf.ddao.ops;
 
 import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.Delete;
-import com.sf.ddao.SqlAnnotation;
 
 import java.lang.reflect.Method;
 
@@ -29,8 +28,8 @@ import java.lang.reflect.Method;
  */
 public class DeleteSqlOperation extends UpdateSqlOperation {
     @Override
-    public void init(Method method, SqlAnnotation sqlAnnotation) throws InitializerException {
-        Delete deleteAnnotation = (Delete) sqlAnnotation;
+    public void init(Method method) throws InitializerException {
+        Delete deleteAnnotation = method.getAnnotation(Delete.class);
         init(method, deleteAnnotation.value());
     }
 }

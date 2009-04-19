@@ -2,7 +2,6 @@ package com.sf.ddao.ops;
 
 import com.sf.ddao.factory.param.ThreadLocalStatementParameter;
 import com.sf.ddao.SelectThenInsert;
-import com.sf.ddao.SqlAnnotation;
 import com.sf.ddao.alinker.initializer.InitializerException;
 
 import java.sql.Connection;
@@ -30,8 +29,8 @@ public class SelectThenInsertSqlOperation extends UpdateSqlOperation {
         }
     }
 
-    public void init(Method method, SqlAnnotation sqlAnnotation) throws InitializerException {
-        SelectThenInsert annotation = (SelectThenInsert) sqlAnnotation;
+    public void init(Method method) throws InitializerException {
+        SelectThenInsert annotation = method.getAnnotation(SelectThenInsert.class);
         String sql[] = annotation.value();
         if (sql.length != 2) {
             throw new InitializerException(SelectThenInsert.class.getSimpleName() + " annotation has to have 2 sql statments, but got:"

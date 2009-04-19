@@ -20,7 +20,6 @@ import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.DaoException;
 import com.sf.ddao.Select;
 import com.sf.ddao.SqlOperation;
-import com.sf.ddao.SqlAnnotation;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
 import com.sf.ddao.factory.StatementFactoryManager;
@@ -58,8 +57,8 @@ public class SelectSqlOperation implements SqlOperation {
         }
     }
 
-    public void init(Method method, SqlAnnotation sqlAnnotation) throws InitializerException {
-        Select selectSql = (Select) sqlAnnotation;
+    public void init(Method method) throws InitializerException {
+        Select selectSql = method.getAnnotation(Select.class);
         init(method, selectSql.value());
     }
 
