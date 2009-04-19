@@ -20,6 +20,7 @@ import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.DaoException;
 import com.sf.ddao.SqlOperation;
 import com.sf.ddao.Update;
+import com.sf.ddao.SqlAnnotation;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
 import com.sf.ddao.factory.StatementFactoryManager;
@@ -50,8 +51,8 @@ public class UpdateSqlOperation implements SqlOperation {
         }
     }
 
-    public void init(Method method) throws InitializerException {
-        Update updateAnnotation = method.getAnnotation(Update.class);
+    public void init(Method method, SqlAnnotation sqlAnnotation) throws InitializerException {
+        Update updateAnnotation = (Update) sqlAnnotation;
         init(method, updateAnnotation.value());
     }
 

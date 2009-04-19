@@ -20,6 +20,7 @@ import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.DaoException;
 import com.sf.ddao.InsertAndGetGeneratedKey;
 import com.sf.ddao.SqlOperation;
+import com.sf.ddao.SqlAnnotation;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
 import com.sf.ddao.factory.StatementFactoryManager;
@@ -57,8 +58,8 @@ public class InsertAndGetGeneratedKeySqlOperation implements SqlOperation {
         }
     }
 
-    public void init(Method method) throws InitializerException {
-        InsertAndGetGeneratedKey insertAndGetGeneratedKey = method.getAnnotation(InsertAndGetGeneratedKey.class);
+    public void init(Method method, SqlAnnotation sqlAnnotation) throws InitializerException {
+        InsertAndGetGeneratedKey insertAndGetGeneratedKey = (InsertAndGetGeneratedKey) sqlAnnotation;
         String sql = insertAndGetGeneratedKey.value();
         try {
             statementFactory = StatementFactoryManager.createStatementFactory(method, sql);

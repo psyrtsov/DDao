@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@HandlerAnnotation(JNDIDataSourceHandler.class)
+@HandlerAnnotation(value = JNDIDataSourceHandler.class, singleton = true)
 @UseFactory(HandlerFactory.class)
 public @interface JNDIDao {
     /**

@@ -18,6 +18,7 @@ package com.sf.ddao.ops;
 
 import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.Insert;
+import com.sf.ddao.SqlAnnotation;
 
 import java.lang.reflect.Method;
 
@@ -27,8 +28,8 @@ import java.lang.reflect.Method;
  * Time: 1:43:33 AM
  */
 public class InsertSqlOperation extends UpdateSqlOperation {
-    public void init(Method method) throws InitializerException {
-        Insert insertAnnotation = method.getAnnotation(Insert.class);
+    public void init(Method method, SqlAnnotation sqlAnnotation) throws InitializerException {
+        Insert insertAnnotation = (Insert) sqlAnnotation;
         String sql = insertAnnotation.value();
         init(method, sql);
     }

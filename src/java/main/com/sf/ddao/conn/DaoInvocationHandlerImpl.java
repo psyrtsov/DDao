@@ -66,7 +66,7 @@ public class DaoInvocationHandlerImpl implements Intializible, DaoInvocationHand
             } catch (Exception e) {
                 throw new InitializerException("Failed to create sql operation handler for " + method, e);
             }
-            sqlOperation.init(method);
+            sqlOperation.init(method, sqlAnnotation);
             sqlOpMap.put(method, sqlOperation);
         }
     }

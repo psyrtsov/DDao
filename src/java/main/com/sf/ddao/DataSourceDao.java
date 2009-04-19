@@ -17,7 +17,7 @@
 package com.sf.ddao;
 
 import com.sf.ddao.alinker.factory.UseFactory;
-import com.sf.ddao.conn.JDBCConnectionHandler;
+import com.sf.ddao.conn.JNDIDataSourceHandler;
 import com.sf.ddao.handler.HandlerAnnotation;
 import com.sf.ddao.handler.HandlerFactory;
 
@@ -27,24 +27,21 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * psdo: comments
+ * This dao type is created for scenario when we want to use DataSources but without dealing
+ * with complexity of setting up JNDI in J2SE JVM.
+ * It uses static hash map of DataSources maintained in DataSourceHandler class
  * Created by: Pavel Syrtsov
  * Date: Apr 1, 2007
  * Time: 11:56:36 PM
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@HandlerAnnotation(value = JDBCConnectionHandler.class, singleton = true)
+@HandlerAnnotation(value = JNDIDataSourceHandler.class, singleton = true)
 @UseFactory(HandlerFactory.class)
-public @interface JDBCDao {
+public @interface DataSourceDao {
     /**
-     * @return connection URL
+     * name of datasource that should match to the key in static hash map in DataSourceHandler class
+     * @return
      */
     String value();
-
-    String driver() default "";
-
-    String user() default "";
-
-    String pwd() default "";
 }
