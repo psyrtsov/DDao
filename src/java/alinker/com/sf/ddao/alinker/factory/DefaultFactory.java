@@ -36,6 +36,9 @@ import java.lang.reflect.Constructor;
 public class DefaultFactory implements Factory {
     public Object create(ALinker aLinker, Context ctx) throws FactoryException {
         Class<?> clazz = ctx.getSubjClass();
+        if (ALinker.class.equals(clazz)) {
+            return aLinker;
+        }
         ImplementedBy implementedBy = clazz.getAnnotation(ImplementedBy.class);
         if (implementedBy != null) {
             clazz = implementedBy.value();

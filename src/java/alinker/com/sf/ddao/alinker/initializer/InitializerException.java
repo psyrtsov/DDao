@@ -22,7 +22,7 @@ package com.sf.ddao.alinker.initializer;
  * Date: Apr 10, 2008
  * Time: 10:27:28 PM
  */
-public class InitializerException extends Exception {
+public class InitializerException extends RuntimeException {
     public InitializerException(String message, Throwable cause) {
         super(message, cause);
     }

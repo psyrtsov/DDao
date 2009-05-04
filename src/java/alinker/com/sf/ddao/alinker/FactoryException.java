@@ -22,7 +22,7 @@ package com.sf.ddao.alinker;
  * Date: Apr 10, 2008
  * Time: 9:33:12 PM
  */
-public class FactoryException extends Exception {
+public class FactoryException extends RuntimeException {
     public FactoryException(String message, Throwable cause) {
         super(message, cause);
     }
