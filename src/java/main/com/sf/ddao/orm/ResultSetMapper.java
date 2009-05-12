@@ -26,6 +26,12 @@ import java.sql.ResultSet;
  * Note: instances of result set mappers are not thread safe, they created per invocation
  */
 public interface ResultSetMapper {
+    /**
+     * add record fetched from result set 
+     * @param resultSet from where data can be extracted
+     * @return true if can consume more records
+     * @throws Exception in case of error
+     */
     boolean addRecord(ResultSet resultSet) throws Exception;
 
     Object getResult();

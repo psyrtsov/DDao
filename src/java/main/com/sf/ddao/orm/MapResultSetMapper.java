@@ -17,6 +17,8 @@
 package com.sf.ddao.orm;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.util.*;
 
 /**
  * Created by: Pavel Syrtsov
@@ -24,15 +26,33 @@ import java.sql.ResultSet;
  * Time: 6:10:40 PM
  */
 public class MapResultSetMapper implements ResultSetMapper {
+    Map<String, Object> data = new HashMap<String, Object>();
+    List<String> columns = null;
+
     public MapResultSetMapper(Class itemClass) {
     }
 
-    public boolean addRecord(ResultSet resultSet) {
-        //psdo: review genrated method body
+    public boolean addRecord(ResultSet resultSet) throws Exception {
+        if (columns == null) {
+            columns = new ArrayList<String>();
+            final ResultSetMetaData metaData = resultSet.getMetaData();
+            int colCount = metaData.getColumnCount();
+            for(int i=1; i<=colCount; i++) {
+                String colName = metaData.getColumnName(i);
+                columns.add(colName);
+            }
+        }
+        for (int i = 0; i < columns.size(); i++) {
+            String column = columns.get(i);
+            Object value = resultSet.getObject(i);
+            data.put(column, value);
+        }
         return true;
     }
 
     public Object getResult() {
-        return null;  //psdo: review genrated method body
+        Map<String, Object> res = data;
+        data = new HashMap<String, Object>();
+        return res;
     }
 }

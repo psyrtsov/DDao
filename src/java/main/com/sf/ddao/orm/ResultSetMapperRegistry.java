@@ -40,6 +40,7 @@ import java.util.Map;
  * Time: 5:01:14 PM
  */
 public class ResultSetMapperRegistry {
+    @SuppressWarnings({"UnusedDeclaration"})
     public static ResultSetMapper getResultSetMapper(Method method, Object[] args, ResultSet resultSet) throws ResultSetMapperException {
         Class<?> returnClass = method.getReturnType();
         Type returnType = method.getGenericReturnType();
@@ -87,8 +88,7 @@ public class ResultSetMapperRegistry {
                 }
             }
         }
-        throw new ResultSetMapperException("Method with void return type has to have argument of type "
-                + SelectCallback.class);
+        return new VoidResultSetMapper();
     }
 
     public static ResultSetMapper getResultMapper(Type itemType) {
