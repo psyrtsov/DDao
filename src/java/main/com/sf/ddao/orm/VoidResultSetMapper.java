@@ -7,12 +7,10 @@ import java.sql.ResultSet;
  * Date: May 12, 2009
  */
 public class VoidResultSetMapper implements ResultSetMapper {
-    @Override
     public boolean addRecord(ResultSet resultSet) throws Exception {
         return true;
     }
 
-    @Override
     public Object getResult() {
         return null;
     }
