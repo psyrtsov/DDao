@@ -75,7 +75,10 @@ public class BeanResultSetMapper implements ResultSetMapper {
         Map<String, Integer> colNames = new HashMap<String, Integer>();
         int count = metaData.getColumnCount();
         for (int i = 1; i <= count; i++) {
-            colNames.put(metaData.getColumnName(i).toLowerCase(), i);
+            final String name = metaData.getColumnName(i).toLowerCase();
+            if (colNames.put(name, i) != null) {
+                throw new ResultSetMapperException("Ambiguous column name " + name);                
+            }
         }
         mapperList = new PropertyMapper[count];
         BeanInfo beanInfo = java.beans.Introspector.getBeanInfo(itemType);
