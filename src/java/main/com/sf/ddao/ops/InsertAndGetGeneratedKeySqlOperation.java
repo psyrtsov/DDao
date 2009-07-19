@@ -16,10 +16,10 @@
 
 package com.sf.ddao.ops;
 
-import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.DaoException;
 import com.sf.ddao.InsertAndGetGeneratedKey;
 import com.sf.ddao.SqlOperation;
+import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
 import com.sf.ddao.factory.StatementFactoryManager;
@@ -28,6 +28,7 @@ import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 
 /**
  * Created-By: Pavel Syrtsov
@@ -39,19 +40,20 @@ public class InsertAndGetGeneratedKeySqlOperation implements SqlOperation {
 
     public Object invoke(Connection connection, Method method, Object[] args) {
         try {
-            PreparedStatement preparedStatement = statementFactory.createStatement(connection, args);
-
-            int res = preparedStatement.executeUpdate();
+            PreparedStatement preparedStatement = statementFactory.createStatement(connection, args, Statement.RETURN_GENERATED_KEYS);
+            Object res = null;
+            preparedStatement.executeUpdate();
             ResultSet resultSet = preparedStatement.getGeneratedKeys();
             if (resultSet.next()) {
-                res = resultSet.getInt(1);
+                if (method.getReturnType() == Integer.TYPE || method.getReturnType() == Integer.class) {
+                    res = resultSet.getInt(1);
+                } else if (method.getReturnType() == Long.TYPE || method.getReturnType() == Long.class) {
+                    res = resultSet.getLong(1);
+                }
             }
             resultSet.close();
             preparedStatement.close();
-            if (method.getReturnType() == Integer.TYPE || method.getReturnType() == Integer.class) {
-                return res;
-            }
-            return null;
+            return res;
         } catch (Exception t) {
             throw new DaoException("Failed to execute sql operation for " + method, t);
         }

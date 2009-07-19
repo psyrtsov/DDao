@@ -17,12 +17,11 @@
 package com.sf.ddao.factory.param;
 
 import java.lang.reflect.Method;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
-import java.sql.Types;
-import java.util.logging.Logger;
+import java.util.Date;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created-By: Pavel Syrtsov
@@ -52,7 +51,8 @@ public abstract class StatementParameterHelper implements StatementParameter {
         log.log(Level.FINE, "query parameter '{0}'", param);
         try {
             if (param == null) {
-                preparedStatement.setNull(idx, Types.NULL);
+                final int parameterType = preparedStatement.getParameterMetaData().getParameterType(idx);
+                preparedStatement.setNull(idx, parameterType);
                 return;
             }
             Class<?> clazz = param.getClass();
@@ -62,8 +62,11 @@ public abstract class StatementParameterHelper implements StatementParameter {
                 preparedStatement.setString(idx, (String) param);
             } else if (clazz == Long.class) {
                 preparedStatement.setLong(idx, (Long) param);
-            } else if (Date.class.isAssignableFrom(clazz)) {
-                preparedStatement.setDate(idx, (Date) param);
+            } else if (java.util.Date.class.isAssignableFrom(clazz)) {
+                if (!java.sql.Date.class.isAssignableFrom(clazz)) {
+                    param = new java.sql.Date(((Date) param).getTime());
+                }
+                preparedStatement.setDate(idx, (java.sql.Date) param);
             } else if (Timestamp.class.isAssignableFrom(clazz)) {
                 preparedStatement.setTimestamp(idx, (Timestamp) param);
             } else {

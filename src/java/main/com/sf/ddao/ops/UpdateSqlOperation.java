@@ -16,10 +16,10 @@
 
 package com.sf.ddao.ops;
 
-import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.DaoException;
 import com.sf.ddao.SqlOperation;
 import com.sf.ddao.Update;
+import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
 import com.sf.ddao.factory.StatementFactoryManager;
@@ -38,7 +38,7 @@ public class UpdateSqlOperation implements SqlOperation {
 
     public Object invoke(Connection connection, Method method, Object[] args) {
         try {
-            PreparedStatement preparedStatement = statementFactory.createStatement(connection, args);
+            PreparedStatement preparedStatement = statementFactory.createStatement(connection, args, Integer.MAX_VALUE);
             int res = preparedStatement.executeUpdate();
             preparedStatement.close();
             if (method.getReturnType() == Integer.TYPE || method.getReturnType() == Integer.class) {

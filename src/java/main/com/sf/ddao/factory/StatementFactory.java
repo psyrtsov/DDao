@@ -48,11 +48,12 @@ public interface StatementFactory {
      * Creates new PreparedStatement according to definition given in setup.
      * This method implementation has to be thread safe.
      *
-     * @param connection - JDBC connection to be used to create new statement
-     * @param args       - parameters values to bind to prepared statement
+     * @param connection          - JDBC connection to be used to create new statement
+     * @param args                - parameters values to bind to prepared statement
+     * @param returnGeneratedKeys
      * @return PreparedStatement instance ready to be executed
      * @throws StatementFactoryException if it fails to create
      *                                   and initialize prepared statement
      */
-    PreparedStatement createStatement(Connection connection, Object[] args) throws StatementFactoryException;
+    PreparedStatement createStatement(Connection connection, Object[] args, int returnGeneratedKeys) throws StatementFactoryException;
 }
