@@ -1,12 +1,12 @@
 <ivy-module version="1.0">
-    <info organisation="net.sf" module="ddao" revision="0.6"/>
+    <info organisation="net.sf" module="ddao" revision="0.7"/>
     <publications>
         <artifact/>
         <artifact name="${ivy.module}-src" type="source" ext="zip"/>
     </publications>
     <dependencies>
         <dependency org="commons-lang" name="commons-lang" rev="2.+">
-             <artifact name="commons-lang" type="jar" ext="jar"/>
+            <artifact name="commons-lang" type="jar" ext="jar"/>
         </dependency>
         <dependency org="commons-beanutils" name="commons-beanutils" rev="1.+">
             <artifact name="commons-beanutils" type="jar" ext="jar"/>
