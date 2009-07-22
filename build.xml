@@ -112,6 +112,7 @@
         <javac destdir="${build.classes.dir}"
                debug="true"
                source="1.5"
+               target="1.5"
                deprecation="true">
             <src refid="src.path"/>
             <classpath refid="runtime-libs"/>
