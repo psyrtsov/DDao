@@ -16,10 +16,12 @@
 
 package com.sf.ddao.conn;
 
-import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.DaoException;
 import com.sf.ddao.SqlAnnotation;
 import com.sf.ddao.SqlOperation;
+import com.sf.ddao.alinker.ALinker;
+import com.sf.ddao.alinker.initializer.InitializerException;
+import com.sf.ddao.alinker.inject.Inject;
 import com.sf.ddao.handler.Intializible;
 import com.sf.ddao.utils.Annotations;
 
@@ -38,6 +40,12 @@ import java.util.Map;
  */
 public class DaoInvocationHandlerImpl implements Intializible, DaoInvocationHandler {
     private volatile Map<Method, SqlOperation> sqlOpMap = null;
+    private ALinker aLinker;
+
+    @Inject
+    public DaoInvocationHandlerImpl(ALinker aLinker) {
+        this.aLinker = aLinker;
+    }
 
     public Object invoke(Connection connection, Method method, Object[] args) throws Throwable {
         SqlOperation sqlOperation = getSqlOp(method);
@@ -62,7 +70,7 @@ public class DaoInvocationHandlerImpl implements Intializible, DaoInvocationHand
             Class<? extends SqlOperation> clazz = sqlAnnotation.value();
             SqlOperation sqlOperation;
             try {
-                sqlOperation = clazz.newInstance();
+                sqlOperation = aLinker.create(clazz);
             } catch (Exception e) {
                 throw new InitializerException("Failed to create sql operation handler for " + method, e);
             }
