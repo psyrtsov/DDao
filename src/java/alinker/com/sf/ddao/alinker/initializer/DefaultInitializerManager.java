@@ -23,10 +23,7 @@ import com.sf.ddao.alinker.Initializer;
 import com.sf.ddao.alinker.inject.DependencyInjector;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * psdo: add class comments
@@ -35,43 +32,47 @@ import java.util.Map;
  * Time: 8:05:12 PM
  */
 public class DefaultInitializerManager implements InitializerManager {
-    private final Map<Context, List<Initializer>> initializerCache = new HashMap<Context, List<Initializer>>();
+    private final Map<Class, List<Initializer>> initializerCache = new HashMap<Class, List<Initializer>>();
     private final Initializer defaultInitializer;
+    private final ALinker aLinker;
 
-    public DefaultInitializerManager() {
+    public DefaultInitializerManager(ALinker aLinker) {
+        this.aLinker = aLinker;
         defaultInitializer = new DependencyInjector();
+        registerServices();
     }
 
-    public synchronized <T> Iterable<Initializer> getInitializers(ALinker aLinker, Context<T> ctx) throws InitializerException {
-        List<Initializer> list;
-        try {
-            list = initializerCache.get(ctx);
-            if (list == null) {
-                list = createInitializerList(aLinker, ctx);
-                initializerCache.put(ctx, list);
-            }
-        } catch (FactoryException e) {
-            throw new InitializerException(ctx.toString(), e);
+    private void registerServices() {
+        final ServiceLoader<InitializerService> aLinkerServiceServiceLoader = ServiceLoader.load(InitializerService.class);
+        for (InitializerService aLinkerService : aLinkerServiceServiceLoader) {
+            aLinkerService.register(aLinker, this);
+        }
+    }
+
+    public synchronized <T> Iterable<Initializer> getInitializers(Context<T> ctx) {
+        return getList(ctx.getSubjClass());
+    }
+
+    private List<Initializer> getList(Class<?> subjClass) {
+        List<Initializer> list = initializerCache.get(subjClass);
+        if (list == null) {
+            list = createInitializerList(subjClass);
+            initializerCache.put(subjClass, list);
         }
         return list;
     }
 
-    private List<Initializer> createInitializerList(ALinker aLinker, Context ctx) throws FactoryException, InitializerException {
+    private List<Initializer> createInitializerList(Class subjClass) throws FactoryException, InitializerException {
         List<Initializer> list = new ArrayList<Initializer>();
         // add default initializer 1st so that all dependencies are there to prceeed with next init steps
         list.add(defaultInitializer);
         Annotation[] annotations;
-        Class subjClass = ctx.getSubjClass();
-        if (subjClass != null) {
-            annotations = subjClass.getAnnotations();
-            addInitializers(aLinker, annotations, list);
-        }
-        annotations = ctx.getAnnotations();
-        addInitializers(aLinker, annotations, list);
+        annotations = subjClass.getAnnotations();
+        addInitializers(annotations, list);
         return list;
     }
 
-    private void addInitializers(ALinker aLinker, Annotation[] annotations, List<Initializer> list) throws FactoryException, InitializerException {
+    private void addInitializers(Annotation[] annotations, List<Initializer> list) throws FactoryException, InitializerException {
         if (annotations == null) {
             return;
         }
@@ -91,5 +92,9 @@ public class DefaultInitializerManager implements InitializerManager {
                 list.add(initializer);
             }
         }
+    }
+
+    public void register(Class clazz, Initializer initializer) {
+        getList(clazz).add(initializer);
     }
 }

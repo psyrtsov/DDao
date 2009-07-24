@@ -33,6 +33,7 @@ import java.util.Map;
  * Time: 8:01:56 PM
  */
 public class DefaultFactoryManager implements FactoryManager {
+    //psdo: switch to use Class as key here, make sure initializer takes in account all other context attributes when execueted
     private final Map<Context, Factory> factoryCache = new HashMap<Context, Factory>();
     private final Factory defaultFactory;
 

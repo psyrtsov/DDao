@@ -16,7 +16,6 @@
 
 package com.sf.ddao.alinker.initializer;
 
-import com.sf.ddao.alinker.ALinker;
 import com.sf.ddao.alinker.Context;
 import com.sf.ddao.alinker.Initializer;
 
@@ -27,5 +26,5 @@ import com.sf.ddao.alinker.Initializer;
  * Time: 10:15:31 PM
  */
 public interface InitializerManager {
-    <T> Iterable<Initializer> getInitializers(ALinker aLinker, Context<T> ctx) throws InitializerException;
+    <T> Iterable<Initializer> getInitializers(Context<T> ctx) throws InitializerException;
 }

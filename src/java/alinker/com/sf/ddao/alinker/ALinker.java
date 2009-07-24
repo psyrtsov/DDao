@@ -32,12 +32,12 @@ import java.lang.reflect.AnnotatedElement;
  * Time: 7:38:55 PM
  */
 public class ALinker {
-    private FactoryManager factoryManager;
-    private InitializerManager initializerManager;
+    private final FactoryManager factoryManager;
+    private final InitializerManager initializerManager;
 
     public ALinker() {
         this.factoryManager = new DefaultFactoryManager();
-        this.initializerManager = new DefaultInitializerManager();
+        this.initializerManager = new DefaultInitializerManager(this);
     }
 
     public ALinker(FactoryManager factoryManager, InitializerManager initializerManager) {
@@ -83,7 +83,7 @@ public class ALinker {
     }
 
     public <T> void init(T subj, Context<T> ctx) throws InitializerException {
-        Iterable<Initializer> initializers = initializerManager.getInitializers(this, ctx);
+        Iterable<Initializer> initializers = initializerManager.getInitializers(ctx);
         for (Initializer initializer : initializers) {
             //noinspection unchecked
             initializer.init(this, ctx, subj);
@@ -94,15 +94,7 @@ public class ALinker {
         return factoryManager;
     }
 
-    public void setFactoryManager(FactoryManager factoryManager) {
-        this.factoryManager = factoryManager;
-    }
-
     public InitializerManager getInitializerManager() {
         return initializerManager;
-    }
-
-    public void setInitializerManager(InitializerManager initializerManager) {
-        this.initializerManager = initializerManager;
     }
 }
