@@ -1,19 +1,11 @@
-package com.sf.ddao.cache.impl;
+package com.sf.ddao.kvs.impl;
 
 import com.sf.ddao.DaoException;
-import com.sf.ddao.SqlOperation;
-import com.sf.ddao.alinker.ALinker;
-import com.sf.ddao.alinker.Context;
-import com.sf.ddao.alinker.CtxBuilder;
-import com.sf.ddao.alinker.FactoryException;
 import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.alinker.inject.Inject;
-import com.sf.ddao.cache.Cache;
-import com.sf.ddao.cache.Name;
-import com.sf.ddao.cache.RemoveFromCache;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
 import com.sf.ddao.factory.StatementFactoryManager;
+import com.sf.ddao.kvs.RemoveBean;
 
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -24,17 +16,14 @@ import java.sql.PreparedStatement;
  * Date: Jul 22, 2009
  * Time: 9:00:31 PM
  */
-public class RemoveFromCacheSqlOperation implements SqlOperation {
+public class RemoveBeanKVSOperation extends KVSOperationBase {
     private StatementFactory[] statementFactoryList;
-    @Inject
-    public ALinker aLinker;
-    private Cache<String, Object> cache;
-    private RemoveFromCache annotation;
+    private RemoveBean annotation;
 
     public Object invoke(Connection connection, Method method, Object[] args) {
         try {
             String key = annotation.prefix() + args[0].toString();
-            cache.delete(key);
+            keyValueStore.delete(key);
             for (StatementFactory statementFactory : statementFactoryList) {
                 PreparedStatement preparedStatement = statementFactory.createStatement(connection, args);
                 preparedStatement.executeUpdate();
@@ -47,19 +36,14 @@ public class RemoveFromCacheSqlOperation implements SqlOperation {
     }
 
     public void init(Method method) throws InitializerException {
-        annotation = method.getAnnotation(RemoveFromCache.class);
-        String cacheName = annotation.cache();
-        final Context<Cache> context = CtxBuilder.create(Cache.class).add(Name.class, cacheName).get();
+        annotation = method.getAnnotation(RemoveBean.class);
+        super.init(method);
         try {
-            //noinspection unchecked
-            cache = aLinker.create(context);
             final String[] sqlList = annotation.sql();
             statementFactoryList = new StatementFactory[sqlList.length];
             for (int i = 0; i < sqlList.length; i++) {
                 statementFactoryList[i] = StatementFactoryManager.createStatementFactory(method, sqlList[i]);
             }
-        } catch (FactoryException e) {
-            throw new InitializerException("", e);
         } catch (StatementFactoryException e) {
             throw new InitializerException("Failed to initialize sql operation for " + method, e);
         }

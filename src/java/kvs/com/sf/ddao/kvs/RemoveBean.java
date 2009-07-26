@@ -1,7 +1,7 @@
-package com.sf.ddao.cache;
+package com.sf.ddao.kvs;
 
 import com.sf.ddao.SqlAnnotation;
-import com.sf.ddao.cache.impl.RemoveFromCacheSqlOperation;
+import com.sf.ddao.kvs.impl.RemoveBeanKVSOperation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -15,9 +15,9 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@SqlAnnotation(RemoveFromCacheSqlOperation.class)
-public @interface RemoveFromCache {
-    String cache();
+@SqlAnnotation(RemoveBeanKVSOperation.class)
+public @interface RemoveBean {
+    String cache() default "";
 
     String prefix() default "";
 

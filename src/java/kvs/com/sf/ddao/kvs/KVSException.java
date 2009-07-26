@@ -14,26 +14,26 @@
  * under the License.
  */
 
-package com.sf.ddao.cache;
+package com.sf.ddao.kvs;
 
 /**
  * Created by: Pavel Syrtsov
  * Date: Feb 21, 2009
  * Time: 10:34:03 PM
  */
-public class CacheException extends RuntimeException {
-    public CacheException() {
+public class KVSException extends RuntimeException {
+    public KVSException() {
     }
 
-    public CacheException(Throwable cause) {
+    public KVSException(Throwable cause) {
         super(cause);
     }
 
-    public CacheException(String message) {
+    public KVSException(String message) {
         super(message);
     }
 
-    public CacheException(String message, Throwable cause) {
+    public KVSException(String message, Throwable cause) {
         super(message, cause);
     }
 }

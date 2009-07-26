@@ -1,20 +1,12 @@
-package com.sf.ddao.cache.impl;
+package com.sf.ddao.kvs.impl;
 
 import com.sf.ddao.DaoException;
-import com.sf.ddao.SqlOperation;
-import com.sf.ddao.alinker.ALinker;
-import com.sf.ddao.alinker.Context;
-import com.sf.ddao.alinker.CtxBuilder;
-import com.sf.ddao.alinker.FactoryException;
 import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.alinker.inject.Inject;
-import com.sf.ddao.cache.Cache;
-import com.sf.ddao.cache.InsertAndPutBeanToCache;
-import com.sf.ddao.cache.Name;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
 import com.sf.ddao.factory.StatementFactoryManager;
 import com.sf.ddao.factory.param.ThreadLocalStatementParameter;
+import com.sf.ddao.kvs.PutBean;
 
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -25,24 +17,21 @@ import java.sql.PreparedStatement;
  * Date: Jul 22, 2009
  * Time: 6:57:37 PM
  */
-public class InsertAndPutBeanToCacheSqlOperation implements SqlOperation {
+public class PutBeanKVSOperation extends KVSOperationBase {
     public static final String ID_FIELD_NAME = "id";
     private StatementFactory statementFactory;
-    @Inject
-    public ALinker aLinker;
-    private Cache<String, Object> cache;
-    private InsertAndPutBeanToCache annotation;
+    private PutBean annotation;
 
     public Object invoke(Connection connection, Method method, Object[] args) {
         try {
-            long longRes = cache.incr(annotation.idKey(), 1);
+            long longRes = keyValueStore.incr(annotation.idKey(), 1);
             // store generated id in thread local to be used by insert
             ThreadLocalStatementParameter.put(ID_FIELD_NAME, longRes);
 
             PreparedStatement preparedStatement = statementFactory.createStatement(connection, args);
             preparedStatement.executeUpdate();
             preparedStatement.close();
-            cache.set(annotation.prefix() + longRes, args[0]);
+            keyValueStore.set(annotation.prefix() + longRes, args[0]);
             final Class<?> returnType = method.getReturnType();
             if (returnType == Long.class || returnType == Long.TYPE) {
                 return longRes;
@@ -59,15 +48,10 @@ public class InsertAndPutBeanToCacheSqlOperation implements SqlOperation {
     }
 
     public void init(Method method) throws InitializerException {
-        annotation = method.getAnnotation(InsertAndPutBeanToCache.class);
-        String cacheName = annotation.cache();
-        final Context<Cache> context = CtxBuilder.create(Cache.class).add(Name.class, cacheName).get();
+        annotation = method.getAnnotation(PutBean.class);
+        super.init(method);
         try {
-            //noinspection unchecked
-            cache = aLinker.create(context);
             statementFactory = StatementFactoryManager.createStatementFactory(method, annotation.sql());
-        } catch (FactoryException e) {
-            throw new InitializerException("", e);
         } catch (StatementFactoryException e) {
             throw new InitializerException("Failed to initialize sql operation for " + method, e);
         }

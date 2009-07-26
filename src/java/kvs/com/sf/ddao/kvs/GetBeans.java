@@ -14,10 +14,10 @@
  * under the License.
  */
 
-package com.sf.ddao.cache;
+package com.sf.ddao.kvs;
 
 import com.sf.ddao.SqlAnnotation;
-import com.sf.ddao.cache.impl.SelectCachedBeansSqlOperation;
+import com.sf.ddao.kvs.impl.GetBeansKVSOperation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -33,9 +33,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@SqlAnnotation(SelectCachedBeansSqlOperation.class)
-public @interface SelectCachedBeans {
-    String cache();
-
+@SqlAnnotation(GetBeansKVSOperation.class)
+public @interface GetBeans {
     String sql();
 }

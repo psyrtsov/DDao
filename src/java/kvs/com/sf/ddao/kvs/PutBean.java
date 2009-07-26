@@ -14,10 +14,10 @@
  * under the License.
  */
 
-package com.sf.ddao.cache;
+package com.sf.ddao.kvs;
 
 import com.sf.ddao.SqlAnnotation;
-import com.sf.ddao.cache.impl.InsertAndPutBeanToCacheSqlOperation;
+import com.sf.ddao.kvs.impl.PutBeanKVSOperation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -33,13 +33,11 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@SqlAnnotation(InsertAndPutBeanToCacheSqlOperation.class)
-public @interface InsertAndPutBeanToCache {
+@SqlAnnotation(PutBeanKVSOperation.class)
+public @interface PutBean {
     public abstract String prefix() default "";
 
     public abstract String idKey();
-
-    public abstract String cache();
 
     public abstract String sql();
 }

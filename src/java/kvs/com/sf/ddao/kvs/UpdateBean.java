@@ -1,7 +1,7 @@
-package com.sf.ddao.cache;
+package com.sf.ddao.kvs;
 
 import com.sf.ddao.SqlAnnotation;
-import com.sf.ddao.cache.impl.UpdateCachedBeanSqlOperation;
+import com.sf.ddao.kvs.impl.UpdateBeanKVSOperation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -15,9 +15,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@SqlAnnotation(UpdateCachedBeanSqlOperation.class)
-public @interface UpdateCachedBean {
-    String cache();
-
+@SqlAnnotation(UpdateBeanKVSOperation.class)
+public @interface UpdateBean {
     String prefix() default "";
 }

@@ -14,10 +14,7 @@
  * under the License.
  */
 
-package com.sf.ddao.cache;
-
-import com.sf.ddao.alinker.factory.UseFactory;
-import com.sf.ddao.cache.impl.CacheFactoryProxy;
+package com.sf.ddao.kvs;
 
 import java.util.List;
 
@@ -27,21 +24,14 @@ import java.util.List;
  * Time: 8:03:53 PM
  */
 
-@UseFactory(CacheFactoryProxy.class)
-public interface Cache<K, V> {
+public interface KeyValueStore<K, V> {
     V get(K key);
 
-    boolean set(K key, V value) throws CacheException;
-
-    boolean add(K key, V value);
-
-    boolean replace(K key, V value);
+    boolean set(K key, V value) throws KVSException;
 
     boolean delete(K key);
 
     List<V> getMulti(List<K> keyList);
 
     long incr(K key, int delta);
-
-    void removeAll();
 }
