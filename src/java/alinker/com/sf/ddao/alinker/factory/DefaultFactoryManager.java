@@ -25,6 +25,7 @@ import com.sf.ddao.alinker.initializer.InitializerException;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 /**
  * psdo: add class comments
@@ -33,16 +34,31 @@ import java.util.Map;
  * Time: 8:01:56 PM
  */
 public class DefaultFactoryManager implements FactoryManager {
-    //psdo: switch to use Class as key here, make sure initializer takes in account all other context attributes when execueted
+    /**
+     * we have to use Context as key here since we want to be able to define factory by attaching
+     * annotation to injection point, such as @Conf("propertyName") attached to String parameter
+     * shoud invoke configuratoin factory
+     */
     private final Map<Context, Factory> factoryCache = new HashMap<Context, Factory>();
+    private final Map<Class, Factory> classFactoryMap = new HashMap<Class, Factory>();
     private final Factory defaultFactory;
+    private final ALinker aLinker;
 
-    public DefaultFactoryManager() {
+    public DefaultFactoryManager(Factory defaultFactory, ALinker aLinker) {
+        this.defaultFactory = defaultFactory;
+        this.aLinker = aLinker;
+    }
+
+    public DefaultFactoryManager(ALinker aLinker) {
+        this.aLinker = aLinker;
         this.defaultFactory = new DefaultFactory();
     }
 
-    public DefaultFactoryManager(Factory defaultFactory) {
-        this.defaultFactory = defaultFactory;
+    public void init() {
+        final ServiceLoader<FactoryService> factoryServiceServiceLoader = ServiceLoader.load(FactoryService.class);
+        for (FactoryService factoryService : factoryServiceServiceLoader) {
+            factoryService.register(aLinker, this);
+        }
     }
 
     public synchronized <T> Factory<T> getFactory(ALinker aLinker, Context<T> ctx) throws FactoryException {
@@ -66,7 +82,10 @@ public class DefaultFactoryManager implements FactoryManager {
         if (factoryClass != null) {
             factory = aLinker.create(factoryClass, factoryClass);
         } else {
-            factory = defaultFactory;
+            factory = classFactoryMap.get(ctx.getSubjClass());
+            if (factory == null) {
+                factory = defaultFactory;
+            }
         }
         return factory;
     }
@@ -105,5 +124,15 @@ public class DefaultFactoryManager implements FactoryManager {
             }
         }
         return null;
+    }
+
+    public <T> void register(Class<T> clazz, Factory<T> factory) {
+        Factory old = classFactoryMap.put(clazz, factory);
+        if (old != null) {
+            //psdo: find better way to say it
+            String msg = "Failed ro register factory " + factory + " for class " + clazz
+                    + ", this class already associated with " + old;
+            throw new FactoryException(msg);
+        }
     }
 }

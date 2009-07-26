@@ -36,8 +36,10 @@ public class ALinker {
     private final InitializerManager initializerManager;
 
     public ALinker() {
-        this.factoryManager = new DefaultFactoryManager();
+        this.factoryManager = new DefaultFactoryManager(this);
         this.initializerManager = new DefaultInitializerManager(this);
+        ((DefaultFactoryManager) factoryManager).init();
+        ((DefaultInitializerManager) initializerManager).init();
     }
 
     public ALinker(FactoryManager factoryManager, InitializerManager initializerManager) {

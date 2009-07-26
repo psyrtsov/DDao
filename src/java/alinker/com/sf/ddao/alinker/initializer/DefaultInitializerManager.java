@@ -39,13 +39,12 @@ public class DefaultInitializerManager implements InitializerManager {
     public DefaultInitializerManager(ALinker aLinker) {
         this.aLinker = aLinker;
         defaultInitializer = new DependencyInjector();
-        registerServices();
     }
 
-    private void registerServices() {
-        final ServiceLoader<InitializerService> aLinkerServiceServiceLoader = ServiceLoader.load(InitializerService.class);
-        for (InitializerService aLinkerService : aLinkerServiceServiceLoader) {
-            aLinkerService.register(aLinker, this);
+    public void init() {
+        final ServiceLoader<InitializerService> initializerServiceServiceLoader = ServiceLoader.load(InitializerService.class);
+        for (InitializerService initializerService : initializerServiceServiceLoader) {
+            initializerService.register(aLinker, this);
         }
     }
 
