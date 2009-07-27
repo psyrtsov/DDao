@@ -39,6 +39,7 @@ public class DefaultFactoryManager implements FactoryManager {
      * annotation to injection point, such as @Conf("propertyName") attached to String parameter
      * shoud invoke configuratoin factory
      */
+// psdo: we need to cache factories create based on subjClass only, to make sure they there is only one instance per class
     private final Map<Context, Factory> factoryCache = new HashMap<Context, Factory>();
     private final Map<Class, Factory> classFactoryMap = new HashMap<Class, Factory>();
     private final Factory defaultFactory;
