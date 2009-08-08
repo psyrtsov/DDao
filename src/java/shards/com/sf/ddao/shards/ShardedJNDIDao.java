@@ -1,8 +1,8 @@
 package com.sf.ddao.shards;
 
 import com.sf.ddao.alinker.factory.UseFactory;
-import com.sf.ddao.handler.HandlerAnnotation;
-import com.sf.ddao.handler.HandlerFactory;
+import com.sf.ddao.handler.InvocationHandlerAnnotation;
+import com.sf.ddao.handler.InvocationHandlerFactory;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -17,11 +17,11 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@HandlerAnnotation(ShardedJNDIDataSourceHandler.class)
-@UseFactory(HandlerFactory.class)
+@InvocationHandlerAnnotation(ShardedJNDIDataSourceHandler.class)
+@UseFactory(InvocationHandlerFactory.class)
 public @interface ShardedJNDIDao {
     /**
-     * @return  key to shards table
+     * @return key to shards table
      */
     String value();
 }

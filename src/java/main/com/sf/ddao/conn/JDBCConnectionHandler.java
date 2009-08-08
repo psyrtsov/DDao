@@ -16,17 +16,17 @@
 
 package com.sf.ddao.conn;
 
-import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.DaoException;
 import com.sf.ddao.JDBCDao;
+import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.handler.Intializible;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * psdo: add class comments
@@ -48,7 +48,7 @@ public class JDBCConnectionHandler extends ConnectionHandlerHelper implements In
     }
 
 
-    public void init(Class<?> iFace, Annotation annotation, List<Class<?>> iFaceList) throws InitializerException {
+    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
         jdbcDao = (JDBCDao) annotation;
         if (jdbcDao.driver() != null && jdbcDao.driver().length() > 0) {
             try {
@@ -57,6 +57,6 @@ public class JDBCConnectionHandler extends ConnectionHandlerHelper implements In
                 throw new DaoException("Failed to load driver " + jdbcDao.driver(), e);
             }
         }
-        super.init(iFace, annotation, iFaceList);
+        super.init(element, annotation);
     }
 }

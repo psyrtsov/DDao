@@ -25,8 +25,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation Select allows to attach select statement to ddao method.
- * <p/>
  * Created by: Pavel Syrtsov
  * Date: Apr 1, 2007
  * Time: 11:58:13 PM
@@ -35,9 +33,12 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 @SqlAnnotation(PutBeanKVSOperation.class)
 public @interface PutBean {
-    public abstract String prefix() default "";
-
-    public abstract String idKey();
+    /**
+     * template for
+     *
+     * @return
+     */
+    public abstract String key();
 
     public abstract String sql();
 }

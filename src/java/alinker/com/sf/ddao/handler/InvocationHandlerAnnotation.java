@@ -29,7 +29,8 @@ import java.lang.reflect.InvocationHandler;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.ANNOTATION_TYPE})
-public @interface HandlerAnnotation {
+public @interface InvocationHandlerAnnotation {
     Class<? extends InvocationHandler> value();
+
     boolean singleton() default false;
 }

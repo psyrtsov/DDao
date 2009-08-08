@@ -16,9 +16,9 @@
 
 package com.sf.ddao.shards;
 
+import com.sf.ddao.DaoException;
 import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.alinker.inject.Inject;
-import com.sf.ddao.DaoException;
 import com.sf.ddao.conn.ConnectionHandlerHelper;
 import com.sf.ddao.conn.JNDIDataSourceHandler;
 import com.sf.ddao.handler.Intializible;
@@ -27,6 +27,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -100,7 +101,7 @@ public class ShardedJNDIDataSourceHandler extends ConnectionHandlerHelper implem
         return (Comparable) shardKey;
     }
 
-    public void init(Class<?> iFace, Annotation annotation, List<Class<?>> iFaceList) throws InitializerException {
+    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
         ShardedJNDIDao daoAnnotation = (ShardedJNDIDao) annotation;
         String shardSetKey = daoAnnotation.value();
         List<Shard> shardList = shardControlDao.getShardList(shardSetKey);
@@ -119,7 +120,7 @@ public class ShardedJNDIDataSourceHandler extends ConnectionHandlerHelper implem
                 throw new ShardException("Shards are overlapping:" + oldShard + " and " + shard);
             }
         }
-        super.init(iFace, annotation, iFaceList);
+        super.init(element, annotation);
     }
 
     private DataSource locateDataSource(String dsName) {

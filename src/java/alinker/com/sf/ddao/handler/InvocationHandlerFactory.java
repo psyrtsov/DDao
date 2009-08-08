@@ -36,7 +36,7 @@ import java.util.List;
  * Date: Apr 1, 2007
  * Time: 10:38:58 PM
  */
-public class HandlerFactory<T> implements CachingFactory<T> {
+public class InvocationHandlerFactory<T> implements CachingFactory<T> {
     /**
      * since this factory going to be singleton according to factory manager's code
      * caching of handler instance in this attribute makes it also singleton
@@ -48,14 +48,14 @@ public class HandlerFactory<T> implements CachingFactory<T> {
         List<Class<?>> iFaceList = new ArrayList<Class<?>>();
         iFaceList.add(iFace);
         for (Annotation annotation : iFace.getAnnotations()) {
-            HandlerAnnotation ha = annotation.annotationType().getAnnotation(HandlerAnnotation.class);
+            InvocationHandlerAnnotation ha = annotation.annotationType().getAnnotation(InvocationHandlerAnnotation.class);
             if (ha != null) {
                 Class<? extends InvocationHandler> clazz = ha.value();
                 try {
                     InvocationHandler ih = aLinker.create(clazz, null);
                     if (ih instanceof Intializible) {
                         Intializible conf = (Intializible) ih;
-                        conf.init(iFace, annotation, iFaceList);
+                        conf.init(iFace, annotation);
                     }
                     Class[] iFaces = iFaceList.toArray(new Class[iFaceList.size()]);
                     //noinspection unchecked
@@ -69,7 +69,7 @@ public class HandlerFactory<T> implements CachingFactory<T> {
                 }
             }
         }
-        throw new FactoryException("Failed to find annotation that has " + HandlerAnnotation.class.getSimpleName() + " attached for " + iFace);
+        throw new FactoryException("Failed to find annotation that has " + InvocationHandlerAnnotation.class.getSimpleName() + " attached for " + iFace);
     }
 
     public T getCachedObject(Context<T> ctx) {

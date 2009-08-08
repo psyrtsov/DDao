@@ -22,7 +22,7 @@ public class RemoveBeanKVSOperation extends KVSOperationBase {
 
     public Object invoke(Connection connection, Method method, Object[] args) {
         try {
-            String key = annotation.prefix() + args[0].toString();
+            String key = keyFactory.createText(args);
             keyValueStore.delete(key);
             for (StatementFactory statementFactory : statementFactoryList) {
                 PreparedStatement preparedStatement = statementFactory.createStatement(connection, args);
@@ -37,7 +37,7 @@ public class RemoveBeanKVSOperation extends KVSOperationBase {
 
     public void init(Method method) throws InitializerException {
         annotation = method.getAnnotation(RemoveBean.class);
-        super.init(method);
+        super.init(method, annotation.key());
         try {
             final String[] sqlList = annotation.sql();
             statementFactoryList = new StatementFactory[sqlList.length];

@@ -16,19 +16,19 @@
 
 package com.sf.ddao.conn;
 
-import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.DaoException;
 import com.sf.ddao.JNDIDao;
+import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.handler.Intializible;
 
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Hashtable;
-import java.util.List;
 
 /**
  * psdo: add class comments
@@ -44,7 +44,7 @@ public class JNDIDataSourceHandler extends ConnectionHandlerHelper implements In
         return dataSource.getConnection();
     }
 
-    public void init(Class<?> iFace, Annotation annotation, List<Class<?>> iFaceList) throws InitializerException {
+    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
         JNDIDao daoAnnotation = (JNDIDao) annotation;
         String dsName = daoAnnotation.value();
         try {
@@ -53,6 +53,6 @@ public class JNDIDataSourceHandler extends ConnectionHandlerHelper implements In
         } catch (Exception e) {
             throw new DaoException("Failed to find DataSource " + dsName, e);
         }
-        super.init(iFace, annotation, iFaceList);
+        super.init(element, annotation);
     }
 }

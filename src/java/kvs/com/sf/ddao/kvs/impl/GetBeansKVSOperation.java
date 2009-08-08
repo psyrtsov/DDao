@@ -57,10 +57,10 @@ public class GetBeansKVSOperation extends KVSOperationBase {
     }
 
     public void init(Method method) throws InitializerException {
-        GetBeans selectCachedBeans = method.getAnnotation(GetBeans.class);
-        super.init(method);
+        GetBeans annotation = method.getAnnotation(GetBeans.class);
+        super.init(method, null);
         try {
-            statementFactory = StatementFactoryManager.createStatementFactory(method, selectCachedBeans.sql());
+            statementFactory = StatementFactoryManager.createStatementFactory(method, annotation.sql());
         } catch (StatementFactoryException e) {
             throw new InitializerException("Failed to initialize sql operation for " + method, e);
         }

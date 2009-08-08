@@ -18,8 +18,8 @@ package com.sf.ddao;
 
 import com.sf.ddao.alinker.factory.UseFactory;
 import com.sf.ddao.conn.DataSourceHandler;
-import com.sf.ddao.handler.HandlerAnnotation;
-import com.sf.ddao.handler.HandlerFactory;
+import com.sf.ddao.handler.InvocationHandlerAnnotation;
+import com.sf.ddao.handler.InvocationHandlerFactory;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -36,8 +36,8 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@HandlerAnnotation(value = DataSourceHandler.class, singleton = true)
-@UseFactory(HandlerFactory.class)
+@InvocationHandlerAnnotation(value = DataSourceHandler.class, singleton = true)
+@UseFactory(InvocationHandlerFactory.class)
 public @interface DataSourceDao {
     /**
      * @return name of datasource that should match to the key in static hash map in DataSourceHandler class

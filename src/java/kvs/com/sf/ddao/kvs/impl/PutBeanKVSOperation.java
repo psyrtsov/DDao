@@ -24,21 +24,11 @@ public class PutBeanKVSOperation extends KVSOperationBase {
 
     public Object invoke(Connection connection, Method method, Object[] args) {
         try {
-            long longRes = keyValueStore.incr(annotation.idKey(), 1);
-            // store generated id in thread local to be used by insert
-            ThreadLocalStatementParameter.put(ID_FIELD_NAME, longRes);
-
             PreparedStatement preparedStatement = statementFactory.createStatement(connection, args);
             preparedStatement.executeUpdate();
             preparedStatement.close();
-            keyValueStore.set(annotation.prefix() + longRes, args[0]);
-            final Class<?> returnType = method.getReturnType();
-            if (returnType == Long.class || returnType == Long.TYPE) {
-                return longRes;
-            }
-            if (returnType == Integer.class || returnType == Integer.TYPE) {
-                return (int) longRes;
-            }
+            String key = keyFactory.createText(args);
+            keyValueStore.set(key, args[0]);
             return null;
         } catch (Exception t) {
             throw new DaoException("Failed to execute sql operation for " + method, t);
@@ -49,7 +39,7 @@ public class PutBeanKVSOperation extends KVSOperationBase {
 
     public void init(Method method) throws InitializerException {
         annotation = method.getAnnotation(PutBean.class);
-        super.init(method);
+        super.init(method, annotation.key());
         try {
             statementFactory = StatementFactoryManager.createStatementFactory(method, annotation.sql());
         } catch (StatementFactoryException e) {

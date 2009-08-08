@@ -19,7 +19,7 @@ package com.sf.ddao.handler;
 import com.sf.ddao.alinker.initializer.InitializerException;
 
 import java.lang.annotation.Annotation;
-import java.util.List;
+import java.lang.reflect.AnnotatedElement;
 
 /**
  * when framework creates InvocationHandler that implements this interface
@@ -33,11 +33,10 @@ public interface Intializible {
     /**
      * initialize this object to be used in context defined by parameters
      *
-     * @param iFace      - interface that this InovationHandler shall be handling
+     * @param element    - element that this InovationHandler shall be handling
      * @param annotation - annotation that been used to create this object
-     * @param iFaceList  - output parameter , InvocationHandler can add here
-     *                   additional interfaces that it can support
-     * @throws com.sf.ddao.alinker.initializer.InitializerException when fails to initialize
+     * @throws com.sf.ddao.alinker.initializer.InitializerException
+     *          when fails to initialize
      */
-    void init(Class<?> iFace, Annotation annotation, List<Class<?>> iFaceList) throws InitializerException;
+    void init(AnnotatedElement element, Annotation annotation) throws InitializerException;
 }

@@ -17,9 +17,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 @SqlAnnotation(RemoveBeanKVSOperation.class)
 public @interface RemoveBean {
-    String cache() default "";
-
-    String prefix() default "";
+    String key();
 
     String[] sql() default {};
 }

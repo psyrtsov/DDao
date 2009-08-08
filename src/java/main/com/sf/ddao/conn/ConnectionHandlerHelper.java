@@ -20,11 +20,11 @@ import com.sf.ddao.alinker.inject.Inject;
 import com.sf.ddao.handler.Intializible;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * Created by: pavel
@@ -72,10 +72,10 @@ public abstract class ConnectionHandlerHelper implements InvocationHandler {
 
     public abstract Connection createConnection(Method method, Object[] args) throws SQLException;
 
-    public void init(Class<?> iFace, Annotation annotation, List<Class<?>> iFaceList) throws InitializerException {
+    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
         if (daoInvocationHandler instanceof Intializible) {
             Intializible intializible = (Intializible) daoInvocationHandler;
-            intializible.init(iFace, annotation, iFaceList);
+            intializible.init(element, annotation);
         }
     }
 

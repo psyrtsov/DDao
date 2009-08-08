@@ -26,10 +26,10 @@ import com.sf.ddao.handler.Intializible;
 import com.sf.ddao.utils.Annotations;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -60,9 +60,9 @@ public class DaoInvocationHandlerImpl implements Intializible, DaoInvocationHand
         return sqlOperation;
     }
 
-    public void init(Class<?> iFace, Annotation annotation, List<Class<?>> iFaceList) throws InitializerException {
+    public void init(AnnotatedElement iFace, Annotation annotation) throws InitializerException {
         sqlOpMap = new HashMap<Method, SqlOperation>();
-        for (Method method : iFace.getMethods()) {
+        for (Method method : ((Class<?>) iFace).getMethods()) {
             SqlAnnotation sqlAnnotation = Annotations.findAnnotation(method, SqlAnnotation.class);
             if (sqlAnnotation == null) { // we'll skip it here , but will enforce it at execution time
                 continue;
