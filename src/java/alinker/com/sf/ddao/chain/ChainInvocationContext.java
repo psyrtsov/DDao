@@ -7,7 +7,7 @@ package com.sf.ddao.chain;
  */
 public class ChainInvocationContext {
     private Object[] args;
-    private Object aReturn;
+    private Object lastReturn;
 
     public void setArgs(Object[] args) {
         this.args = args;
@@ -17,11 +17,11 @@ public class ChainInvocationContext {
         return args;
     }
 
-    public void setReturn(Object aReturn) {
-        this.aReturn = aReturn;
+    public void setLastReturn(Object returnValue) {
+        this.lastReturn = returnValue;
     }
 
-    public Object getAReturn() {
-        return aReturn;
+    public Object getLastReturn() {
+        return lastReturn;
     }
 }

@@ -1,6 +1,7 @@
 package com.sf.ddao.chain;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -13,6 +14,7 @@ class MethodInvocationHandler {
     private final Method method;
     private final List<ChainMemberInvocationHandler> chainMemberInvocationHandlers;
     private int chainContextParamIndex = -1;
+    private List<ChainInvocationPostProcessor> chainInvocationPostProcessors = new ArrayList<ChainInvocationPostProcessor>();
 
     public MethodInvocationHandler(Method method, List<ChainMemberInvocationHandler> chainMemberInvocationHandlers) {
         this.method = method;
@@ -24,6 +26,12 @@ class MethodInvocationHandler {
                 break;
             }
         }
+        for (ChainMemberInvocationHandler chainMemberInvocationHandler : chainMemberInvocationHandlers) {
+            if (chainMemberInvocationHandler instanceof ChainInvocationPostProcessor) {
+                ChainInvocationPostProcessor chainInvocationPostProcessor = (ChainInvocationPostProcessor) chainMemberInvocationHandler;
+                chainInvocationPostProcessors.add(chainInvocationPostProcessor);
+            }
+        }
     }
 
     public Object invoke(Object[] args) throws Throwable {
@@ -31,12 +39,15 @@ class MethodInvocationHandler {
         for (Iterator<ChainMemberInvocationHandler> it = chainMemberInvocationHandlers.iterator(); it.hasNext();) {
             ChainMemberInvocationHandler chainMemberInvocationHandler = it.next();
             Object res = chainMemberInvocationHandler.invoke(chainInvocationContext, it.hasNext());
-            chainInvocationContext.setReturn(res);
+            chainInvocationContext.setLastReturn(res);
+        }
+        for (ChainInvocationPostProcessor chainInvocationPostProcessor : chainInvocationPostProcessors) {
+            chainInvocationPostProcessor.postProcess(chainInvocationContext);
         }
         if (ChainInvocationContext.class.isAssignableFrom(method.getReturnType())) {
             return chainInvocationContext;
         }
-        return chainInvocationContext.getAReturn();
+        return chainInvocationContext.getLastReturn();
     }
 
     private ChainInvocationContext createContext(Object[] args) {
