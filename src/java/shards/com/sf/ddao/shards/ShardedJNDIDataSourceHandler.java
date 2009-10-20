@@ -19,6 +19,7 @@ package com.sf.ddao.shards;
 import com.sf.ddao.DaoException;
 import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.chain.ChainInvocationContext;
 import com.sf.ddao.conn.ConnectionHandlerHelper;
 import com.sf.ddao.conn.JNDIDataSourceHandler;
 import com.sf.ddao.handler.Intializible;
@@ -54,19 +55,6 @@ public class ShardedJNDIDataSourceHandler extends ConnectionHandlerHelper implem
 
     private SortedMap<Shard, Shard> shardMap = new TreeMap<Shard, Shard>(shardComparator);
     private ShardControlDao shardControlDao;
-
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Connection connection = getConnection(method, args);
-        return invoke(connection, method, args);
-    }
-
-    public Connection createConnection(Method method, Object[] args) throws SQLException {
-        Comparable shardKey = getShardKey(method, args);
-        //noinspection SuspiciousMethodCalls
-        Shard shard = shardMap.get(shardKey);
-        DataSource ds = shard.getDataSource();
-        return ds.getConnection();
-    }
 
     private Comparable getShardKey(Method method, Object[] args) {
         Annotation[][] parametersAnnotations = method.getParameterAnnotations();
@@ -121,6 +109,14 @@ public class ShardedJNDIDataSourceHandler extends ConnectionHandlerHelper implem
             }
         }
         super.init(element, annotation);
+    }
+
+    public Connection createConnection(ChainInvocationContext context) throws SQLException {
+        Comparable shardKey = getShardKey(context.getMethod(), context.getArgs());
+        //noinspection SuspiciousMethodCalls
+        Shard shard = shardMap.get(shardKey);
+        DataSource ds = shard.getDataSource();
+        return ds.getConnection();
     }
 
     private DataSource locateDataSource(String dsName) {

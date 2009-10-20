@@ -16,7 +16,7 @@
 
 package com.sf.ddao.factory.param;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.AnnotatedElement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -33,7 +33,7 @@ public class StatementParameterManager {
         paramTypeMap.put(ThreadLocalStatementParameter.FUNC_NAME, ThreadLocalStatementParameter.class);
     }
 
-    public static StatementParameter createStatementParameter(Method method, String name) throws StatementParameterException {
+    public static StatementParameter createStatementParameter(AnnotatedElement element, String name) throws StatementParameterException {
         StatementParameter param;
         try {
             final int openBracketIdx = name.indexOf('(');
@@ -44,7 +44,7 @@ public class StatementParameterManager {
             } else {
                 param = new StatementParameterImpl();
             }
-            param.init(method, name);
+            param.init(element, name);
         } catch (Exception e) {
             throw new StatementParameterException("Failed to create statement parameter '" + name + "'");
         }

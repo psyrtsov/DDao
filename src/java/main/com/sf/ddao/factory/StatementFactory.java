@@ -16,9 +16,10 @@
 
 package com.sf.ddao.factory;
 
+import com.sf.ddao.alinker.factory.ImplementedBy;
 import com.sf.ddao.factory.param.StatementParameterException;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.AnnotatedElement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
@@ -35,6 +36,7 @@ import java.sql.PreparedStatement;
  * To define what implementation class shall be used to construct statement for Dao
  * use annotation {@link com.sf.ddao.UseStatementFactory}
  */
+@ImplementedBy(DefaultStatementFactory.class)
 public interface StatementFactory {
     /**
      * Initializes factory object with query data
@@ -43,7 +45,7 @@ public interface StatementFactory {
      * @param method - method that quey will be attached to
      * @throws StatementFactoryException - throws excpetion if fails to parse query
      */
-    void init(String sql, Method method) throws StatementFactoryException;
+    void init(AnnotatedElement element, String sql) throws StatementFactoryException;
 
     /**
      * Creates new PreparedStatement according to definition given in setup.

@@ -16,7 +16,7 @@
 
 package com.sf.ddao.kvs;
 
-import com.sf.ddao.SqlAnnotation;
+import com.sf.ddao.chain.ChainMember;
 import com.sf.ddao.kvs.impl.PutBeanKVSOperation;
 
 import java.lang.annotation.ElementType;
@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@SqlAnnotation(PutBeanKVSOperation.class)
+@ChainMember(PutBeanKVSOperation.class)
 public @interface PutBean {
     /**
      * template for

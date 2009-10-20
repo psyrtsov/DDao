@@ -18,7 +18,10 @@ package com.sf.ddao.orm;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by: Pavel Syrtsov
@@ -37,7 +40,7 @@ public class MapResultSetMapper implements ResultSetMapper {
             columns = new ArrayList<String>();
             final ResultSetMetaData metaData = resultSet.getMetaData();
             int colCount = metaData.getColumnCount();
-            for(int i=1; i<=colCount; i++) {
+            for (int i = 1; i <= colCount; i++) {
                 String colName = metaData.getColumnName(i);
                 columns.add(colName);
             }

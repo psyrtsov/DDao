@@ -10,7 +10,8 @@ public interface ChainMemberInvocationHandler {
      * @param chainInvocationContext - invocation context
      * @param hasNext                - if false then this is last invocation on the chain
      *                               ans result will be used as return value for whole the method call
+     *                               it means that if hasNext is true resturn type should match invoked method's return type
      * @return value will be stored in lastReturn property of context
      */
-    Object invoke(ChainInvocationContext chainInvocationContext, boolean hasNext);
+    Object invoke(ChainInvocationContext chainInvocationContext, boolean hasNext) throws Throwable;
 }

@@ -17,6 +17,8 @@
 package com.sf.ddao;
 
 import com.sf.ddao.alinker.factory.UseFactory;
+import com.sf.ddao.chain.ChainInvocationHandler;
+import com.sf.ddao.chain.ChainMember;
 import com.sf.ddao.conn.JNDIDataSourceHandler;
 import com.sf.ddao.handler.InvocationHandlerAnnotation;
 import com.sf.ddao.handler.InvocationHandlerFactory;
@@ -38,8 +40,9 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@InvocationHandlerAnnotation(value = JNDIDataSourceHandler.class, singleton = true)
 @UseFactory(InvocationHandlerFactory.class)
+@InvocationHandlerAnnotation(value = ChainInvocationHandler.class, singleton = true)
+@ChainMember(JNDIDataSourceHandler.class)
 public @interface JNDIDao {
     /**
      * @return JNDI name of DataSource this Dao connected to

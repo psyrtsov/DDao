@@ -16,6 +16,7 @@
 
 package com.sf.ddao;
 
+import com.sf.ddao.chain.ChainMember;
 import com.sf.ddao.ops.DeleteSqlOperation;
 
 import java.lang.annotation.ElementType;
@@ -32,7 +33,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@SqlAnnotation(DeleteSqlOperation.class)
+@ChainMember(DeleteSqlOperation.class)
 public @interface Delete {
     /**
      * @return text of the template for delete statement

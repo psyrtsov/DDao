@@ -16,7 +16,7 @@
 
 package com.sf.ddao.factory.param;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.AnnotatedElement;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -32,7 +32,8 @@ public abstract class StatementParameterHelper implements StatementParameter {
     public static final Logger log = Logger.getLogger(StatementParameterHelper.class.getName());
     protected String name;
 
-    public void init(Method method, String name) {
+    public void init(AnnotatedElement element, String name) {
+        // psdo: move dealing with type to init method to make runtime faster
         this.name = name;
     }
 

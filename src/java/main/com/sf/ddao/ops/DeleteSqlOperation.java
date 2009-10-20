@@ -16,10 +16,13 @@
 
 package com.sf.ddao.ops;
 
-import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.Delete;
+import com.sf.ddao.alinker.initializer.InitializerException;
+import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.factory.StatementFactory;
 
-import java.lang.reflect.Method;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 
 /**
  * Created by: Pavel Syrtsov
@@ -27,9 +30,14 @@ import java.lang.reflect.Method;
  * Time: 1:44:52 AM
  */
 public class DeleteSqlOperation extends UpdateSqlOperation {
+    @Inject
+    public DeleteSqlOperation(StatementFactory statementFactory) {
+        super(statementFactory);
+    }
+
     @Override
-    public void init(Method method) throws InitializerException {
-        Delete deleteAnnotation = method.getAnnotation(Delete.class);
-        init(method, deleteAnnotation.value());
+    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+        Delete deleteAnnotation = (Delete) annotation;
+        init(element, deleteAnnotation.value());
     }
 }

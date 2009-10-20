@@ -18,12 +18,12 @@ package com.sf.ddao.conn;
 
 import com.sf.ddao.DataSourceDao;
 import com.sf.ddao.alinker.initializer.InitializerException;
+import com.sf.ddao.chain.ChainInvocationContext;
 import com.sf.ddao.handler.Intializible;
 
 import javax.sql.DataSource;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,17 +42,18 @@ public class DataSourceHandler extends ConnectionHandlerHelper implements Intial
     public static final ConcurrentMap<String, DataSource> dataSourceMap = new ConcurrentHashMap<String, DataSource>();
     private String dsName;
 
-    public Connection createConnection(Method method, Object[] args) throws SQLException {
+    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+        super.init(element, annotation);
+        DataSourceDao daoAnnotation = (DataSourceDao) annotation;
+        dsName = daoAnnotation.value();
+    }
+
+    @Override
+    public Connection createConnection(ChainInvocationContext chainInvocationContext) throws SQLException {
         DataSource dataSource = dataSourceMap.get(dsName);
         if (dataSource == null) {
             throw new NullPointerException("DataSource with name " + dsName + " should be regstered at " + DataSourceHandler.class);
         }
         return dataSource.getConnection();
-    }
-
-    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
-        DataSourceDao daoAnnotation = (DataSourceDao) annotation;
-        dsName = daoAnnotation.value();
-        super.init(element, annotation);
     }
 }

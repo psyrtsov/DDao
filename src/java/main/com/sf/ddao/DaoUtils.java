@@ -16,6 +16,8 @@
 
 package com.sf.ddao;
 
+import com.sf.ddao.conn.ConnectionHandlerHelper;
+
 import java.sql.Connection;
 import java.util.concurrent.Callable;
 
@@ -37,6 +39,7 @@ public class DaoUtils {
             success = true;
             return res;
         } finally {
+            conn = ConnectionHandlerHelper.releaseConnectionOnHold();
             if (!success) {
                 conn.rollback();
             }

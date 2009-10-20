@@ -20,7 +20,7 @@ import com.sf.ddao.factory.param.StatementParameter;
 import com.sf.ddao.factory.param.StatementParameterException;
 import com.sf.ddao.factory.param.StatementParameterManager;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.AnnotatedElement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ public class DefaultStatementFactory implements StatementFactory {
     private List<StatementParameter> refParametersList = new ArrayList<StatementParameter>();
     private List<String> stmtTokens = new ArrayList<String>();
 
-    public void init(String sql, Method method) throws StatementFactoryException {
+    public void init(AnnotatedElement element, String sql) throws StatementFactoryException {
         try {
             char lastChar = 0;
             boolean paramStarted = false;
@@ -62,10 +62,10 @@ public class DefaultStatementFactory implements StatementFactory {
                         if (ch == '$') {
                             stmtTokens.add(token.toString());
                             token.delete(0, token.length());
-                            addInlineParameter(method, param.toString());
+                            addInlineParameter(element, param.toString());
                         } else {
                             token.append('?');
-                            addRefParameter(method, param.toString());
+                            addRefParameter(element, param.toString());
                         }
                         param.delete(0, param.length());
                         paramStarted = false;
@@ -83,17 +83,17 @@ public class DefaultStatementFactory implements StatementFactory {
             }
             stmtTokens.add(token.toString());
         } catch (Exception e) {
-            throw new StatementFactoryException("Failed to extract statement parameters for " + method, e);
+            throw new StatementFactoryException("Failed to extract statement parameters for " + element, e);
         }
     }
 
-    public void addRefParameter(Method method, String name) throws StatementParameterException {
-        StatementParameter parameter = StatementParameterManager.createStatementParameter(method, name);
+    public void addRefParameter(AnnotatedElement element, String name) throws StatementParameterException {
+        StatementParameter parameter = StatementParameterManager.createStatementParameter(element, name);
         refParametersList.add(parameter);
     }
 
-    public void addInlineParameter(Method method, String name) throws StatementParameterException {
-        StatementParameter parameter = StatementParameterManager.createStatementParameter(method, name);
+    public void addInlineParameter(AnnotatedElement element, String name) throws StatementParameterException {
+        StatementParameter parameter = StatementParameterManager.createStatementParameter(element, name);
         inlineParametersList.add(parameter);
     }
 

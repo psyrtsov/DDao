@@ -18,14 +18,19 @@ package com.sf.ddao.ops;
 
 import com.sf.ddao.DaoException;
 import com.sf.ddao.Select;
-import com.sf.ddao.SqlOperation;
 import com.sf.ddao.alinker.initializer.InitializerException;
+import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.chain.ChainInvocationContext;
+import com.sf.ddao.chain.ChainMemberInvocationHandler;
+import com.sf.ddao.conn.ConnectionHandlerHelper;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
-import com.sf.ddao.factory.StatementFactoryManager;
+import com.sf.ddao.handler.Intializible;
 import com.sf.ddao.orm.ResultSetMapper;
 import com.sf.ddao.orm.ResultSetMapperRegistry;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,14 +41,22 @@ import java.sql.ResultSet;
  * Date: Apr 2, 2007
  * Time: 8:10:29 PM
  */
-public class SelectSqlOperation implements SqlOperation {
+public class SelectSqlOperation implements ChainMemberInvocationHandler, Intializible {
     private StatementFactory statementFactory;
+    private Method method;
 
-    public Object invoke(Connection connection, Method method, Object[] args) {
+    @Inject
+    public SelectSqlOperation(StatementFactory statementFactory) {
+        this.statementFactory = statementFactory;
+    }
+
+
+    public Object invoke(ChainInvocationContext context, boolean hasNext) throws Throwable {
         try {
-            PreparedStatement preparedStatement = statementFactory.createStatement(connection, args, Integer.MAX_VALUE);
+            Connection connection = ConnectionHandlerHelper.getConnection(context);
+            PreparedStatement preparedStatement = statementFactory.createStatement(connection, context.getArgs(), Integer.MAX_VALUE);
             ResultSet resultSet = preparedStatement.executeQuery();
-            ResultSetMapper resultSetMapper = ResultSetMapperRegistry.getResultSetMapper(method, args, resultSet);
+            ResultSetMapper resultSetMapper = ResultSetMapperRegistry.getResultSetMapper(method, context.getArgs(), resultSet);
             while (resultSet.next()) {
                 if (!resultSetMapper.addRecord(resultSet)) {
                     break;
@@ -57,16 +70,25 @@ public class SelectSqlOperation implements SqlOperation {
         }
     }
 
-    public void init(Method method) throws InitializerException {
-        Select selectSql = method.getAnnotation(Select.class);
-        init(method, selectSql.value());
+    public void init(AnnotatedElement element, String sql) throws InitializerException {
+        try {
+            statementFactory.init(element, sql);
+        } catch (StatementFactoryException e) {
+            throw new InitializerException("Failed to initialize sql operation for " + element, e);
+        }
     }
 
-    public void init(Method method, String sql) throws InitializerException {
-        try {
-            statementFactory = StatementFactoryManager.createStatementFactory(method, sql);
-        } catch (StatementFactoryException e) {
-            throw new InitializerException("Failed to initialize sql operation for " + method, e);
-        }
+    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+        method = (Method) element;
+        Select selectSql = (Select) annotation;
+        init(element, selectSql.value());
+    }
+
+    public Method getMethod() {
+        return method;
+    }
+
+    public StatementFactory getStatementFactory() {
+        return statementFactory;
     }
 }

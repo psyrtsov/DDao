@@ -1,7 +1,7 @@
-package com.sf.ddao.kvs;
+package com.sf.ddao;
 
 import com.sf.ddao.chain.ChainMember;
-import com.sf.ddao.kvs.impl.RemoveBeanKVSOperation;
+import com.sf.ddao.ops.SelectSqlOperation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,15 +9,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by pavel
- * Date: Jul 22, 2009
- * Time: 8:59:41 PM
+ * Date: Oct 19, 2009
+ * Time: 4:23:34 PM
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@ChainMember(RemoveBeanKVSOperation.class)
-public @interface RemoveBean {
-    String key();
-
-    String[] sql() default {};
+@ChainMember(SelectSqlOperation.class)
+public @interface TransactionStarter {
 }

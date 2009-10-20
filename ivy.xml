@@ -1,5 +1,5 @@
 <ivy-module version="1.0">
-    <info organisation="net.sf" module="ddao" revision="0.7"/>
+    <info organisation="net.sf" module="ddao" revision="0.8"/>
     <publications>
         <artifact/>
         <artifact name="${ivy.module}-src" type="source" ext="zip"/>

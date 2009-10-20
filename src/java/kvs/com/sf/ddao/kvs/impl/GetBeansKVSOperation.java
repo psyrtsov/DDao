@@ -18,12 +18,15 @@ package com.sf.ddao.kvs.impl;
 
 import com.sf.ddao.DaoException;
 import com.sf.ddao.alinker.initializer.InitializerException;
+import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.chain.ChainInvocationContext;
+import com.sf.ddao.conn.ConnectionHandlerHelper;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
-import com.sf.ddao.factory.StatementFactoryManager;
 import com.sf.ddao.kvs.GetBeans;
 
-import java.lang.reflect.Method;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -38,10 +41,17 @@ import java.util.List;
  */
 public class GetBeansKVSOperation extends KVSOperationBase {
     private StatementFactory statementFactory;
+    private AnnotatedElement element;
 
-    public Object invoke(Connection connection, Method method, Object[] args) {
+    @Inject
+    public GetBeansKVSOperation(StatementFactory statementFactory) {
+        this.statementFactory = statementFactory;
+    }
+
+    public Object invoke(ChainInvocationContext context, boolean hasNext) throws Throwable {
         try {
-            PreparedStatement preparedStatement = statementFactory.createStatement(connection, args);
+            Connection connection = ConnectionHandlerHelper.getConnection(context);
+            PreparedStatement preparedStatement = statementFactory.createStatement(connection, context.getArgs());
             ResultSet resultSet = preparedStatement.executeQuery();
             List<String> keyList = new ArrayList<String>();
             while (resultSet.next()) {
@@ -52,17 +62,18 @@ public class GetBeansKVSOperation extends KVSOperationBase {
             preparedStatement.close();
             return keyValueStore.getMulti(keyList);
         } catch (Exception t) {
-            throw new DaoException("Failed to execute sql operation for " + method, t);
+            throw new DaoException("Failed to execute sql operation for " + element, t);
         }
     }
 
-    public void init(Method method) throws InitializerException {
-        GetBeans annotation = method.getAnnotation(GetBeans.class);
-        super.init(method, null);
+    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+        this.element = element;
+        GetBeans getBeans = (GetBeans) annotation;
+        super.init(element, (String) null);
         try {
-            statementFactory = StatementFactoryManager.createStatementFactory(method, annotation.sql());
+            statementFactory.init(element, getBeans.sql());
         } catch (StatementFactoryException e) {
-            throw new InitializerException("Failed to initialize sql operation for " + method, e);
+            throw new InitializerException("Failed to initialize sql operation for " + element, e);
         }
     }
 }

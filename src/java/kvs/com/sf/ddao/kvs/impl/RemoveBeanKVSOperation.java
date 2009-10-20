@@ -1,13 +1,17 @@
 package com.sf.ddao.kvs.impl;
 
 import com.sf.ddao.DaoException;
+import com.sf.ddao.alinker.ALinker;
 import com.sf.ddao.alinker.initializer.InitializerException;
+import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.chain.ChainInvocationContext;
+import com.sf.ddao.conn.ConnectionHandlerHelper;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
-import com.sf.ddao.factory.StatementFactoryManager;
 import com.sf.ddao.kvs.RemoveBean;
 
-import java.lang.reflect.Method;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
@@ -17,35 +21,38 @@ import java.sql.PreparedStatement;
  * Time: 9:00:31 PM
  */
 public class RemoveBeanKVSOperation extends KVSOperationBase {
+    @Inject
+    public ALinker aLinker;
     private StatementFactory[] statementFactoryList;
-    private RemoveBean annotation;
 
-    public Object invoke(Connection connection, Method method, Object[] args) {
+    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+        RemoveBean removeBean = (RemoveBean) annotation;
+        super.init(element, removeBean.key());
         try {
-            String key = keyFactory.createText(args);
+            final String[] sqlList = removeBean.sql();
+            statementFactoryList = new StatementFactory[sqlList.length];
+            for (int i = 0; i < sqlList.length; i++) {
+                statementFactoryList[i] = aLinker.create(StatementFactory.class);
+                statementFactoryList[i].init(element, sqlList[i]);
+            }
+        } catch (StatementFactoryException e) {
+            throw new InitializerException("Failed to initialize sql operation for " + element, e);
+        }
+    }
+
+    public Object invoke(ChainInvocationContext context, boolean hasNext) throws Throwable {
+        try {
+            String key = keyFactory.createText(context.getArgs());
             keyValueStore.delete(key);
             for (StatementFactory statementFactory : statementFactoryList) {
-                PreparedStatement preparedStatement = statementFactory.createStatement(connection, args);
+                Connection connection = ConnectionHandlerHelper.getConnection(context);
+                PreparedStatement preparedStatement = statementFactory.createStatement(connection, context.getArgs());
                 preparedStatement.executeUpdate();
                 preparedStatement.close();
             }
             return null;
         } catch (Exception t) {
-            throw new DaoException("Failed to execute sql operation for " + method, t);
-        }
-    }
-
-    public void init(Method method) throws InitializerException {
-        annotation = method.getAnnotation(RemoveBean.class);
-        super.init(method, annotation.key());
-        try {
-            final String[] sqlList = annotation.sql();
-            statementFactoryList = new StatementFactory[sqlList.length];
-            for (int i = 0; i < sqlList.length; i++) {
-                statementFactoryList[i] = StatementFactoryManager.createStatementFactory(method, sqlList[i]);
-            }
-        } catch (StatementFactoryException e) {
-            throw new InitializerException("Failed to initialize sql operation for " + method, e);
+            throw new DaoException("Failed to execute sql operation for " + context, t);
         }
     }
 }

@@ -16,7 +16,7 @@
 
 package com.sf.ddao.factory.param;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.AnnotatedElement;
 import java.sql.PreparedStatement;
 
 /**
@@ -31,10 +31,9 @@ public interface StatementParameter {
     /**
      * psdo: add comments
      *
-     * @param method
-     * @param name
+     * @param name - name of parameter
      */
-    void init(Method method, String name);
+    void init(AnnotatedElement element, String name);
 
     /**
      * this method will be invoked by statement factory to get string presentation of

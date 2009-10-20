@@ -19,13 +19,13 @@ package com.sf.ddao.conn;
 import com.sf.ddao.DaoException;
 import com.sf.ddao.JNDIDao;
 import com.sf.ddao.alinker.initializer.InitializerException;
+import com.sf.ddao.chain.ChainInvocationContext;
 import com.sf.ddao.handler.Intializible;
 
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Hashtable;
@@ -40,11 +40,8 @@ public class JNDIDataSourceHandler extends ConnectionHandlerHelper implements In
     public static String DS_CTX_PREFIX = "java:comp/env/";
     private DataSource dataSource;
 
-    public Connection createConnection(Method method, Object[] args) throws SQLException {
-        return dataSource.getConnection();
-    }
-
     public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+        super.init(element, annotation);
         JNDIDao daoAnnotation = (JNDIDao) annotation;
         String dsName = daoAnnotation.value();
         try {
@@ -53,6 +50,10 @@ public class JNDIDataSourceHandler extends ConnectionHandlerHelper implements In
         } catch (Exception e) {
             throw new DaoException("Failed to find DataSource " + dsName, e);
         }
-        super.init(element, annotation);
+    }
+
+    @Override
+    public Connection createConnection(ChainInvocationContext chainInvocationContext) throws SQLException {
+        return dataSource.getConnection();
     }
 }

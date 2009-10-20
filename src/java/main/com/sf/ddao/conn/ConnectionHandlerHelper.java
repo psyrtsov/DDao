@@ -16,13 +16,12 @@
 package com.sf.ddao.conn;
 
 import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.alinker.inject.Inject;
-import com.sf.ddao.handler.Intializible;
+import com.sf.ddao.chain.ChainInvocationContext;
+import com.sf.ddao.chain.ChainInvocationPostProcessor;
+import com.sf.ddao.chain.ChainMemberInvocationHandler;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -31,66 +30,60 @@ import java.sql.SQLException;
  * Date: Jun 11, 2008
  * Time: 10:50:45 PM
  */
-public abstract class ConnectionHandlerHelper implements InvocationHandler {
-    private DaoInvocationHandler daoInvocationHandler;
-    protected volatile ConnectionHolderHelper connectionHolderHelper = null;
+public abstract class ConnectionHandlerHelper implements ChainMemberInvocationHandler, ChainInvocationPostProcessor {
+    public static final ThreadLocal<Connection> connectionOnHold = new ThreadLocal<Connection>();
 
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Connection connection = getConnection(method, args);
-        return invoke(connection, method, args);
-    }
-
-    public Object invoke(Connection connection, Method method, Object[] args) throws Throwable {
-        // psdo: we could generalize this by introducing meta tag for connection handler level
-        TransactionStarter transactionStarter = method.getAnnotation(TransactionStarter.class);
-        if (transactionStarter != null) {
-            return putConnectionOnHold(connection);
-        }
-        try {
-            return daoInvocationHandler.invoke(connection, method, args);
-        } finally {
-            closeIfNotOnHold(connection);
-        }
-    }
-
-    public Connection getConnection(Method method, Object[] args) throws SQLException {
-        if (connectionHolderHelper != null && connectionHolderHelper.hasConnectionOnHold()) {
-            Connection res = connectionHolderHelper.getConnectionProxy();
-            if (res != null) {
-                return res;
-            }
-        }
-        return createConnection(method, args);
-    }
-
-    public void closeIfNotOnHold(Connection connection) throws SQLException {
-        if (connectionHolderHelper != null && connectionHolderHelper.hasConnectionOnHold()) {
-            return;
-        }
-        connection.close();
-    }
-
-    public abstract Connection createConnection(Method method, Object[] args) throws SQLException;
+    public static final String CONNECTION_KEY = ConnectionHandlerHelper.class.toString() + "_CONN";
 
     public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
-        if (daoInvocationHandler instanceof Intializible) {
-            Intializible intializible = (Intializible) daoInvocationHandler;
-            intializible.init(element, annotation);
+        // do nothing for now
+    }
+
+    /**
+     * @param context - invocation context
+     * @param hasNext - if false then this is last invocation on the chain
+     *                ans result will be used as return value for whole the method call
+     * @return value will be stored in lastReturn property of context
+     */
+    public Object invoke(ChainInvocationContext context, boolean hasNext) throws Throwable {
+        context.put(ConnectionHandlerHelper.class.toString(), this);
+        return null;
+    }
+
+    public void chainPostProcess(ChainInvocationContext context) throws Throwable {
+        Connection conn = (Connection) context.get(CONNECTION_KEY);
+        if (conn != null) {
+            conn.close();
         }
     }
 
-    @Inject
-    public void setDaoInvocationHandler(DaoInvocationHandler daoInvocationHandler) {
-        this.daoInvocationHandler = daoInvocationHandler;
-    }
 
-    public Connection putConnectionOnHold(Connection connection) {
-        synchronized (this) {
-            if (connectionHolderHelper == null) {
-                connectionHolderHelper = new ConnectionHolderHelper();
+    public static Connection getConnection(ChainInvocationContext context) throws SQLException {
+        Connection conn = (Connection) context.get(CONNECTION_KEY);
+        if (conn == null) {
+            conn = connectionOnHold.get();
+            if (conn == null) {
+                ConnectionHandlerHelper connectionHandlerHelper = (ConnectionHandlerHelper) context.get(ConnectionHandlerHelper.class.toString());
+                conn = connectionHandlerHelper.createConnection(context);
             }
+            context.put(CONNECTION_KEY, conn);
         }
-        connectionHolderHelper.putConnectionOnHold(connection);
-        return connectionHolderHelper.getConnectionProxy();
+        return conn;
     }
+
+    public static void putConnectionOnHold(Connection connection) {
+        connectionOnHold.set(connection);
+    }
+
+    public static Connection getConnectionOnHold() {
+        return connectionOnHold.get();
+    }
+
+    public static Connection releaseConnectionOnHold() {
+        Connection res = connectionOnHold.get();
+        connectionOnHold.remove();
+        return res;
+    }
+
+    public abstract Connection createConnection(ChainInvocationContext chainInvocationContext) throws SQLException;
 }

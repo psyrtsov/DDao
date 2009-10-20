@@ -12,13 +12,13 @@ import java.util.List;
  */
 class MethodInvocationHandler {
     private final Method method;
-    private final List<ChainMemberInvocationHandler> chainMemberInvocationHandlers;
+    private final List<ChainMemberInvocationHandler> invocationHandlers;
     private int chainContextParamIndex = -1;
-    private List<ChainInvocationPostProcessor> chainInvocationPostProcessors = new ArrayList<ChainInvocationPostProcessor>();
+    private List<ChainInvocationPostProcessor> postProcessors = new ArrayList<ChainInvocationPostProcessor>();
 
-    public MethodInvocationHandler(Method method, List<ChainMemberInvocationHandler> chainMemberInvocationHandlers) {
+    public MethodInvocationHandler(Method method, List<ChainMemberInvocationHandler> invocationHandlers) {
         this.method = method;
-        this.chainMemberInvocationHandlers = chainMemberInvocationHandlers;
+        this.invocationHandlers = invocationHandlers;
         final Class<?>[] parameterTypes = method.getParameterTypes();
         for (int i = 0; i < parameterTypes.length; i++) {
             if (ChainInvocationContext.class.isAssignableFrom(parameterTypes[i])) {
@@ -26,28 +26,29 @@ class MethodInvocationHandler {
                 break;
             }
         }
-        for (ChainMemberInvocationHandler chainMemberInvocationHandler : chainMemberInvocationHandlers) {
-            if (chainMemberInvocationHandler instanceof ChainInvocationPostProcessor) {
-                ChainInvocationPostProcessor chainInvocationPostProcessor = (ChainInvocationPostProcessor) chainMemberInvocationHandler;
-                chainInvocationPostProcessors.add(chainInvocationPostProcessor);
+        for (ChainMemberInvocationHandler invocationHandler : invocationHandlers) {
+            if (invocationHandler instanceof ChainInvocationPostProcessor) {
+                ChainInvocationPostProcessor postProcessor = (ChainInvocationPostProcessor) invocationHandler;
+                postProcessors.add(postProcessor);
             }
         }
     }
 
     public Object invoke(Object[] args) throws Throwable {
-        ChainInvocationContext chainInvocationContext = createContext(args);
-        for (Iterator<ChainMemberInvocationHandler> it = chainMemberInvocationHandlers.iterator(); it.hasNext();) {
-            ChainMemberInvocationHandler chainMemberInvocationHandler = it.next();
-            Object res = chainMemberInvocationHandler.invoke(chainInvocationContext, it.hasNext());
-            chainInvocationContext.setLastReturn(res);
+        ChainInvocationContext context = createContext(args);
+        context.setMethod(method);
+        for (Iterator<ChainMemberInvocationHandler> it = invocationHandlers.iterator(); it.hasNext();) {
+            ChainMemberInvocationHandler invocationHandler = it.next();
+            Object res = invocationHandler.invoke(context, it.hasNext());
+            context.setLastReturn(res);
         }
-        for (ChainInvocationPostProcessor chainInvocationPostProcessor : chainInvocationPostProcessors) {
-            chainInvocationPostProcessor.postProcess(chainInvocationContext);
+        for (ChainInvocationPostProcessor postProcessor : postProcessors) {
+            postProcessor.chainPostProcess(context);
         }
         if (ChainInvocationContext.class.isAssignableFrom(method.getReturnType())) {
-            return chainInvocationContext;
+            return context;
         }
-        return chainInvocationContext.getLastReturn();
+        return context.getLastReturn();
     }
 
     private ChainInvocationContext createContext(Object[] args) {

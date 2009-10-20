@@ -6,5 +6,5 @@ package com.sf.ddao.chain;
  * Time: 11:40:24 AM
  */
 public interface ChainInvocationPostProcessor {
-    void postProcess(ChainInvocationContext context);
+    void chainPostProcess(ChainInvocationContext context) throws Throwable;
 }

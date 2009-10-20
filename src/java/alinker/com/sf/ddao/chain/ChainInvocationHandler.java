@@ -25,13 +25,11 @@ public class ChainInvocationHandler implements InvocationHandler, Intializible {
     @Inject
     public ALinker aLinker;
 
-    @Override
     public Object invoke(Object o, Method method, Object[] args) throws Throwable {
         final MethodInvocationHandler methodHandler = map.get(method);
         return methodHandler.invoke(args);
     }
 
-    @Override
     public void init(AnnotatedElement iFace, Annotation annotation) throws InitializerException {
         List<ChainMemberInvocationHandler> classLevelList = new ArrayList<ChainMemberInvocationHandler>();
         addChainMemebers(iFace, classLevelList);
@@ -47,6 +45,9 @@ public class ChainInvocationHandler implements InvocationHandler, Intializible {
     private void addChainMemebers(AnnotatedElement annotatedElement, List<ChainMemberInvocationHandler> list) {
         for (Annotation annotation : annotatedElement.getAnnotations()) {
             final ChainMember memberAnnotation = annotation.annotationType().getAnnotation(ChainMember.class);
+            if (memberAnnotation == null) {
+                continue;
+            }
             final ChainMemberInvocationHandler memberInvocationHandler = aLinker.create(memberAnnotation.value());
             if (memberInvocationHandler instanceof Intializible) {
                 Intializible intializible = (Intializible) memberInvocationHandler;

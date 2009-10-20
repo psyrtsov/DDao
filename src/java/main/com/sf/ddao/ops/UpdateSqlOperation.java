@@ -17,13 +17,18 @@
 package com.sf.ddao.ops;
 
 import com.sf.ddao.DaoException;
-import com.sf.ddao.SqlOperation;
 import com.sf.ddao.Update;
 import com.sf.ddao.alinker.initializer.InitializerException;
+import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.chain.ChainInvocationContext;
+import com.sf.ddao.chain.ChainMemberInvocationHandler;
+import com.sf.ddao.conn.ConnectionHandlerHelper;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
-import com.sf.ddao.factory.StatementFactoryManager;
+import com.sf.ddao.handler.Intializible;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,12 +38,35 @@ import java.sql.PreparedStatement;
  * Date: Apr 23, 2007
  * Time: 11:55:52 PM
  */
-public class UpdateSqlOperation implements SqlOperation {
+public class UpdateSqlOperation implements ChainMemberInvocationHandler, Intializible {
     private StatementFactory statementFactory;
+    private Method method;
 
-    public Object invoke(Connection connection, Method method, Object[] args) {
+    @Inject
+    public UpdateSqlOperation(StatementFactory statementFactory) {
+        this.statementFactory = statementFactory;
+    }
+
+    public void init(AnnotatedElement element, String sql) throws InitializerException {
+        method = (Method) element;
         try {
-            PreparedStatement preparedStatement = statementFactory.createStatement(connection, args, Integer.MAX_VALUE);
+            statementFactory.init(element, sql);
+        } catch (StatementFactoryException e) {
+            throw new InitializerException("Failed to setup sql operation " + sql + " for method " + element, e);
+        }
+    }
+
+    @Override
+    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+        Update updateAnnotation = (Update) annotation;
+        init(element, updateAnnotation.value());
+    }
+
+    @Override
+    public Object invoke(ChainInvocationContext context, boolean hasNext) throws Throwable {
+        try {
+            final Connection connection = ConnectionHandlerHelper.getConnection(context);
+            PreparedStatement preparedStatement = statementFactory.createStatement(connection, context.getArgs(), Integer.MAX_VALUE);
             int res = preparedStatement.executeUpdate();
             preparedStatement.close();
             if (method.getReturnType() == Integer.TYPE || method.getReturnType() == Integer.class) {
@@ -50,16 +78,11 @@ public class UpdateSqlOperation implements SqlOperation {
         }
     }
 
-    public void init(Method method) throws InitializerException {
-        Update updateAnnotation = method.getAnnotation(Update.class);
-        init(method, updateAnnotation.value());
+    public Method getMethod() {
+        return method;
     }
 
-    public void init(Method method, String sql) throws InitializerException {
-        try {
-            statementFactory = StatementFactoryManager.createStatementFactory(method, sql);
-        } catch (StatementFactoryException e) {
-            throw new InitializerException("Failed to setup sql operation " + sql + " for method " + method, e);
-        }
+    public StatementFactory getStatementFactory() {
+        return statementFactory;
     }
 }

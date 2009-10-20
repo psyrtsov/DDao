@@ -1,7 +1,5 @@
 package com.sf.ddao;
 
-import com.sf.ddao.conn.TransactionStarter;
-
 import java.sql.Connection;
 
 /**

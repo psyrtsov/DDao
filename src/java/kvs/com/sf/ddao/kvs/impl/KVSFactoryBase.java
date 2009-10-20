@@ -12,7 +12,6 @@ import com.sf.ddao.kvs.KeyValueStore;
  * Time: 10:36:40 PM
  */
 public abstract class KVSFactoryBase implements Factory<KeyValueStore>, FactoryService {
-    @Override
     public void register(ALinker aLinker, DefaultFactoryManager defaultFactoryManager) {
         aLinker.init(this);
         defaultFactoryManager.register(KeyValueStore.class, this);

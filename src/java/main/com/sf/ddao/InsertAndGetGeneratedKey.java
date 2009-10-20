@@ -16,6 +16,7 @@
 
 package com.sf.ddao;
 
+import com.sf.ddao.chain.ChainMember;
 import com.sf.ddao.ops.InsertAndGetGeneratedKeySqlOperation;
 
 import java.lang.annotation.ElementType;
@@ -35,7 +36,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@SqlAnnotation(InsertAndGetGeneratedKeySqlOperation.class)
+@ChainMember(InsertAndGetGeneratedKeySqlOperation.class)
 public @interface InsertAndGetGeneratedKey {
     String value();
 }

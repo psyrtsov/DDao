@@ -18,12 +18,17 @@ package com.sf.ddao.ops;
 
 import com.sf.ddao.DaoException;
 import com.sf.ddao.InsertAndGetGeneratedKey;
-import com.sf.ddao.SqlOperation;
 import com.sf.ddao.alinker.initializer.InitializerException;
+import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.chain.ChainInvocationContext;
+import com.sf.ddao.chain.ChainMemberInvocationHandler;
+import com.sf.ddao.conn.ConnectionHandlerHelper;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
-import com.sf.ddao.factory.StatementFactoryManager;
+import com.sf.ddao.handler.Intializible;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -35,12 +40,19 @@ import java.sql.Statement;
  * Date: Aug 11, 2007
  * Time: 2:47:16 PM
  */
-public class InsertAndGetGeneratedKeySqlOperation implements SqlOperation {
+public class InsertAndGetGeneratedKeySqlOperation implements ChainMemberInvocationHandler, Intializible {
     private StatementFactory statementFactory;
+    private Method method;
 
-    public Object invoke(Connection connection, Method method, Object[] args) {
+    @Inject
+    public InsertAndGetGeneratedKeySqlOperation(StatementFactory statementFactory) {
+        this.statementFactory = statementFactory;
+    }
+
+    public Object invoke(ChainInvocationContext context, boolean hasNext) throws Throwable {
         try {
-            PreparedStatement preparedStatement = statementFactory.createStatement(connection, args, Statement.RETURN_GENERATED_KEYS);
+            Connection connection = ConnectionHandlerHelper.getConnection(context);
+            PreparedStatement preparedStatement = statementFactory.createStatement(connection, context.getArgs(), Statement.RETURN_GENERATED_KEYS);
             Object res = null;
             preparedStatement.executeUpdate();
             ResultSet resultSet = preparedStatement.getGeneratedKeys();
@@ -59,14 +71,23 @@ public class InsertAndGetGeneratedKeySqlOperation implements SqlOperation {
         }
     }
 
-    public void init(Method method) throws InitializerException {
-        InsertAndGetGeneratedKey insertAndGetGeneratedKey = method.getAnnotation(InsertAndGetGeneratedKey.class);
+    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+        method = (Method) element;
+        InsertAndGetGeneratedKey insertAndGetGeneratedKey = (InsertAndGetGeneratedKey) annotation;
         String sql = insertAndGetGeneratedKey.value();
         try {
-            statementFactory = StatementFactoryManager.createStatementFactory(method, sql);
+            statementFactory.init(element, sql);
         } catch (StatementFactoryException e) {
             throw new InitializerException("Failed to setup sql operation " + sql + " for method " + method, e);
         }
+    }
+
+    public Method getMethod() {
+        return method;
+    }
+
+    public StatementFactory getStatementFactory() {
+        return statementFactory;
     }
 }
 

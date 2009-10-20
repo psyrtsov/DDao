@@ -19,11 +19,11 @@ package com.sf.ddao.conn;
 import com.sf.ddao.DaoException;
 import com.sf.ddao.JDBCDao;
 import com.sf.ddao.alinker.initializer.InitializerException;
+import com.sf.ddao.chain.ChainInvocationContext;
 import com.sf.ddao.handler.Intializible;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -37,18 +37,8 @@ import java.sql.SQLException;
 public class JDBCConnectionHandler extends ConnectionHandlerHelper implements Intializible {
     private JDBCDao jdbcDao;
 
-    public Connection createConnection(Method method, Object[] args) throws SQLException {
-        Connection res;
-        if (jdbcDao.user() == null || jdbcDao.user().length() == 0) {
-            res = DriverManager.getConnection(jdbcDao.value());
-        } else {
-            res = DriverManager.getConnection(jdbcDao.value(), jdbcDao.user(), jdbcDao.pwd());
-        }
-        return res;
-    }
-
-
     public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+        super.init(element, annotation);
         jdbcDao = (JDBCDao) annotation;
         if (jdbcDao.driver() != null && jdbcDao.driver().length() > 0) {
             try {
@@ -57,6 +47,16 @@ public class JDBCConnectionHandler extends ConnectionHandlerHelper implements In
                 throw new DaoException("Failed to load driver " + jdbcDao.driver(), e);
             }
         }
-        super.init(element, annotation);
+    }
+
+    @Override
+    public Connection createConnection(ChainInvocationContext chainInvocationContext) throws SQLException {
+        Connection res;
+        if (jdbcDao.user() == null || jdbcDao.user().length() == 0) {
+            res = DriverManager.getConnection(jdbcDao.value());
+        } else {
+            res = DriverManager.getConnection(jdbcDao.value(), jdbcDao.user(), jdbcDao.pwd());
+        }
+        return res;
     }
 }
