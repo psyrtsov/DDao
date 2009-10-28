@@ -20,7 +20,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 
 /**
- * psdo: add class comments
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
  * Time: 3:49:45 PM

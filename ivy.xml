@@ -11,5 +11,6 @@
         <dependency org="commons-beanutils" name="commons-beanutils" rev="1.+">
             <artifact name="commons-beanutils" type="jar" ext="jar"/>
         </dependency>
+        <dependency org="commons-chain" name="commons-chain" rev="1.+" transitive="false"/>
     </dependencies>
 </ivy-module>

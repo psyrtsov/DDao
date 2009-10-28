@@ -22,7 +22,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * psdo: add class comments
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
  * Time: 1:11:17 PM

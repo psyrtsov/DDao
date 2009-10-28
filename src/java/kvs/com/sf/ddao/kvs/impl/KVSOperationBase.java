@@ -3,12 +3,12 @@ package com.sf.ddao.kvs.impl;
 import com.sf.ddao.alinker.ALinker;
 import com.sf.ddao.alinker.Context;
 import com.sf.ddao.alinker.inject.Inject;
-import com.sf.ddao.chain.ChainMemberInvocationHandler;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
 import com.sf.ddao.handler.Intializible;
 import com.sf.ddao.kvs.KVSException;
 import com.sf.ddao.kvs.KeyValueStore;
+import org.apache.commons.chain.Command;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -18,7 +18,7 @@ import java.lang.reflect.AnnotatedElement;
  * Date: Jul 26, 2009
  * Time: 12:01:37 AM
  */
-public abstract class KVSOperationBase implements ChainMemberInvocationHandler, Intializible {
+public abstract class KVSOperationBase implements Command, Intializible {
     @Inject
     public ALinker aLinker;
     protected StatementFactory keyFactory;

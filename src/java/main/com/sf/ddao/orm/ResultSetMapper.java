@@ -19,7 +19,6 @@ package com.sf.ddao.orm;
 import java.sql.ResultSet;
 
 /**
- * psdo: add comments
  * Created by: Pavel Syrtsov
  * Date: Apr 8, 2007
  * Time: 4:28:38 PM
@@ -27,7 +26,8 @@ import java.sql.ResultSet;
  */
 public interface ResultSetMapper {
     /**
-     * add record fetched from result set 
+     * add record fetched from result set
+     *
      * @param resultSet from where data can be extracted
      * @return true if can consume more records
      * @throws Exception in case of error

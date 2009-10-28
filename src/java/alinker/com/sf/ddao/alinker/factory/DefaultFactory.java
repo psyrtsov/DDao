@@ -28,7 +28,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 
 /**
- * psdo: add class comments
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
  * Time: 9:39:39 PM

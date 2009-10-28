@@ -1,8 +1,6 @@
 package com.sf.ddao.chain;
 
 import com.sf.ddao.alinker.factory.UseFactory;
-import com.sf.ddao.handler.InvocationHandlerAnnotation;
-import com.sf.ddao.handler.InvocationHandlerFactory;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -15,7 +13,6 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.ANNOTATION_TYPE})
-@UseFactory(InvocationHandlerFactory.class)
-@InvocationHandlerAnnotation(ChainInvocationHandler.class)
-public @interface Chain {
+@UseFactory(ChainHandlerFactory.class)
+public @interface ChainHandlerAnnotation {
 }

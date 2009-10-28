@@ -17,11 +17,9 @@
 package com.sf.ddao;
 
 import com.sf.ddao.alinker.factory.UseFactory;
-import com.sf.ddao.chain.ChainInvocationHandler;
-import com.sf.ddao.chain.ChainMember;
+import com.sf.ddao.chain.ChainHandlerFactory;
+import com.sf.ddao.chain.CommandAnnotation;
 import com.sf.ddao.conn.JNDIDataSourceHandler;
-import com.sf.ddao.handler.InvocationHandlerAnnotation;
-import com.sf.ddao.handler.InvocationHandlerFactory;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -29,7 +27,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * psdo: comments
  * This annotation defines tnat interface logic that it is attached to
  * is Dao interface and should be interpreted
  * by {@link com.sf.ddao.conn.DaoInvocationHandlerImpl}.
@@ -40,9 +37,8 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@UseFactory(InvocationHandlerFactory.class)
-@InvocationHandlerAnnotation(value = ChainInvocationHandler.class, singleton = true)
-@ChainMember(JNDIDataSourceHandler.class)
+@UseFactory(ChainHandlerFactory.class)
+@CommandAnnotation(JNDIDataSourceHandler.class)
 public @interface JNDIDao {
     /**
      * @return JNDI name of DataSource this Dao connected to

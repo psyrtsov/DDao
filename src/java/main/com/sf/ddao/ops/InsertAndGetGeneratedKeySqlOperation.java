@@ -20,17 +20,17 @@ import com.sf.ddao.DaoException;
 import com.sf.ddao.InsertAndGetGeneratedKey;
 import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.alinker.inject.Inject;
-import com.sf.ddao.chain.ChainInvocationContext;
-import com.sf.ddao.chain.ChainMemberInvocationHandler;
-import com.sf.ddao.conn.ConnectionHandlerHelper;
+import com.sf.ddao.chain.CtxHelper;
+import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
 import com.sf.ddao.handler.Intializible;
+import org.apache.commons.chain.Command;
+import org.apache.commons.chain.Context;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -40,7 +40,7 @@ import java.sql.Statement;
  * Date: Aug 11, 2007
  * Time: 2:47:16 PM
  */
-public class InsertAndGetGeneratedKeySqlOperation implements ChainMemberInvocationHandler, Intializible {
+public class InsertAndGetGeneratedKeySqlOperation implements Command, Intializible {
     private StatementFactory statementFactory;
     private Method method;
 
@@ -49,10 +49,10 @@ public class InsertAndGetGeneratedKeySqlOperation implements ChainMemberInvocati
         this.statementFactory = statementFactory;
     }
 
-    public Object invoke(ChainInvocationContext context, boolean hasNext) throws Throwable {
+    public boolean execute(Context context) throws Exception {
         try {
-            Connection connection = ConnectionHandlerHelper.getConnection(context);
-            PreparedStatement preparedStatement = statementFactory.createStatement(connection, context.getArgs(), Statement.RETURN_GENERATED_KEYS);
+            final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
+            PreparedStatement preparedStatement = statementFactory.createStatement(context, Statement.RETURN_GENERATED_KEYS);
             Object res = null;
             preparedStatement.executeUpdate();
             ResultSet resultSet = preparedStatement.getGeneratedKeys();
@@ -65,7 +65,8 @@ public class InsertAndGetGeneratedKeySqlOperation implements ChainMemberInvocati
             }
             resultSet.close();
             preparedStatement.close();
-            return res;
+            callCtx.setLastReturn(res);
+            return CONTINUE_PROCESSING;
         } catch (Exception t) {
             throw new DaoException("Failed to execute sql operation for " + method, t);
         }

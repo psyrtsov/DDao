@@ -19,7 +19,6 @@ package com.sf.ddao.alinker;
 import com.sf.ddao.alinker.initializer.InitializerException;
 
 /**
- * psdo: add class comments
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
  * Time: 8:03:50 PM

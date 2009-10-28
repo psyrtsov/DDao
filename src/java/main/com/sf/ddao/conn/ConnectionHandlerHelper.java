@@ -16,9 +16,8 @@
 package com.sf.ddao.conn;
 
 import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.chain.ChainInvocationContext;
-import com.sf.ddao.chain.ChainInvocationPostProcessor;
-import com.sf.ddao.chain.ChainMemberInvocationHandler;
+import org.apache.commons.chain.Context;
+import org.apache.commons.chain.Filter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -30,8 +29,8 @@ import java.sql.SQLException;
  * Date: Jun 11, 2008
  * Time: 10:50:45 PM
  */
-public abstract class ConnectionHandlerHelper implements ChainMemberInvocationHandler, ChainInvocationPostProcessor {
-    public static final ThreadLocal<Connection> connectionOnHold = new ThreadLocal<Connection>();
+public abstract class ConnectionHandlerHelper implements Filter {
+    private static final ThreadLocal<Connection> connectionOnHold = new ThreadLocal<Connection>();
 
     public static final String CONNECTION_KEY = ConnectionHandlerHelper.class.toString() + "_CONN";
 
@@ -39,40 +38,43 @@ public abstract class ConnectionHandlerHelper implements ChainMemberInvocationHa
         // do nothing for now
     }
 
-    /**
-     * @param context - invocation context
-     * @param hasNext - if false then this is last invocation on the chain
-     *                ans result will be used as return value for whole the method call
-     * @return value will be stored in lastReturn property of context
-     */
-    public Object invoke(ChainInvocationContext context, boolean hasNext) throws Throwable {
+    public boolean execute(Context context) throws Exception {
+        //noinspection unchecked
         context.put(ConnectionHandlerHelper.class.toString(), this);
-        return null;
+        return CONTINUE_PROCESSING;
     }
 
-    public void chainPostProcess(ChainInvocationContext context) throws Throwable {
+    public boolean postprocess(Context context, Exception exception) {
         Connection conn = (Connection) context.get(CONNECTION_KEY);
         if (conn != null) {
-            conn.close();
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
+        return CONTINUE_PROCESSING;
     }
 
 
-    public static Connection getConnection(ChainInvocationContext context) throws SQLException {
+    public static Connection getConnection(Context context) throws SQLException {
         Connection conn = (Connection) context.get(CONNECTION_KEY);
         if (conn == null) {
             conn = connectionOnHold.get();
-            if (conn == null) {
-                ConnectionHandlerHelper connectionHandlerHelper = (ConnectionHandlerHelper) context.get(ConnectionHandlerHelper.class.toString());
-                conn = connectionHandlerHelper.createConnection(context);
+            if (conn != null) {
+                return conn;
             }
+            ConnectionHandlerHelper connectionHandlerHelper = (ConnectionHandlerHelper) context.get(ConnectionHandlerHelper.class.toString());
+            conn = connectionHandlerHelper.createConnection(context);
+            //noinspection unchecked
             context.put(CONNECTION_KEY, conn);
         }
         return conn;
     }
 
-    public static void putConnectionOnHold(Connection connection) {
-        connectionOnHold.set(connection);
+    public static void putConnectionOnHold(Context context) {
+        Connection conn = (Connection) context.remove(CONNECTION_KEY);
+        connectionOnHold.set(conn);
     }
 
     public static Connection getConnectionOnHold() {
@@ -85,5 +87,5 @@ public abstract class ConnectionHandlerHelper implements ChainMemberInvocationHa
         return res;
     }
 
-    public abstract Connection createConnection(ChainInvocationContext chainInvocationContext) throws SQLException;
+    public abstract Connection createConnection(Context chainInvocationContext) throws SQLException;
 }

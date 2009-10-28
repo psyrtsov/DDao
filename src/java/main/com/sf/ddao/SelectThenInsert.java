@@ -16,7 +16,7 @@
 
 package com.sf.ddao;
 
-import com.sf.ddao.chain.ChainMember;
+import com.sf.ddao.chain.CommandAnnotation;
 import com.sf.ddao.ops.SelectThenInsertSqlOperation;
 
 import java.lang.annotation.ElementType;
@@ -36,7 +36,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@ChainMember(SelectThenInsertSqlOperation.class)
+@CommandAnnotation(SelectThenInsertSqlOperation.class)
 //psdo: problem with this approach is that sequence has to be in same shard as data table
 public @interface SelectThenInsert {
     public abstract String[] value();

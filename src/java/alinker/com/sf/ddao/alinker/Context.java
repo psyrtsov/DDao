@@ -21,7 +21,6 @@ import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
 
 /**
- * psdo: add class comments
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
  * Time: 8:07:22 PM

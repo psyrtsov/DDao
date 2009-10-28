@@ -17,7 +17,6 @@
 package com.sf.ddao.alinker.initializer;
 
 /**
- * psdo: add class comments
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
  * Time: 10:27:28 PM

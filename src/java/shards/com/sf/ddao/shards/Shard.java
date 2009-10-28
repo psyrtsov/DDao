@@ -41,12 +41,12 @@ public class Shard implements Comparable {
     }
 
     public int compareTo(Object o) {
-        //psdo: unit test this code
         if (o instanceof Shard) {
             Shard shard = (Shard) o;
             if (shard.endId < startId) {
                 return -1;
             }
+            //psdo: unit test this code
             if (endId < shard.startId) {
                 return 1;
             }

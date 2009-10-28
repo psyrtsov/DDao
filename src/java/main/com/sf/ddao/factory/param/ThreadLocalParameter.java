@@ -16,6 +16,8 @@
 
 package com.sf.ddao.factory.param;
 
+import org.apache.commons.chain.Context;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,12 +26,11 @@ import java.util.Map;
  * Date: Apr 10, 2008
  * Time: 4:14:54 PM
  */
-public class ThreadLocalStatementParameter extends StatementParameterHelper {
+public class ThreadLocalParameter extends ParameterHelper {
     private static ThreadLocal<Map<String, Object>> data = new ThreadLocal<Map<String, Object>>();
-    public static final String FUNC_NAME = "global";
 
     @Override
-    public Object extractData(Object[] args) throws StatementParameterException {
+    public Object extractData(Context context) throws ParameterException {
         final Map<String, Object> dataMap = data.get();
         if (dataMap == null) {
             return null;
@@ -38,7 +39,6 @@ public class ThreadLocalStatementParameter extends StatementParameterHelper {
     }
 
     public static Object put(String key, Object value) {
-        key = FUNC_NAME + "(" + key + ")";
         Map<String, Object> dataMap = data.get();
         if (dataMap == null) {
             dataMap = new HashMap<String, Object>();
@@ -53,9 +53,5 @@ public class ThreadLocalStatementParameter extends StatementParameterHelper {
             return null;
         }
         return dataMap.remove(key);
-    }
-
-    public void clear() {
-        data.remove();
     }
 }

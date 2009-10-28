@@ -1,8 +1,12 @@
 package com.sf.ddao.chain;
 
+import org.apache.commons.chain.Chain;
+import org.apache.commons.chain.Command;
+import org.apache.commons.chain.Context;
+import org.apache.commons.chain.impl.ChainBase;
+import org.apache.commons.chain.impl.ContextBase;
+
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -12,56 +16,42 @@ import java.util.List;
  */
 class MethodInvocationHandler {
     private final Method method;
-    private final List<ChainMemberInvocationHandler> invocationHandlers;
-    private int chainContextParamIndex = -1;
-    private List<ChainInvocationPostProcessor> postProcessors = new ArrayList<ChainInvocationPostProcessor>();
+    private final Chain chain;
+    private int contextParamIndex = -1;
 
-    public MethodInvocationHandler(Method method, List<ChainMemberInvocationHandler> invocationHandlers) {
+    public MethodInvocationHandler(Method method, List<Command> commands) {
         this.method = method;
-        this.invocationHandlers = invocationHandlers;
+        this.chain = new ChainBase(commands);
         final Class<?>[] parameterTypes = method.getParameterTypes();
         for (int i = 0; i < parameterTypes.length; i++) {
-            if (ChainInvocationContext.class.isAssignableFrom(parameterTypes[i])) {
-                chainContextParamIndex = i;
+            if (Context.class.isAssignableFrom(parameterTypes[i])) {
+                contextParamIndex = i;
                 break;
-            }
-        }
-        for (ChainMemberInvocationHandler invocationHandler : invocationHandlers) {
-            if (invocationHandler instanceof ChainInvocationPostProcessor) {
-                ChainInvocationPostProcessor postProcessor = (ChainInvocationPostProcessor) invocationHandler;
-                postProcessors.add(postProcessor);
             }
         }
     }
 
     public Object invoke(Object[] args) throws Throwable {
-        ChainInvocationContext context = createContext(args);
-        context.setMethod(method);
-        for (Iterator<ChainMemberInvocationHandler> it = invocationHandlers.iterator(); it.hasNext();) {
-            ChainMemberInvocationHandler invocationHandler = it.next();
-            Object res = invocationHandler.invoke(context, it.hasNext());
-            context.setLastReturn(res);
-        }
-        for (ChainInvocationPostProcessor postProcessor : postProcessors) {
-            postProcessor.chainPostProcess(context);
-        }
-        if (ChainInvocationContext.class.isAssignableFrom(method.getReturnType())) {
+        Context context = createContext(args);
+        final MethodCallCtx callCtx = new MethodCallCtx(args, method);
+        CtxHelper.put(context, MethodCallCtx.class, callCtx);
+        chain.execute(context);
+        if (Context.class.isAssignableFrom(method.getReturnType())) {
             return context;
         }
-        return context.getLastReturn();
+        return callCtx.getLastReturn();
     }
 
-    private ChainInvocationContext createContext(Object[] args) {
-        ChainInvocationContext res;
-        if (chainContextParamIndex >= 0) {
-            res = (ChainInvocationContext) args[chainContextParamIndex];
-            if (res == null) {
-                throw new NullPointerException("ChainInvocationContext parameter is null!");
+    private Context createContext(Object[] args) {
+        Context context;
+        if (contextParamIndex >= 0) {
+            context = (Context) args[contextParamIndex];
+            if (context == null) {
+                throw new NullPointerException("Context parameter is null!");
             }
         } else {
-            res = new ChainInvocationContext();
+            context = new ContextBase();
         }
-        res.setArgs(args);
-        return res;
+        return context;
     }
 }

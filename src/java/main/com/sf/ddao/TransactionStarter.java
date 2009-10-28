@@ -1,7 +1,7 @@
 package com.sf.ddao;
 
-import com.sf.ddao.chain.ChainMember;
-import com.sf.ddao.ops.SelectSqlOperation;
+import com.sf.ddao.chain.CommandAnnotation;
+import com.sf.ddao.conn.StartTransaction;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -14,6 +14,6 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@ChainMember(SelectSqlOperation.class)
+@CommandAnnotation(StartTransaction.class)
 public @interface TransactionStarter {
 }

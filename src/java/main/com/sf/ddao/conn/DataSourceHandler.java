@@ -18,8 +18,8 @@ package com.sf.ddao.conn;
 
 import com.sf.ddao.DataSourceDao;
 import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.chain.ChainInvocationContext;
 import com.sf.ddao.handler.Intializible;
+import org.apache.commons.chain.Context;
 
 import javax.sql.DataSource;
 import java.lang.annotation.Annotation;
@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * This ConnectionHandler is unsing static hash map to get DataSource object,
+ * This ConnectionHandler is using static hash map to get DataSource object,
  * can be helpful when we want flexibility of defining data source parameters from some config file
  * but don't want to deal with JNDI
  * <p/>
@@ -49,7 +49,7 @@ public class DataSourceHandler extends ConnectionHandlerHelper implements Intial
     }
 
     @Override
-    public Connection createConnection(ChainInvocationContext chainInvocationContext) throws SQLException {
+    public Connection createConnection(Context context) throws SQLException {
         DataSource dataSource = dataSourceMap.get(dsName);
         if (dataSource == null) {
             throw new NullPointerException("DataSource with name " + dsName + " should be regstered at " + DataSourceHandler.class);

@@ -16,7 +16,7 @@
 
 package com.sf.ddao;
 
-import com.sf.ddao.chain.ChainMember;
+import com.sf.ddao.chain.CommandAnnotation;
 import com.sf.ddao.ops.UpdateSqlOperation;
 
 import java.lang.annotation.ElementType;
@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@ChainMember(UpdateSqlOperation.class)
+@CommandAnnotation(UpdateSqlOperation.class)
 public @interface Update {
     String value();
 }

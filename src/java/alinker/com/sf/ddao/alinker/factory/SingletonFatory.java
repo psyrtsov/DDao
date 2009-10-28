@@ -22,7 +22,6 @@ import com.sf.ddao.alinker.Context;
 import com.sf.ddao.alinker.FactoryException;
 
 /**
- * psdo: add class comments
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
  * Time: 10:43:38 AM

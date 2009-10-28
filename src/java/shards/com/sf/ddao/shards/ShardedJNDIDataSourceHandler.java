@@ -19,11 +19,13 @@ package com.sf.ddao.shards;
 import com.sf.ddao.DaoException;
 import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.alinker.inject.Inject;
-import com.sf.ddao.chain.ChainInvocationContext;
+import com.sf.ddao.chain.CtxHelper;
+import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.conn.ConnectionHandlerHelper;
 import com.sf.ddao.conn.JNDIDataSourceHandler;
 import com.sf.ddao.handler.Intializible;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.chain.Context;
 
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
@@ -35,7 +37,6 @@ import java.sql.SQLException;
 import java.util.*;
 
 /**
- * psdo: add class comments
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
  * Time: 9:39:39 PM
@@ -111,8 +112,10 @@ public class ShardedJNDIDataSourceHandler extends ConnectionHandlerHelper implem
         super.init(element, annotation);
     }
 
-    public Connection createConnection(ChainInvocationContext context) throws SQLException {
-        Comparable shardKey = getShardKey(context.getMethod(), context.getArgs());
+    @Override
+    public Connection createConnection(Context context) throws SQLException {
+        final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
+        Comparable shardKey = getShardKey(callCtx.getMethod(), callCtx.getArgs());
         //noinspection SuspiciousMethodCalls
         Shard shard = shardMap.get(shardKey);
         DataSource ds = shard.getDataSource();

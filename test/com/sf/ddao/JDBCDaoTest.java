@@ -21,12 +21,16 @@ import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockResultSet;
 import com.sf.ddao.alinker.ALinker;
-import com.sf.ddao.factory.param.ThreadLocalStatementParameter;
+import static com.sf.ddao.chain.CtxHelper.context;
+import com.sf.ddao.conn.ConnectionHandlerHelper;
+import com.sf.ddao.factory.param.ThreadLocalParameter;
+import org.apache.commons.chain.Context;
 import org.mockejb.jndi.MockContextFactory;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 /**
  * JDBCDaoTest is testing basic DDao functionality executed upon simple JDBC connection created by JDBC DriverManager call.
@@ -44,6 +48,7 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         /**
          * in this statement we assume that 1st method arg is Java Bean
          * and refer to property by name. It works same way for Map.
+         *
          * @param userBean - parameter object
          * @return - TestUserBean created using data from SQL
          */
@@ -55,8 +60,9 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
 
         /**
          * 1st parametterpassed by reference, 2nd by value (by injecting result of toString() into SQL).
+         *
          * @param tableName - paramter object
-         * @param size - max size of return array
+         * @param size      - max size of return array
          * @return array of TestUserBeans created using data returned by SQL query
          */
         @Select("select id, name from $0$ limit #1#")
@@ -68,13 +74,14 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         /**
          * values that have '()' assumed to be call to static function,
          * at this point we have only function that allows to pass value thrue ThreadLocal
+         *
          * @param name - query parameter
          * @return id
          */
-        @Select("select id from user where part = '$global(" + PART_NAME + ")$' and name = #0#")
-        int getUserIdByName(String name);
+        @Select("select id from user where part = '$ctx:" + PART_NAME + "$' and name = #0#")
+        int getUserIdByName(String name, Context ctx);
 
-        @SelectThenInsert({"select nextval from userIdSequence","insert into user(id,name) values(#global(id)#, #name#)"})
+        @SelectThenInsert({"select nextval from userIdSequence", "insert into user(id,name) values(#threadLocal:id#, #name#)"})
         int addUser(TestUserBean user);
     }
 
@@ -105,11 +112,11 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         TestUserDao dao = factory.create(TestUserDao.class, null);
 
         // ruse it for multiple invocations
-        getUserOnce(dao, 1, "foo");
-        getUserOnce(dao, 2, "bar");
+        getUserOnce(dao, 1, "foo", true);
+        getUserOnce(dao, 2, "bar", true);
     }
 
-    private void getUserOnce(TestUserDao dao, int id, String name) throws Exception {
+    private void getUserOnce(TestUserDao dao, int id, String name, boolean connShouldBeClosed) {
         // setup test
         TestUserBean data = new TestUserBean();
         data.setId(id);
@@ -127,7 +134,9 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         verifySQLStatementExecuted("select id, name from user where id = ?");
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
-        verifyConnectionClosed();
+        if (connShouldBeClosed) {
+            verifyConnectionClosed();
+        }
     }
 
     public void testGetRecordList() throws Exception {
@@ -209,14 +218,13 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         final String testName = "testName";
         final String testPart = "testPart";
         createResultSet("id", new Object[]{id});
-        ThreadLocalStatementParameter.put(PART_NAME, testPart);
 
         // execute dao method
         TestUserDao dao = factory.create(TestUserDao.class, null);
-        int res = dao.getUserIdByName(testName);
+        int res = dao.getUserIdByName(testName, context(PART_NAME, testPart));
 
         // verify result
-        ThreadLocalStatementParameter.remove(PART_NAME);
+        ThreadLocalParameter.remove(PART_NAME);
         assertEquals(id, res);
 
         verifySQLStatementExecuted("select id from user where part = '" + testPart + "' and name = ?");
@@ -229,21 +237,33 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
     public void testTx() throws Exception {
         final int id = 77;
         final String testName = "testName";
-        createResultSet("nextval", new Object[]{id});
 
         // execute dao method
         final TestUserDao dao = factory.create(TestUserDao.class, null);
         final TestUserBean user = new TestUserBean();
         user.setName(testName);
-        int res = DaoUtils.execInTx(dao, new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-                verifyNotCommitted();
-                return dao.addUser(user);
+        DaoUtils.execInTx(dao, new Runnable() {
+            public void run() {
+                try {
+                    createResultSet("nextval", new Object[]{id});
+                    final int res = dao.addUser(user);
+                    final Connection connection1 = ConnectionHandlerHelper.getConnectionOnHold();
+                    assertNotNull(connection1);
+                    assertFalse(connection1.isClosed());
+                    verifyNotCommitted();
+                    getUserOnce(dao, 11, "user11", false);
+                    final Connection connection2 = ConnectionHandlerHelper.getConnectionOnHold();
+                    assertSame(connection1, connection2);
+                    assertFalse(connection2.isClosed());
+                    verifyNotCommitted();
+                    assertEquals(id, res);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
-        assertEquals(id, res);
-        
+        final Connection connection = ConnectionHandlerHelper.getConnectionOnHold();
+        assertNull(connection);
         verifyCommitted();
         verifySQLStatementExecuted("select nextval from userIdSequence");
         verifySQLStatementExecuted("insert into user(id,name) values(?, ?)");

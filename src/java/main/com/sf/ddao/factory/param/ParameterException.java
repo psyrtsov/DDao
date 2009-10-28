@@ -21,21 +21,21 @@ package com.sf.ddao.factory.param;
  * Date: Dec 7, 2007
  * Time: 10:45:57 AM
  */
-public class StatementParameterException extends Exception {
+public class ParameterException extends Exception {
     private static final long serialVersionUID = -8823346086856553809L;
 
-    public StatementParameterException() {
+    public ParameterException() {
     }
 
-    public StatementParameterException(String message) {
+    public ParameterException(String message) {
         super(message);
     }
 
-    public StatementParameterException(String message, Throwable cause) {
+    public ParameterException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public StatementParameterException(Throwable cause) {
+    public ParameterException(Throwable cause) {
         super(cause);
     }
 }

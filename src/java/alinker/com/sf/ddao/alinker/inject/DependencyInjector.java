@@ -28,7 +28,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * psdo: add class comments
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
  * Time: 10:41:27 PM

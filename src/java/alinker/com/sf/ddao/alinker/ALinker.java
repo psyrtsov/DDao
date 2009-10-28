@@ -25,7 +25,6 @@ import com.sf.ddao.alinker.initializer.InitializerManager;
 import java.lang.reflect.AnnotatedElement;
 
 /**
- * psdo: add class commwwwents
  * <p/>
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
@@ -69,6 +68,7 @@ public class ALinker {
         T subj;
         if (factory instanceof CachingFactory) {
             CachingFactory<T> cachingFactory = (CachingFactory<T>) factory;
+            //noinspection SynchronizationOnLocalVariableOrMethodParameter
             synchronized (cachingFactory) {
                 subj = cachingFactory.getCachedObject(ctx);
                 if (subj != null) {

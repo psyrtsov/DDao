@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.ServiceLoader;
 
 /**
- * psdo: add class comments
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
  * Time: 8:01:56 PM
@@ -39,20 +38,18 @@ public class DefaultFactoryManager implements FactoryManager {
      * annotation to injection point, such as @Conf("propertyName") attached to String parameter
      * shoud invoke configuratoin factory
      */
-// psdo: we need to cache factories create based on subjClass only, to make sure they there is only one instance per class
     private final Map<Context, Factory> factoryCache = new HashMap<Context, Factory>();
     private final Map<Class, Factory> classFactoryMap = new HashMap<Class, Factory>();
     private final Factory defaultFactory;
     private final ALinker aLinker;
 
-    public DefaultFactoryManager(Factory defaultFactory, ALinker aLinker) {
+    public DefaultFactoryManager(ALinker aLinker, Factory defaultFactory) {
         this.defaultFactory = defaultFactory;
         this.aLinker = aLinker;
     }
 
     public DefaultFactoryManager(ALinker aLinker) {
-        this.aLinker = aLinker;
-        this.defaultFactory = new DefaultFactory();
+        this(aLinker, new DefaultFactory());
     }
 
     public void init() {
@@ -118,6 +115,7 @@ public class DefaultFactoryManager implements FactoryManager {
                 return useFactory.value();
             }
         }
+        //psdo: replace second degree annotation lookup with annotation registry
         for (Annotation annotation : annotations) {
             UseFactory useFactory = annotation.annotationType().getAnnotation(UseFactory.class);
             if (useFactory != null) {
@@ -127,6 +125,7 @@ public class DefaultFactoryManager implements FactoryManager {
         return null;
     }
 
+    //psdo: addd register by annotation
     public <T> void register(Class<T> clazz, Factory<T> factory) {
         Factory old = classFactoryMap.put(clazz, factory);
         if (old != null) {

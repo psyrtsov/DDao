@@ -22,11 +22,10 @@ import com.mockrunner.mock.jdbc.JDBCMockObjectFactory;
 import com.mockrunner.mock.jdbc.MockDataSource;
 import com.mockrunner.mock.jdbc.MockResultSet;
 import com.sf.ddao.alinker.ALinker;
-import com.sf.ddao.conn.JNDIDataSourceHandler;
+import com.sf.ddao.conn.DataSourceHandler;
 import com.sf.ddao.factory.param.ThreadLocalParameter;
 import org.mockejb.jndi.MockContextFactory;
 
-import javax.naming.InitialContext;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,11 +34,11 @@ import java.util.List;
  * Date: Apr 6, 2007
  * Time: 7:00:11 PM
  */
-public class JNDIDaoTest extends BasicJDBCTestCaseAdapter {
+public class DataSourceDaoTest extends BasicJDBCTestCaseAdapter {
     ALinker factory;
     private static final String PART_NAME = "partName";
 
-    @JNDIDao("jdbc/testdb")
+    @DataSourceDao("testdb")
     public static interface TestUserDao {
         /**
          * in this statement we assume that 1st method arg is Java Bean
@@ -85,9 +84,7 @@ public class JNDIDaoTest extends BasicJDBCTestCaseAdapter {
         super.setUp();
         JDBCMockObjectFactory factory = getJDBCMockObjectFactory();
         MockDataSource ds = factory.getMockDataSource();
-        MockContextFactory.setAsInitial();
-        InitialContext context = new InitialContext();
-        context.rebind(JNDIDataSourceHandler.DS_CTX_PREFIX + "jdbc/testdb", ds);
+        DataSourceHandler.dataSourceMap.put("testdb", ds);
         this.factory = new ALinker();
     }
 

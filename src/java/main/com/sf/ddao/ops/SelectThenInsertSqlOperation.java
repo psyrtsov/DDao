@@ -3,11 +3,14 @@ package com.sf.ddao.ops;
 import com.sf.ddao.SelectThenInsert;
 import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.alinker.inject.Inject;
-import com.sf.ddao.chain.ChainInvocationContext;
+import com.sf.ddao.chain.CtxHelper;
+import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.factory.StatementFactory;
-import com.sf.ddao.factory.param.ThreadLocalStatementParameter;
+import com.sf.ddao.factory.param.ThreadLocalParameter;
+import org.apache.commons.chain.Context;
 
-import java.lang.reflect.Method;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
 
 /**
@@ -20,35 +23,39 @@ public class SelectThenInsertSqlOperation extends UpdateSqlOperation {
     public static final String ID_FIELD_NAME = "id";
 
     @Inject
-    public SelectThenInsertSqlOperation(StatementFactory statementFactory) {
+    public SelectThenInsertSqlOperation(StatementFactory statementFactory, SelectSqlOperation selectSqlOp) {
         super(statementFactory);
+        this.selectSqlOp = selectSqlOp;
     }
 
     @Override
-    public Object invoke(ChainInvocationContext context, boolean hasNext) throws Throwable {
+    public boolean execute(Context context) throws Exception {
         try {
-            Object res = selectSqlOp.invoke(context, hasNext);
-            ThreadLocalStatementParameter.put(ID_FIELD_NAME, res);
-            super.invoke(context, hasNext);
-            return res;
+            final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
+            selectSqlOp.execute(context);
+            Object res = callCtx.getLastReturn();
+            ThreadLocalParameter.put(ID_FIELD_NAME, res);
+            super.execute(context);
+            callCtx.setLastReturn(res);
+            return CONTINUE_PROCESSING;
         } finally {
-            ThreadLocalStatementParameter.remove(ID_FIELD_NAME);
+            ThreadLocalParameter.remove(ID_FIELD_NAME);
         }
     }
 
-    public void init(Method method) throws InitializerException {
-        SelectThenInsert annotation = method.getAnnotation(SelectThenInsert.class);
-        String sql[] = annotation.value();
+    @Override
+    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+        SelectThenInsert selectThenInsert = (SelectThenInsert) annotation;
+        String sql[] = selectThenInsert.value();
         if (sql.length != 2) {
             throw new InitializerException(SelectThenInsert.class.getSimpleName() + " annotation has to have 2 sql statments, but got:"
-                    + Arrays.toString(sql) + ", for method " + method);
+                    + Arrays.toString(sql) + ", for method " + element);
         }
         try {
-            selectSqlOp = new SelectSqlOperation(getStatementFactory());
-            selectSqlOp.init(method, sql[0]);
-            super.init(method, sql[1]);
+            selectSqlOp.init(element, sql[0]);
+            super.init(element, sql[1]);
         } catch (Exception e) {
-            throw new InitializerException("Failed to setup sql operations " + Arrays.toString(sql) + " for method " + method, e);
+            throw new InitializerException("Failed to setup sql operations " + Arrays.toString(sql) + " for method " + element, e);
         }
     }
 }

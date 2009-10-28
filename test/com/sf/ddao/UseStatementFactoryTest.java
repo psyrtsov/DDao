@@ -23,8 +23,6 @@ import com.mockrunner.mock.jdbc.MockDataSource;
 import com.mockrunner.mock.jdbc.MockResultSet;
 import com.sf.ddao.alinker.ALinker;
 import com.sf.ddao.conn.JNDIDataSourceHandler;
-import com.sf.ddao.factory.DefaultStatementFactory;
-import com.sf.ddao.factory.MessageFormatStatementFactory;
 import org.mockejb.jndi.MockContextFactory;
 
 import javax.naming.InitialContext;
@@ -39,18 +37,16 @@ import java.util.List;
 public class UseStatementFactoryTest extends BasicJDBCTestCaseAdapter {
 
     @JNDIDao("jdbc/testdb")
-    @UseStatementFactory(MessageFormatStatementFactory.class)
     public static interface UserDao {
-        @Select("select id, name from user where id = {0}")
+        @Select("select id, name from user where id = $0$")
         TestUserBean getUser(int id);
 
         @Select("select id, name from user")
         List<TestUserBean> getUserList();
 
-        @Select("select id, name from user limit {0}")
+        @Select("select id, name from user limit $0$")
         TestUserBean[] getUserArray(int size);
 
-        @UseStatementFactory(DefaultStatementFactory.class)
         @Select("select id, name from user")
         void processUsers(SelectCallback selectCallback);
     }

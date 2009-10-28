@@ -24,7 +24,7 @@ import com.sf.ddao.alinker.ALinker;
 import com.sf.ddao.alinker.FactoryException;
 import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.conn.JNDIDataSourceHandler;
-import com.sf.ddao.factory.param.ThreadLocalStatementParameter;
+import com.sf.ddao.factory.param.ThreadLocalParameter;
 import com.sf.ddao.shards.ShardKey;
 import com.sf.ddao.shards.ShardedJNDIDao;
 import junit.framework.TestCase;
@@ -54,20 +54,22 @@ public class ShardedJNDIDaoTest extends TestCase {
         /**
          * in this statement we assume that 1st method arg is Java Bean
          * and refer to property by name. It works same way for Map.
+         *
          * @param userBean - parameter object
          * @return object created from data returned by sql
          */
         @Select("select id, name from user where id = #id#")
-        TestUserBean getUser(@ShardKey("id")TestUserBean userBean);
+        TestUserBean getUser(@ShardKey("id") TestUserBean userBean);
 
         @Select("select id, name from user_data where user_id = #0#")
         List<TestUserBean> getUserDataList(@ShardKey int userId);
 
         /**
          * 1st parameter passed by reference, 2nd by value (by injecting result of toString() into SQL).
+         *
          * @param tableName name of table
-         * @param size - max size of array
-         * @param userId - query parameter
+         * @param size      - max size of array
+         * @param userId    - query parameter
          * @return objects created from data returned by sql
          */
         @Select("select id, name from $0$ where user_id = #2# limit #1#")
@@ -79,10 +81,11 @@ public class ShardedJNDIDaoTest extends TestCase {
         /**
          * values that have '()' assumed to be call to static function,
          * at this point we have only function that allows to pass value thrue ThreadLocal
+         *
          * @param userId - query paramter
          * @return value returned by query
          */
-        @Select("select id from user_data where part = '$global(" + PART_NAME + ")$' and user_id = #0#")
+        @Select("select id from user_data where part = '$threadLocal:" + PART_NAME + "$' and user_id = #0#")
         int getUserData(@ShardKey int userId);
     }
 
@@ -265,13 +268,13 @@ public class ShardedJNDIDaoTest extends TestCase {
         final int id = 11;
         final String testPart = "testPart";
         createResultSet(testModule, "id", new Object[]{id});
-        ThreadLocalStatementParameter.put(PART_NAME, testPart);
+        ThreadLocalParameter.put(PART_NAME, testPart);
 
         // execute dao method
         int res = dao.getUserData(userId);
 
         // verify result
-        ThreadLocalStatementParameter.remove(PART_NAME);
+        ThreadLocalParameter.remove(PART_NAME);
         assertEquals(id, res);
 
         testModule.verifySQLStatementExecuted("select id from user_data where part = '" + testPart + "' and user_id = ?");

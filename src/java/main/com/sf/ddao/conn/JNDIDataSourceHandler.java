@@ -19,8 +19,8 @@ package com.sf.ddao.conn;
 import com.sf.ddao.DaoException;
 import com.sf.ddao.JNDIDao;
 import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.chain.ChainInvocationContext;
 import com.sf.ddao.handler.Intializible;
+import org.apache.commons.chain.Context;
 
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
@@ -31,7 +31,6 @@ import java.sql.SQLException;
 import java.util.Hashtable;
 
 /**
- * psdo: add class comments
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
  * Time: 9:39:39 PM
@@ -53,7 +52,7 @@ public class JNDIDataSourceHandler extends ConnectionHandlerHelper implements In
     }
 
     @Override
-    public Connection createConnection(ChainInvocationContext chainInvocationContext) throws SQLException {
+    public Connection createConnection(Context context) throws SQLException {
         return dataSource.getConnection();
     }
 }

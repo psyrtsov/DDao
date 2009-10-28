@@ -20,7 +20,6 @@ import com.sf.ddao.alinker.Context;
 import com.sf.ddao.alinker.Initializer;
 
 /**
- * psdo: add class comments
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
  * Time: 10:15:31 PM

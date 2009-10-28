@@ -16,6 +16,8 @@
 
 package com.sf.ddao.factory.param;
 
+import org.apache.commons.chain.Context;
+
 import java.lang.reflect.AnnotatedElement;
 import java.sql.PreparedStatement;
 
@@ -27,11 +29,10 @@ import java.sql.PreparedStatement;
  * Date: Nov 27, 2007
  * Time: 7:07:45 PM
  */
-public interface StatementParameter {
+public interface Parameter {
     /**
-     * psdo: add comments
-     *
-     * @param name - name of parameter
+     * @param element - method object
+     * @param name    - name of parameter
      */
     void init(AnnotatedElement element, String name);
 
@@ -39,11 +40,11 @@ public interface StatementParameter {
      * this method will be invoked by statement factory to get string presentation of
      * parameter that will be inlined in query text,
      *
-     * @param args - method invocation argument list
+     * @param context - conrtext of oarameter extraction
      * @return value extracted from argument list
-     * @throws StatementParameterException - thrown when failed to extract parameter
+     * @throws ParameterException - thrown when failed to extract parameter
      */
-    String extractParam(Object[] args) throws StatementParameterException;
+    String extractParam(Context context) throws ParameterException;
 
     /**
      * bind parameter extracted from argument list to given prepared statement
@@ -52,7 +53,7 @@ public interface StatementParameter {
      * @param idx               - index of parameter that should be bound,
      *                          should be used as second argument for PreparedStatement.setXXX
      * @param args              - method invocation argument list
-     * @throws StatementParameterException - thrown when failed to bind parameter
+     * @throws ParameterException - thrown when failed to bind parameter
      */
-    void bind(PreparedStatement preparedStatement, int idx, Object[] args) throws StatementParameterException;
+    void bind(PreparedStatement preparedStatement, int idx, Context args) throws ParameterException;
 }

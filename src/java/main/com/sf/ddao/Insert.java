@@ -16,7 +16,7 @@
 
 package com.sf.ddao;
 
-import com.sf.ddao.chain.ChainMember;
+import com.sf.ddao.chain.CommandAnnotation;
 import com.sf.ddao.ops.InsertSqlOperation;
 
 import java.lang.annotation.ElementType;
@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@ChainMember(InsertSqlOperation.class)
+@CommandAnnotation(InsertSqlOperation.class)
 public @interface Insert {
     String value();
 }

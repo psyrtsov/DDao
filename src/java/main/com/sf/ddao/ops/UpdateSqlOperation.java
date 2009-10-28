@@ -20,17 +20,17 @@ import com.sf.ddao.DaoException;
 import com.sf.ddao.Update;
 import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.alinker.inject.Inject;
-import com.sf.ddao.chain.ChainInvocationContext;
-import com.sf.ddao.chain.ChainMemberInvocationHandler;
-import com.sf.ddao.conn.ConnectionHandlerHelper;
+import com.sf.ddao.chain.CtxHelper;
+import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
 import com.sf.ddao.handler.Intializible;
+import org.apache.commons.chain.Command;
+import org.apache.commons.chain.Context;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 
 /**
@@ -38,7 +38,7 @@ import java.sql.PreparedStatement;
  * Date: Apr 23, 2007
  * Time: 11:55:52 PM
  */
-public class UpdateSqlOperation implements ChainMemberInvocationHandler, Intializible {
+public class UpdateSqlOperation implements Command, Intializible {
     private StatementFactory statementFactory;
     private Method method;
 
@@ -56,33 +56,23 @@ public class UpdateSqlOperation implements ChainMemberInvocationHandler, Intiali
         }
     }
 
-    @Override
     public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
         Update updateAnnotation = (Update) annotation;
         init(element, updateAnnotation.value());
     }
 
-    @Override
-    public Object invoke(ChainInvocationContext context, boolean hasNext) throws Throwable {
+    public boolean execute(Context context) throws Exception {
         try {
-            final Connection connection = ConnectionHandlerHelper.getConnection(context);
-            PreparedStatement preparedStatement = statementFactory.createStatement(connection, context.getArgs(), Integer.MAX_VALUE);
+            final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
+            PreparedStatement preparedStatement = statementFactory.createStatement(context, Integer.MAX_VALUE);
             int res = preparedStatement.executeUpdate();
             preparedStatement.close();
             if (method.getReturnType() == Integer.TYPE || method.getReturnType() == Integer.class) {
-                return res;
+                callCtx.setLastReturn(res);
             }
-            return null;
+            return CONTINUE_PROCESSING;
         } catch (Exception t) {
             throw new DaoException("Failed to execute sql operation for " + method, t);
         }
-    }
-
-    public Method getMethod() {
-        return method;
-    }
-
-    public StatementFactory getStatementFactory() {
-        return statementFactory;
     }
 }

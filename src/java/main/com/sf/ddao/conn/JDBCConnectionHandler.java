@@ -19,8 +19,8 @@ package com.sf.ddao.conn;
 import com.sf.ddao.DaoException;
 import com.sf.ddao.JDBCDao;
 import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.chain.ChainInvocationContext;
 import com.sf.ddao.handler.Intializible;
+import org.apache.commons.chain.Context;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -29,7 +29,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * psdo: add class comments
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
  * Time: 9:39:39 PM
@@ -50,7 +49,7 @@ public class JDBCConnectionHandler extends ConnectionHandlerHelper implements In
     }
 
     @Override
-    public Connection createConnection(ChainInvocationContext chainInvocationContext) throws SQLException {
+    public Connection createConnection(Context context) throws SQLException {
         Connection res;
         if (jdbcDao.user() == null || jdbcDao.user().length() == 0) {
             res = DriverManager.getConnection(jdbcDao.value());

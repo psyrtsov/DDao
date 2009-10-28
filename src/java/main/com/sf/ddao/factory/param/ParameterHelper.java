@@ -16,6 +16,8 @@
 
 package com.sf.ddao.factory.param;
 
+import org.apache.commons.chain.Context;
+
 import java.lang.reflect.AnnotatedElement;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
@@ -28,8 +30,8 @@ import java.util.logging.Logger;
  * Date: Apr 10, 2008
  * Time: 4:30:20 PM
  */
-public abstract class StatementParameterHelper implements StatementParameter {
-    public static final Logger log = Logger.getLogger(StatementParameterHelper.class.getName());
+public abstract class ParameterHelper implements Parameter {
+    public static final Logger log = Logger.getLogger(ParameterHelper.class.getName());
     protected String name;
 
     public void init(AnnotatedElement element, String name) {
@@ -37,18 +39,18 @@ public abstract class StatementParameterHelper implements StatementParameter {
         this.name = name;
     }
 
-    public abstract Object extractData(Object[] args) throws StatementParameterException;
+    public abstract Object extractData(Context context) throws ParameterException;
 
-    public String extractParam(Object[] args) throws StatementParameterException {
-        Object data = extractData(args);
+    public String extractParam(Context context) throws ParameterException {
+        Object data = extractData(context);
         if (data == null) {
-            throw new StatementParameterException("Parameter '" + this.name + "' is not defined");
+            throw new ParameterException("Parameter '" + this.name + "' is not defined");
         }
         return data.toString();
     }
 
-    public void bind(PreparedStatement preparedStatement, int idx, Object[] args) throws StatementParameterException {
-        Object param = extractData(args);
+    public void bind(PreparedStatement preparedStatement, int idx, Context context) throws ParameterException {
+        Object param = extractData(context);
         log.log(Level.FINE, "query parameter '{0}'", param);
         try {
             if (param == null) {
@@ -71,10 +73,10 @@ public abstract class StatementParameterHelper implements StatementParameter {
             } else if (Timestamp.class.isAssignableFrom(clazz)) {
                 preparedStatement.setTimestamp(idx, (Timestamp) param);
             } else {
-                throw new StatementParameterException("Unimplemented type mapping for " + clazz);
+                throw new ParameterException("Unimplemented type mapping for " + clazz);
             }
         } catch (Exception e) {
-            throw new StatementParameterException("Failed to bind parameter " + name + " to index " + idx, e);
+            throw new ParameterException("Failed to bind parameter " + name + " to index " + idx, e);
         }
     }
 }

@@ -26,7 +26,6 @@ import java.lang.annotation.Annotation;
 import java.util.*;
 
 /**
- * psdo: add class comments
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
  * Time: 8:05:12 PM

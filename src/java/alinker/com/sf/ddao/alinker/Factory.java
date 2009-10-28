@@ -18,7 +18,6 @@ package com.sf.ddao.alinker;
 
 /**
  * Note : all factories are singletons that stored in factory manager upon creation
- * psdo: add class comments
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
  * Time: 8:03:33 PM

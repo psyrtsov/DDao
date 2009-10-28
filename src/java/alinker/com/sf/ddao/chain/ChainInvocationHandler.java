@@ -4,6 +4,7 @@ import com.sf.ddao.alinker.ALinker;
 import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.alinker.inject.Inject;
 import com.sf.ddao.handler.Intializible;
+import org.apache.commons.chain.Command;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -19,7 +20,7 @@ import java.util.Map;
  * when method is invoked
  * <p/>
  */
-public class ChainInvocationHandler implements InvocationHandler, Intializible {
+public class ChainInvocationHandler implements InvocationHandler {
     Map<Method, MethodInvocationHandler> map = new HashMap<Method, MethodInvocationHandler>();
 
     @Inject
@@ -30,30 +31,30 @@ public class ChainInvocationHandler implements InvocationHandler, Intializible {
         return methodHandler.invoke(args);
     }
 
-    public void init(AnnotatedElement iFace, Annotation annotation) throws InitializerException {
-        List<ChainMemberInvocationHandler> classLevelList = new ArrayList<ChainMemberInvocationHandler>();
+    public void init(AnnotatedElement iFace) throws InitializerException {
+        List<Command> classLevelList = new ArrayList<Command>();
         addChainMemebers(iFace, classLevelList);
         final Method[] methods = ((Class<?>) iFace).getMethods();
         for (Method method : methods) {
-            List<ChainMemberInvocationHandler> list = new ArrayList<ChainMemberInvocationHandler>(classLevelList.size() + method.getAnnotations().length);
+            List<Command> list = new ArrayList<Command>(classLevelList.size() + method.getAnnotations().length);
             list.addAll(classLevelList);
             addChainMemebers(method, list);
             map.put(method, new MethodInvocationHandler(method, list));
         }
     }
 
-    private void addChainMemebers(AnnotatedElement annotatedElement, List<ChainMemberInvocationHandler> list) {
+    private void addChainMemebers(AnnotatedElement annotatedElement, List<Command> list) {
         for (Annotation annotation : annotatedElement.getAnnotations()) {
-            final ChainMember memberAnnotation = annotation.annotationType().getAnnotation(ChainMember.class);
+            final CommandAnnotation memberAnnotation = annotation.annotationType().getAnnotation(CommandAnnotation.class);
             if (memberAnnotation == null) {
                 continue;
             }
-            final ChainMemberInvocationHandler memberInvocationHandler = aLinker.create(memberAnnotation.value());
-            if (memberInvocationHandler instanceof Intializible) {
-                Intializible intializible = (Intializible) memberInvocationHandler;
+            final Command chainCommand = aLinker.create(memberAnnotation.value());
+            if (chainCommand instanceof Intializible) {
+                Intializible intializible = (Intializible) chainCommand;
                 intializible.init(annotatedElement, annotation);
             }
-            list.add(memberInvocationHandler);
+            list.add(chainCommand);
         }
     }
 

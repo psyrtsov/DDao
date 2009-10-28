@@ -1,10 +1,8 @@
 package com.sf.ddao.shards;
 
 import com.sf.ddao.alinker.factory.UseFactory;
-import com.sf.ddao.chain.ChainInvocationHandler;
-import com.sf.ddao.chain.ChainMember;
-import com.sf.ddao.handler.InvocationHandlerAnnotation;
-import com.sf.ddao.handler.InvocationHandlerFactory;
+import com.sf.ddao.chain.ChainHandlerFactory;
+import com.sf.ddao.chain.CommandAnnotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -19,9 +17,8 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@UseFactory(InvocationHandlerFactory.class)
-@InvocationHandlerAnnotation(value = ChainInvocationHandler.class, singleton = true)
-@ChainMember(ShardedJNDIDataSourceHandler.class)
+@UseFactory(ChainHandlerFactory.class)
+@CommandAnnotation(ShardedJNDIDataSourceHandler.class)
 public @interface ShardedJNDIDao {
     /**
      * @return key to shards table

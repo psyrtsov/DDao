@@ -1,6 +1,6 @@
 package com.sf.ddao.kvs;
 
-import com.sf.ddao.chain.ChainMember;
+import com.sf.ddao.chain.CommandAnnotation;
 import com.sf.ddao.kvs.impl.RemoveBeanKVSOperation;
 
 import java.lang.annotation.ElementType;
@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@ChainMember(RemoveBeanKVSOperation.class)
+@CommandAnnotation(RemoveBeanKVSOperation.class)
 public @interface RemoveBean {
     String key();
 

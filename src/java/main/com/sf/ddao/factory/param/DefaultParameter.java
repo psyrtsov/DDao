@@ -16,10 +16,13 @@
 
 package com.sf.ddao.factory.param;
 
+import com.sf.ddao.chain.CtxHelper;
+import com.sf.ddao.chain.MethodCallCtx;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.chain.Context;
 import org.apache.commons.lang.math.NumberUtils;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.AnnotatedElement;
 import java.util.Map;
 
 /**
@@ -30,20 +33,23 @@ import java.util.Map;
  * Date: Nov 5, 2007
  * Time: 8:48:16 PM
  */
-public class StatementParameterImpl extends StatementParameterHelper {
+public class DefaultParameter extends ParameterHelper {
     private Integer num = null;
 
-    public void init(Method method, String name) {
+    @Override
+    public void init(AnnotatedElement element, String name) {
         if (NumberUtils.isNumber(name)) {
             num = NumberUtils.createInteger(name);
         }
-        super.init(method, name);
+        super.init(element, name);
     }
 
-    public Object extractData(Object[] args) throws StatementParameterException {
+    public Object extractData(Context context) throws ParameterException {
+        final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
+        Object[] args = callCtx.getArgs();
         if (num != null) {
             if (args.length <= num) {
-                throw new StatementParameterException("Query refers to argument #" + num + ", while method has only " + args.length + " arguments");
+                throw new ParameterException("Query refers to argument #" + num + ", while method has only " + args.length + " arguments");
             }
             return args[num];
         }
@@ -54,7 +60,7 @@ public class StatementParameterImpl extends StatementParameterHelper {
         try {
             return PropertyUtils.getProperty(param, name);
         } catch (Exception e) {
-            throw new StatementParameterException("Failed to get statement parameter " + name + " from " + param, e);
+            throw new ParameterException("Failed to get statement parameter " + name + " from " + param, e);
         }
     }
 

@@ -20,19 +20,18 @@ import com.sf.ddao.DaoException;
 import com.sf.ddao.Select;
 import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.alinker.inject.Inject;
-import com.sf.ddao.chain.ChainInvocationContext;
-import com.sf.ddao.chain.ChainMemberInvocationHandler;
-import com.sf.ddao.conn.ConnectionHandlerHelper;
+import com.sf.ddao.chain.CtxHelper;
+import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.factory.StatementFactory;
-import com.sf.ddao.factory.StatementFactoryException;
 import com.sf.ddao.handler.Intializible;
 import com.sf.ddao.orm.ResultSetMapper;
 import com.sf.ddao.orm.ResultSetMapperRegistry;
+import org.apache.commons.chain.Command;
+import org.apache.commons.chain.Context;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -41,7 +40,7 @@ import java.sql.ResultSet;
  * Date: Apr 2, 2007
  * Time: 8:10:29 PM
  */
-public class SelectSqlOperation implements ChainMemberInvocationHandler, Intializible {
+public class SelectSqlOperation implements Command, Intializible {
     private StatementFactory statementFactory;
     private Method method;
 
@@ -51,12 +50,13 @@ public class SelectSqlOperation implements ChainMemberInvocationHandler, Intiali
     }
 
 
-    public Object invoke(ChainInvocationContext context, boolean hasNext) throws Throwable {
+    public boolean execute(Context context) throws Exception {
         try {
-            Connection connection = ConnectionHandlerHelper.getConnection(context);
-            PreparedStatement preparedStatement = statementFactory.createStatement(connection, context.getArgs(), Integer.MAX_VALUE);
+            final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
+            final Object[] args = callCtx.getArgs();
+            PreparedStatement preparedStatement = statementFactory.createStatement(context, Integer.MAX_VALUE);
             ResultSet resultSet = preparedStatement.executeQuery();
-            ResultSetMapper resultSetMapper = ResultSetMapperRegistry.getResultSetMapper(method, context.getArgs(), resultSet);
+            ResultSetMapper resultSetMapper = ResultSetMapperRegistry.getResultSetMapper(method, args, resultSet);
             while (resultSet.next()) {
                 if (!resultSetMapper.addRecord(resultSet)) {
                     break;
@@ -64,7 +64,9 @@ public class SelectSqlOperation implements ChainMemberInvocationHandler, Intiali
             }
             resultSet.close();
             preparedStatement.close();
-            return resultSetMapper.getResult();
+            final Object res = resultSetMapper.getResult();
+            callCtx.setLastReturn(res);
+            return CONTINUE_PROCESSING;
         } catch (Exception t) {
             throw new DaoException("Failed to execute sql operation for " + method, t);
         }
@@ -72,23 +74,15 @@ public class SelectSqlOperation implements ChainMemberInvocationHandler, Intiali
 
     public void init(AnnotatedElement element, String sql) throws InitializerException {
         try {
+            method = (Method) element;
             statementFactory.init(element, sql);
-        } catch (StatementFactoryException e) {
+        } catch (Exception e) {
             throw new InitializerException("Failed to initialize sql operation for " + element, e);
         }
     }
 
     public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
-        method = (Method) element;
         Select selectSql = (Select) annotation;
         init(element, selectSql.value());
-    }
-
-    public Method getMethod() {
-        return method;
-    }
-
-    public StatementFactory getStatementFactory() {
-        return statementFactory;
     }
 }

@@ -16,7 +16,7 @@
 
 package com.sf.ddao.kvs;
 
-import com.sf.ddao.chain.ChainMember;
+import com.sf.ddao.chain.CommandAnnotation;
 import com.sf.ddao.kvs.impl.GetBeansKVSOperation;
 
 import java.lang.annotation.ElementType;
@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@ChainMember(GetBeansKVSOperation.class)
+@CommandAnnotation(GetBeansKVSOperation.class)
 public @interface GetBeans {
     String sql();
 }
