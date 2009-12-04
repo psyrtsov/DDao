@@ -16,6 +16,7 @@
 
 package com.sf.ddao.factory.param;
 
+import com.sf.ddao.factory.StatementParamter;
 import org.apache.commons.chain.Context;
 
 import java.lang.reflect.AnnotatedElement;
@@ -42,11 +43,15 @@ public abstract class ParameterHelper implements Parameter {
     public abstract Object extractData(Context context) throws ParameterException;
 
     public String extractParam(Context context) throws ParameterException {
-        Object data = extractData(context);
-        if (data == null) {
+        Object param = extractData(context);
+        if (param == null) {
             throw new ParameterException("Parameter '" + this.name + "' is not defined");
         }
-        return data.toString();
+        if (param instanceof StatementParamter) {
+            StatementParamter statementParamter = (StatementParamter) param;
+            return statementParamter.statementParameter();
+        }
+        return param.toString();
     }
 
     public void bind(PreparedStatement preparedStatement, int idx, Context context) throws ParameterException {
@@ -58,22 +63,27 @@ public abstract class ParameterHelper implements Parameter {
                 preparedStatement.setNull(idx, parameterType);
                 return;
             }
-            Class<?> clazz = param.getClass();
-            if (clazz == Integer.class || clazz == Integer.TYPE) {
-                preparedStatement.setInt(idx, (Integer) param);
-            } else if (clazz == String.class) {
-                preparedStatement.setString(idx, (String) param);
-            } else if (clazz == Long.class) {
-                preparedStatement.setLong(idx, (Long) param);
-            } else if (java.util.Date.class.isAssignableFrom(clazz)) {
-                if (!java.sql.Date.class.isAssignableFrom(clazz)) {
-                    param = new java.sql.Date(((Date) param).getTime());
-                }
-                preparedStatement.setDate(idx, (java.sql.Date) param);
-            } else if (Timestamp.class.isAssignableFrom(clazz)) {
-                preparedStatement.setTimestamp(idx, (Timestamp) param);
+            if (param instanceof StatementParamter) {
+                StatementParamter statementParamter = (StatementParamter) param;
+                statementParamter.bind(preparedStatement, idx, context);
             } else {
-                throw new ParameterException("Unimplemented type mapping for " + clazz);
+                Class<?> clazz = param.getClass();
+                if (clazz == Integer.class || clazz == Integer.TYPE) {
+                    preparedStatement.setInt(idx, (Integer) param);
+                } else if (clazz == String.class) {
+                    preparedStatement.setString(idx, (String) param);
+                } else if (clazz == Long.class) {
+                    preparedStatement.setLong(idx, (Long) param);
+                } else if (java.util.Date.class.isAssignableFrom(clazz)) {
+                    if (!java.sql.Date.class.isAssignableFrom(clazz)) {
+                        param = new java.sql.Date(((Date) param).getTime());
+                    }
+                    preparedStatement.setDate(idx, (java.sql.Date) param);
+                } else if (Timestamp.class.isAssignableFrom(clazz)) {
+                    preparedStatement.setTimestamp(idx, (Timestamp) param);
+                } else {
+                    throw new ParameterException("Unimplemented type mapping for " + clazz);
+                }
             }
         } catch (Exception e) {
             throw new ParameterException("Failed to bind parameter " + name + " to index " + idx, e);

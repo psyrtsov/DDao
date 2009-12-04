@@ -82,7 +82,7 @@ public class SelectSqlOperation implements Command, Intializible {
     }
 
     public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
-        Select selectSql = (Select) annotation;
+        Select selectSql = element.getAnnotation(Select.class);
         init(element, selectSql.value());
     }
 }

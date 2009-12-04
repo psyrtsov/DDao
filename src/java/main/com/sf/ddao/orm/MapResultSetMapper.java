@@ -32,7 +32,7 @@ public class MapResultSetMapper implements ResultSetMapper {
     Map<String, Object> data = new HashMap<String, Object>();
     List<String> columns = null;
 
-    public MapResultSetMapper(Class itemClass) {
+    public MapResultSetMapper() {
     }
 
     public boolean addRecord(ResultSet resultSet) throws Exception {

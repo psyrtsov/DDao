@@ -57,7 +57,7 @@ public class UpdateSqlOperation implements Command, Intializible {
     }
 
     public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
-        Update updateAnnotation = (Update) annotation;
+        Update updateAnnotation = element.getAnnotation(Update.class);
         init(element, updateAnnotation.value());
     }
 

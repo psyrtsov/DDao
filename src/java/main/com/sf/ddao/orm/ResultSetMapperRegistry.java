@@ -98,8 +98,13 @@ public class ResultSetMapperRegistry {
         }
         if (itemType instanceof Class) {
             Class itemClass = (Class) itemType;
+            if (SelfMapping.class.isAssignableFrom(itemClass)) {
+                //noinspection unchecked
+                return new SelfMappingMapper(itemClass);
+            }
+
             if (Map.class.isAssignableFrom(itemClass)) {
-                return new MapResultSetMapper(itemClass);
+                return new MapResultSetMapper();
             }
             return new BeanResultSetMapper(itemClass);
         }

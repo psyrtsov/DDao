@@ -74,7 +74,7 @@ public class InsertAndGetGeneratedKeySqlOperation implements Command, Intializib
 
     public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
         method = (Method) element;
-        InsertAndGetGeneratedKey insertAndGetGeneratedKey = (InsertAndGetGeneratedKey) annotation;
+        InsertAndGetGeneratedKey insertAndGetGeneratedKey = element.getAnnotation(InsertAndGetGeneratedKey.class);
         String sql = insertAndGetGeneratedKey.value();
         try {
             statementFactory.init(element, sql);

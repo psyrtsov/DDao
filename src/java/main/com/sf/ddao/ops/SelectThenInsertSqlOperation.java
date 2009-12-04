@@ -45,7 +45,7 @@ public class SelectThenInsertSqlOperation extends UpdateSqlOperation {
 
     @Override
     public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
-        SelectThenInsert selectThenInsert = (SelectThenInsert) annotation;
+        SelectThenInsert selectThenInsert = element.getAnnotation(SelectThenInsert.class);
         String sql[] = selectThenInsert.value();
         if (sql.length != 2) {
             throw new InitializerException(SelectThenInsert.class.getSimpleName() + " annotation has to have 2 sql statments, but got:"

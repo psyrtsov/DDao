@@ -21,7 +21,8 @@ import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.alinker.inject.Inject;
 import com.sf.ddao.factory.StatementFactory;
 
-import java.lang.reflect.Method;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 
 /**
  * Created by: Pavel Syrtsov
@@ -34,9 +35,9 @@ public class InsertSqlOperation extends UpdateSqlOperation {
         super(statementFactory);
     }
 
-    public void init(Method method) throws InitializerException {
-        Insert insertAnnotation = method.getAnnotation(Insert.class);
+    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+        Insert insertAnnotation = element.getAnnotation(Insert.class);
         String sql = insertAnnotation.value();
-        init(method, sql);
+        init(element, sql);
     }
 }

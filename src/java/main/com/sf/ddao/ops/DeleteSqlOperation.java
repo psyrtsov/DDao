@@ -37,7 +37,7 @@ public class DeleteSqlOperation extends UpdateSqlOperation {
 
     @Override
     public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
-        Delete deleteAnnotation = (Delete) annotation;
+        Delete deleteAnnotation = element.getAnnotation(Delete.class);
         init(element, deleteAnnotation.value());
     }
 }
