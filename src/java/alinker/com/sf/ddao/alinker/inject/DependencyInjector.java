@@ -26,6 +26,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.logging.Logger;
 
 /**
  * Created-By: Pavel Syrtsov
@@ -33,6 +34,8 @@ import java.lang.reflect.Method;
  * Time: 10:41:27 PM
  */
 public class DependencyInjector<T> implements Initializer<T> {
+    public static final Logger log = Logger.getLogger(DependencyInjector.class.getName());
+
     public void init(ALinker aLinker, Context<T> ctx, T subj) throws InitializerException {
         Annotation annotation = null;
         try {
@@ -61,6 +64,9 @@ public class DependencyInjector<T> implements Initializer<T> {
         try {
             Context ctx = new Context(field.getType(), field.getDeclaredAnnotations(), field, -1);
             Object obj = aLinker.create(ctx);
+            if (obj == null) {
+                log.warning(field.toString() + " initialized with null");
+            }
             field.set(subj, obj);
         } catch (Exception e) {
             throw new InitializerException("Failed to inject field " + field, e);
