@@ -73,4 +73,14 @@ public class Context<T> {
     public int getPos() {
         return pos;
     }
+
+    @Override
+    public String toString() {
+        return "Context{" +
+                "subjClass=" + subjClass +
+                ", annotations=" + (annotations == null ? null : Arrays.asList(annotations)) +
+                ", destination=" + destination +
+                ", pos=" + pos +
+                '}';
+    }
 }

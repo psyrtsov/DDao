@@ -23,6 +23,12 @@ import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.alinker.initializer.InitializerManager;
 
 import java.lang.reflect.AnnotatedElement;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 /**
  * <p/>
@@ -31,8 +37,10 @@ import java.lang.reflect.AnnotatedElement;
  * Time: 7:38:55 PM
  */
 public class ALinker {
+    public static final Logger log = Logger.getLogger(ALinker.class.getName());
     private final FactoryManager factoryManager;
     private final InitializerManager initializerManager;
+    private ConcurrentMap<Context, Semaphore> initLocks = new ConcurrentHashMap<Context, Semaphore>();
 
     public ALinker() {
         this.factoryManager = new DefaultFactoryManager(this);
@@ -73,14 +81,23 @@ public class ALinker {
                 subj = cachingFactory.getCachedObject(ctx);
                 if (subj != null) {
                     // it`s cached and as such should not be initilized again
+                    // psdo: problem is that this object may be in process of initializing by other thread
                     return subj;
                 }
                 subj = cachingFactory.create(this, ctx);
+                initLocks.put(ctx, new Semaphore(0));
             }
         } else {
             subj = factory.create(this, ctx);
         }
-        init(subj, ctx);
+        try {
+            init(subj, ctx);
+        } finally {
+            final Semaphore semaphore = initLocks.remove(ctx);
+            if (semaphore != null) {
+                semaphore.release(Integer.MAX_VALUE);
+            }
+        }
         return subj;
     }
 
@@ -98,5 +115,20 @@ public class ALinker {
 
     public InitializerManager getInitializerManager() {
         return initializerManager;
+    }
+
+    public ConcurrentMap<Context, Semaphore> getInitLocks() {
+        return initLocks;
+    }
+
+    public void waitInit(long timeout) throws InterruptedException {
+        for (Map.Entry<Context, Semaphore> entry : initLocks.entrySet()) {
+            final Context context = entry.getKey();
+            final Semaphore semaphore = entry.getValue();
+            log.info("Wait for initialization of " + context);
+            if (!semaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS)) {
+                log.warning("Wait for " + context + "  timeout!");
+            }
+        }
     }
 }
