@@ -5,13 +5,13 @@
         <artifact name="${ivy.module}-src" type="source" ext="zip"/>
     </publications>
     <dependencies>
-        <dependency org="commons-lang" name="commons-lang" rev="2.+">
+        <dependency org="commons-lang" name="commons-lang" rev="2.4">
             <artifact name="commons-lang" type="jar" ext="jar"/>
         </dependency>
-        <dependency org="commons-beanutils" name="commons-beanutils" rev="1.+">
+        <dependency org="commons-beanutils" name="commons-beanutils" rev="1.8.2">
             <artifact name="commons-beanutils" type="jar" ext="jar"/>
         </dependency>
-        <dependency org="commons-chain" name="commons-chain" rev="1.+" transitive="false"/>
-        <dependency org="org.slf4j" name="slf4j-api" rev="1.5.+"/>
+        <dependency org="commons-chain" name="commons-chain" rev="1.2" transitive="false"/>
+        <dependency org="org.slf4j" name="slf4j-api" rev="1.5.10"/>
     </dependencies>
 </ivy-module>

@@ -117,6 +117,9 @@
             <src refid="src.path"/>
             <classpath refid="runtime-libs"/>
         </javac>
+        <copy todir="${build.classes.dir}">
+            <fileset dir="src/java/main" excludes="**/*.java"/>
+        </copy>
     </target>
     <target name="compile-test">
         <javac srcdir="${src.tests}"
