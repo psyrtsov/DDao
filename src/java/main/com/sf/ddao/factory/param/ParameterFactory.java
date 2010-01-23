@@ -56,6 +56,9 @@ public class ParameterFactory {
                 String factoryName = name.substring(0, colonIdx);
                 String paramName = name.substring(colonIdx + 1);
                 final ParameterService parameterService = paramTypeMap.get(factoryName);
+                if (parameterService == null) {
+                    throw new Exception("Factory is not defined for '" + factoryName + "':" + paramTypeMap);
+                }
                 return parameterService.create(element, factoryName, paramName);
             }
             Parameter param = aLinker.create(DefaultParameter.class);

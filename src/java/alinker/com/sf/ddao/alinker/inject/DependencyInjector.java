@@ -21,12 +21,13 @@ import com.sf.ddao.alinker.Context;
 import com.sf.ddao.alinker.Initializer;
 import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.utils.Annotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.logging.Logger;
 
 /**
  * Created-By: Pavel Syrtsov
@@ -34,7 +35,7 @@ import java.util.logging.Logger;
  * Time: 10:41:27 PM
  */
 public class DependencyInjector<T> implements Initializer<T> {
-    public static final Logger log = Logger.getLogger(DependencyInjector.class.getName());
+    public static final Logger log = LoggerFactory.getLogger(DependencyInjector.class.getName());
 
     public void init(ALinker aLinker, Context<T> ctx, T subj) throws InitializerException {
         Annotation annotation = null;
@@ -65,7 +66,7 @@ public class DependencyInjector<T> implements Initializer<T> {
             Context ctx = new Context(field.getType(), field.getDeclaredAnnotations(), field, -1);
             Object obj = aLinker.create(ctx);
             if (obj == null) {
-                log.warning(field.toString() + " initialized with null");
+                log.warn("{} initialized with null", field);
             }
             field.set(subj, obj);
         } catch (Exception e) {

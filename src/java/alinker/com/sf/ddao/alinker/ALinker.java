@@ -21,6 +21,8 @@ import com.sf.ddao.alinker.factory.FactoryManager;
 import com.sf.ddao.alinker.initializer.DefaultInitializerManager;
 import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.alinker.initializer.InitializerManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.AnnotatedElement;
 import java.util.Map;
@@ -28,7 +30,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 /**
  * <p/>
@@ -37,7 +38,7 @@ import java.util.logging.Logger;
  * Time: 7:38:55 PM
  */
 public class ALinker {
-    public static final Logger log = Logger.getLogger(ALinker.class.getName());
+    public static final Logger log = LoggerFactory.getLogger(ALinker.class.getName());
     private final FactoryManager factoryManager;
     private final InitializerManager initializerManager;
     private ConcurrentMap<Context, Semaphore> initLocks = new ConcurrentHashMap<Context, Semaphore>();
@@ -127,7 +128,7 @@ public class ALinker {
             final Semaphore semaphore = entry.getValue();
             log.info("Wait for initialization of " + context);
             if (!semaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS)) {
-                log.warning("Wait for " + context + "  timeout!");
+                log.warn("Wait for {}  timeout!", context);
             }
         }
     }

@@ -18,13 +18,13 @@ package com.sf.ddao.factory.param;
 
 import com.sf.ddao.factory.StatementParamter;
 import org.apache.commons.chain.Context;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.AnnotatedElement;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Created-By: Pavel Syrtsov
@@ -32,7 +32,7 @@ import java.util.logging.Logger;
  * Time: 4:30:20 PM
  */
 public abstract class ParameterHelper implements Parameter {
-    public static final Logger log = Logger.getLogger(ParameterHelper.class.getName());
+    public static final Logger log = LoggerFactory.getLogger(ParameterHelper.class.getName());
     protected String name;
 
     public void init(AnnotatedElement element, String name) {
@@ -56,7 +56,7 @@ public abstract class ParameterHelper implements Parameter {
 
     public void bind(PreparedStatement preparedStatement, int idx, Context context) throws ParameterException {
         Object param = extractData(context);
-        log.log(Level.FINE, "query parameter '{0}'", param);
+        log.debug("query parameter {}={}", name, param);
         try {
             if (param == null) {
                 final int parameterType = preparedStatement.getParameterMetaData().getParameterType(idx);
@@ -88,5 +88,10 @@ public abstract class ParameterHelper implements Parameter {
         } catch (Exception e) {
             throw new ParameterException("Failed to bind parameter " + name + " to index " + idx, e);
         }
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "{" + name + "}";
     }
 }

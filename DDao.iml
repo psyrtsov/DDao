@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module relativePaths="true" type="JAVA_MODULE" version="4">
-  <component name="FacetManager">
-    <facet type="IvyIDEA" name="IvyIDEA">
-      <configuration ivyFile="$MODULE_DIR$/ivy.xml" useProjectSettings="true" ivySettingsFile="" onlyResolveSelectedConfigs="true">
-        <configsToResolve>
-          <config>default</config>
-        </configsToResolve>
-      </configuration>
-    </facet>
-  </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
@@ -27,34 +18,25 @@
       <library name="ddao/testlib">
         <CLASSES>
           <root url="file://$MODULE_DIR$/testlib" />
+          <root url="file://$MODULE_DIR$/../../git/The-Game/common/testlib" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
+        <jarDirectory url="file://$MODULE_DIR$/../../git/The-Game/common/testlib" recursive="false" />
         <jarDirectory url="file://$MODULE_DIR$/testlib" recursive="false" />
       </library>
     </orderEntry>
     <orderEntry type="library" name="tools" level="application" />
     <orderEntry type="module-library">
-      <library name="IvyIDEA-resolved">
+      <library name="lib">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../Users/Pavel/.ivy2/cache/commons-lang/commons-lang/jars/commons-lang-2.4.jar!/" />
-          <root url="jar://$MODULE_DIR$/../../Users/Pavel/.ivy2/cache/commons-beanutils/commons-beanutils/jars/commons-beanutils-1.8.0.jar!/" />
-          <root url="jar://$MODULE_DIR$/../../Users/Pavel/.ivy2/cache/commons-logging/commons-logging/jars/commons-logging-1.1.1.jar!/" />
-          <root url="jar://$MODULE_DIR$/../../Users/Pavel/.ivy2/cache/commons-collections/commons-collections/jars/commons-collections-3.2.1.jar!/" />
-          <root url="jar://$MODULE_DIR$/../../.ivy2/cache/commons-lang/commons-lang/jars/commons-lang-2.4.jar!/" />
-          <root url="jar://$MODULE_DIR$/../../.ivy2/cache/commons-beanutils/commons-beanutils/jars/commons-beanutils-1.8.2.jar!/" />
-          <root url="jar://$MODULE_DIR$/../../.ivy2/cache/commons-chain/commons-chain/jars/commons-chain-1.2.jar!/" />
-          <root url="jar://$MODULE_DIR$/../../.ivy2/cache/commons-logging/commons-logging/jars/commons-logging-1.1.1.jar!/" />
-          <root url="jar://$MODULE_DIR$/../../.ivy2/cache/commons-collections/commons-collections/jars/commons-collections-3.2.1.jar!/" />
+          <root url="file://$MODULE_DIR$/lib" />
+          <root url="file://$MODULE_DIR$/lib/dependencies" />
         </CLASSES>
-        <JAVADOC>
-          <root url="jar://$MODULE_DIR$/../../Users/Pavel/.ivy2/cache/commons-lang/commons-lang/javadocs/commons-lang-2.4-javadoc.jar!/" />
-          <root url="jar://$MODULE_DIR$/../../Users/Pavel/.ivy2/cache/commons-beanutils/commons-beanutils/javadocs/commons-beanutils-1.8.0-javadoc.jar!/" />
-        </JAVADOC>
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/../../Users/Pavel/.ivy2/cache/commons-lang/commons-lang/sources/commons-lang-2.4-sources.jar!/" />
-          <root url="jar://$MODULE_DIR$/../../Users/Pavel/.ivy2/cache/commons-beanutils/commons-beanutils/sources/commons-beanutils-1.8.0-sources.jar!/" />
-        </SOURCES>
+        <JAVADOC />
+        <SOURCES />
+        <jarDirectory url="file://$MODULE_DIR$/lib" recursive="false" />
+        <jarDirectory url="file://$MODULE_DIR$/lib/dependencies" recursive="false" />
       </library>
     </orderEntry>
   </component>

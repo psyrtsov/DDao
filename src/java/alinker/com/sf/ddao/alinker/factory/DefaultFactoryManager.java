@@ -32,7 +32,7 @@ import java.util.ServiceLoader;
  * Date: Apr 10, 2008
  * Time: 8:01:56 PM
  */
-public class DefaultFactoryManager implements FactoryManager {
+public class DefaultFactoryManager implements FactoryManager, Factory<DefaultFactoryManager> {
     /**
      * we have to use Context as key here since we want to be able to define factory by attaching
      * annotation to injection point, such as @Conf("propertyName") attached to String parameter
@@ -46,6 +46,7 @@ public class DefaultFactoryManager implements FactoryManager {
     public DefaultFactoryManager(ALinker aLinker, Factory defaultFactory) {
         this.defaultFactory = defaultFactory;
         this.aLinker = aLinker;
+        register(DefaultFactoryManager.class, this);
     }
 
     public DefaultFactoryManager(ALinker aLinker) {
@@ -115,7 +116,6 @@ public class DefaultFactoryManager implements FactoryManager {
                 return useFactory.value();
             }
         }
-        //psdo: replace second degree annotation lookup with annotation registry
         for (Annotation annotation : annotations) {
             UseFactory useFactory = annotation.annotationType().getAnnotation(UseFactory.class);
             if (useFactory != null) {
@@ -125,7 +125,6 @@ public class DefaultFactoryManager implements FactoryManager {
         return null;
     }
 
-    //psdo: addd register by annotation
     public <T> void register(Class<T> clazz, Factory<T> factory) {
         Factory old = classFactoryMap.put(clazz, factory);
         if (old != null) {
@@ -134,5 +133,9 @@ public class DefaultFactoryManager implements FactoryManager {
                     + ", this class already associated with " + old;
             throw new FactoryException(msg);
         }
+    }
+
+    public DefaultFactoryManager create(ALinker aLinker, Context<DefaultFactoryManager> ctx) throws FactoryException {
+        return this;
     }
 }

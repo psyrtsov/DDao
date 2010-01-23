@@ -12,5 +12,6 @@
             <artifact name="commons-beanutils" type="jar" ext="jar"/>
         </dependency>
         <dependency org="commons-chain" name="commons-chain" rev="1.+" transitive="false"/>
+        <dependency org="org.slf4j" name="slf4j-api" rev="1.5.+"/>
     </dependencies>
 </ivy-module>
