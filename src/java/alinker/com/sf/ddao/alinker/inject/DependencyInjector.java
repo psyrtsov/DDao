@@ -41,7 +41,7 @@ public class DependencyInjector<T> implements Initializer<T> {
         Annotation annotation = null;
         try {
             Class<?> aClass = subj.getClass();
-            Field[] fields = aClass.getFields();
+            Field[] fields = aClass.getDeclaredFields();
             for (Field field : fields) {
                 annotation = Annotations.findAnnotation(field, Inject.class);
                 if (annotation != null) {
@@ -68,6 +68,7 @@ public class DependencyInjector<T> implements Initializer<T> {
             if (obj == null) {
                 log.warn("{} initialized with null", field);
             }
+            field.setAccessible(true);
             field.set(subj, obj);
         } catch (Exception e) {
             throw new InitializerException("Failed to inject field " + field, e);
