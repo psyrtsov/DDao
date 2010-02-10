@@ -50,7 +50,11 @@ public abstract class ListResultSetMapper implements ResultSetMapper {
     }
 
     public Object getResult() {
-        return list;
+        try {
+            return list;
+        } finally {
+            list = null;
+        }
     }
 
 

@@ -43,6 +43,14 @@ public class ALinker {
     private final InitializerManager initializerManager;
     private ConcurrentMap<Context, Semaphore> initLocks = new ConcurrentHashMap<Context, Semaphore>();
 
+    private static class InstanceHolder {
+        private static ALinker instance = new ALinker();
+    }
+
+    public static ALinker instance() {
+        return InstanceHolder.instance;
+    }
+
     public ALinker() {
         this.factoryManager = new DefaultFactoryManager(this);
         this.initializerManager = new DefaultInitializerManager(this);

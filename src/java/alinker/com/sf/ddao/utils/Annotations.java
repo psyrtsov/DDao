@@ -18,6 +18,7 @@ package com.sf.ddao.utils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
 
 /**
  * Created-By: Pavel Syrtsov
@@ -25,23 +26,35 @@ import java.lang.reflect.AnnotatedElement;
  * Time: 3:49:45 PM
  */
 public class Annotations {
+
+    public static int findParameterAnnotatedWith(Method method, final Class<? extends Annotation> annotationClass) {
+        final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+        for (int i = 0; i < parameterAnnotations.length; i++) {
+            Annotation[] parameterAnnotation = parameterAnnotations[i];
+            for (Annotation a : parameterAnnotation) {
+                if (a.annotationType() == annotationClass) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
     public static <A extends Annotation> A findAnnotation(AnnotatedElement annotatedElement, Class<A> expectedAnnotation) {
         A foundAnnotation = annotatedElement.getAnnotation(expectedAnnotation);
         if (foundAnnotation != null) {
             return foundAnnotation;
         }
         Annotation[] annotations = annotatedElement.getAnnotations();
-        return findAnnotation(annotations, expectedAnnotation);
+        return findAnnotationAnnotatedWith(annotations, expectedAnnotation);
     }
 
     /**
-     * todo: come up with better name
-     *
      * @param annotations
      * @param expectedAnnotation
      * @return
      */
-    public static <A extends Annotation> A findAnnotation(Annotation[] annotations, Class<A> expectedAnnotation) {
+    public static <A extends Annotation> A findAnnotationAnnotatedWith(Annotation[] annotations, Class<A> expectedAnnotation) {
         if (annotations == null) {
             return null;
         }
