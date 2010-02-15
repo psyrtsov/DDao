@@ -76,13 +76,12 @@ public class DefaultFactoryManager implements FactoryManager, Factory<DefaultFac
     }
 
     private Factory createFactory(ALinker aLinker, Context ctx) throws FactoryException, InitializerException {
-        Factory factory;
-        Class<? extends Factory> factoryClass = getFactoryClass(ctx);
-        if (factoryClass != null) {
-            factory = aLinker.create(factoryClass, factoryClass);
-        } else {
-            factory = classFactoryMap.get(ctx.getSubjClass());
-            if (factory == null) {
+        Factory factory = classFactoryMap.get(ctx.getSubjClass());
+        if (factory == null) {
+            Class<? extends Factory> factoryClass = getFactoryClass(ctx);
+            if (factoryClass != null) {
+                factory = aLinker.create(factoryClass, factoryClass);
+            } else {
                 factory = defaultFactory;
             }
         }
@@ -128,7 +127,6 @@ public class DefaultFactoryManager implements FactoryManager, Factory<DefaultFac
     public <T> void register(Class<T> clazz, Factory<T> factory) {
         Factory old = classFactoryMap.put(clazz, factory);
         if (old != null) {
-            //psdo: find better way to say it
             String msg = "Failed ro register factory " + factory + " for class " + clazz
                     + ", this class already associated with " + old;
             throw new FactoryException(msg);
