@@ -47,7 +47,7 @@ public class MapResultSetMapper implements ResultSetMapper {
         }
         for (int i = 0; i < columns.size(); i++) {
             String column = columns.get(i);
-            Object value = resultSet.getObject(i);
+            Object value = resultSet.getObject(i + 1);
             data.put(column, value);
         }
         return true;
