@@ -21,6 +21,8 @@ import com.sf.ddao.alinker.Context;
 import com.sf.ddao.alinker.Factory;
 import com.sf.ddao.alinker.FactoryException;
 import com.sf.ddao.alinker.initializer.InitializerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
@@ -33,17 +35,20 @@ import java.util.ServiceLoader;
  * Time: 8:01:56 PM
  */
 public class DefaultFactoryManager implements FactoryManager, Factory<DefaultFactoryManager> {
+    private static final Logger log = LoggerFactory.getLogger(DefaultFactoryManager.class.getName());
+
     /**
      * we have to use Context as key here since we want to be able to define factory by attaching
      * annotation to injection point, such as @Conf("propertyName") attached to String parameter
      * shoud invoke configuratoin factory
      */
     private final Map<Context, Factory> factoryCache = new HashMap<Context, Factory>();
-    private final Map<Class, Factory> classFactoryMap = new HashMap<Class, Factory>();
+    private final Map<Class, Factory> configuredFactoryMap = new HashMap<Class, Factory>();
     private final Factory defaultFactory;
     private final ALinker aLinker;
 
     public DefaultFactoryManager(ALinker aLinker, Factory defaultFactory) {
+        log.debug("Create default factory manager");
         this.defaultFactory = defaultFactory;
         this.aLinker = aLinker;
         register(DefaultFactoryManager.class, this);
@@ -76,33 +81,32 @@ public class DefaultFactoryManager implements FactoryManager, Factory<DefaultFac
     }
 
     private Factory createFactory(ALinker aLinker, Context ctx) throws FactoryException, InitializerException {
-        Factory factory = classFactoryMap.get(ctx.getSubjClass());
-        if (factory == null) {
-            Class<? extends Factory> factoryClass = getFactoryClass(ctx);
-            if (factoryClass != null) {
-                factory = aLinker.create(factoryClass, factoryClass);
-            } else {
-                factory = defaultFactory;
-            }
+        final Class subjClass = ctx.getSubjClass();
+        // 1st try to see if there preconfigured factory for this class
+        Factory factory = configuredFactoryMap.get(subjClass);
+        if (factory != null) {
+            log.debug("Use precofigured factory {} for context {}", factory, ctx);
+            return factory;
         }
-        return factory;
-    }
-
-    private Class<? extends Factory> getFactoryClass(Context ctx) throws FactoryException {
-        Class<? extends Factory> factoryClass;
-        Annotation[] annotations = ctx.getAnnotations();
-        factoryClass = getFactoryClass(annotations);
+        // 2nd look to target element(such as attribute this value is going to be assigned to) annotations
+        Class<? extends Factory> factoryClass = getFactoryClass(ctx.getAnnotations());
         if (factoryClass != null) {
-            return factoryClass;
+            factory = aLinker.create(factoryClass, factoryClass);
+            log.debug("Created factory {} for context {} based on target element annotation", factory, ctx);
+            return factory;
         }
-        Class subjClass = ctx.getSubjClass();
+        // 3rd look into annotations for class that we are going to instantiate
         if (subjClass == null) {
             throw new FactoryException("Failed to find factory for " + ctx);
         }
-
-        annotations = subjClass.getAnnotations();
-        factoryClass = getFactoryClass(annotations);
-        return factoryClass;
+        factoryClass = getFactoryClass(subjClass.getAnnotations());
+        if (factoryClass != null) {
+            factory = aLinker.create(factoryClass, factoryClass);
+            log.debug("Created factory {} for context {} based on class annotation", factory, ctx);
+            return factory;
+        }
+        log.debug("Use default factory for context {}", ctx);
+        return defaultFactory;
     }
 
     private Class<? extends Factory> getFactoryClass(Annotation[] annotations) {
@@ -124,8 +128,8 @@ public class DefaultFactoryManager implements FactoryManager, Factory<DefaultFac
         return null;
     }
 
-    public <T> void register(Class<T> clazz, Factory<T> factory) {
-        Factory old = classFactoryMap.put(clazz, factory);
+    public synchronized <T> void register(Class<T> clazz, Factory<T> factory) {
+        Factory old = configuredFactoryMap.put(clazz, factory);
         if (old != null) {
             String msg = "Failed ro register factory " + factory + " for class " + clazz
                     + ", this class already associated with " + old;

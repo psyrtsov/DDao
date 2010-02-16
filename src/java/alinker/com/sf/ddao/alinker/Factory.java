@@ -17,7 +17,7 @@
 package com.sf.ddao.alinker;
 
 /**
- * Note : all factories are singletons that stored in factory manager upon creation
+ * Note : factory scope defined by method createFactory in DefaultFactr
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
  * Time: 8:03:33 PM

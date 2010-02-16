@@ -9,14 +9,12 @@ import com.sf.ddao.alinker.factory.Singleton;
 import java.lang.reflect.Proxy;
 
 /**
+ * factory is registered one instance per class/annotaion combination
+ * <p/>
  * Date: Oct 23, 2009
  * Time: 2:37:52 PM
  */
 public class ChainHandlerFactory<T> implements CachingFactory<T> {
-    /**
-     * since this factory going to be singleton according to factory manager's code
-     * caching of handler instance in this attribute makes it also singleton
-     */
     private T cachedProxy = null;
 
     public T create(ALinker aLinker, Context<T> ctx) throws FactoryException {
