@@ -47,7 +47,7 @@ public class ALinker {
         private static ALinker instance = new ALinker();
     }
 
-    public static ALinker instance() {
+    public static ALinker di() {
         return InstanceHolder.instance;
     }
 
