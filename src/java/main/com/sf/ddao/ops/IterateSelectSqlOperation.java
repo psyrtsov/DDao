@@ -3,11 +3,10 @@ package com.sf.ddao.ops;
 import com.sf.ddao.IterableArg;
 import com.sf.ddao.IterateSelect;
 import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.alinker.inject.Link;
 import com.sf.ddao.chain.CtxHelper;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.factory.StatementFactory;
-import static com.sf.ddao.utils.Annotations.findParameterAnnotatedWith;
 import org.apache.commons.chain.Context;
 
 import java.lang.annotation.Annotation;
@@ -18,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static com.sf.ddao.utils.Annotations.findParameterAnnotatedWith;
+
 /**
  * Date: Feb 8, 2010
  * Time: 4:52:45 PM
@@ -26,7 +27,7 @@ public class IterateSelectSqlOperation extends SelectSqlOperation {
     private int iterableArgIdx;
     private Class<? extends Collection> returnClass = null;
 
-    @Inject
+    @Link
     public IterateSelectSqlOperation(StatementFactory statementFactory) {
         super(statementFactory);
     }

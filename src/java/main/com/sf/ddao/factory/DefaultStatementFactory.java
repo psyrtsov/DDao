@@ -16,7 +16,7 @@
 
 package com.sf.ddao.factory;
 
-import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.alinker.inject.Link;
 import com.sf.ddao.conn.ConnectionHandlerHelper;
 import com.sf.ddao.factory.param.Parameter;
 import com.sf.ddao.factory.param.ParameterException;
@@ -55,7 +55,7 @@ public class DefaultStatementFactory implements StatementFactory {
     private List<String> stmtTokens = new ArrayList<String>();
     private ParameterFactory parameterFactory;
 
-    @Inject
+    @Link
     public DefaultStatementFactory(ParameterFactory parameterFactory) {
         this.parameterFactory = parameterFactory;
     }
@@ -150,5 +150,21 @@ public class DefaultStatementFactory implements StatementFactory {
             stmt = sb.toString();
         }
         return stmt;
+    }
+
+    public List<Parameter> getInlineParametersList() {
+        return inlineParametersList;
+    }
+
+    public List<Parameter> getRefParametersList() {
+        return refParametersList;
+    }
+
+    public List<String> getStmtTokens() {
+        return stmtTokens;
+    }
+
+    public ParameterFactory getParameterFactory() {
+        return parameterFactory;
     }
 }

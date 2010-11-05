@@ -14,9 +14,7 @@
  * under the License.
  */
 
-package com.sf.ddao.alinker.factory;
-
-import com.sf.ddao.alinker.inject.Link;
+package com.sf.ddao.alinker.inject;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -26,12 +24,9 @@ import java.lang.annotation.Target;
 /**
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
- * Time: 4:27:55 PM
+ * Time: 11:14:38 PM
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.PARAMETER})
-@UseFactory(InjectValueFactory.class)
-@Link
-public @interface InjectValue {
-    String value();
+@Target({ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.CONSTRUCTOR})
+public @interface Link {
 }

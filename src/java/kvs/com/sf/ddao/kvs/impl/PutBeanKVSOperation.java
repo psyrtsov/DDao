@@ -2,7 +2,7 @@ package com.sf.ddao.kvs.impl;
 
 import com.sf.ddao.DaoException;
 import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.alinker.inject.Link;
 import com.sf.ddao.chain.CtxHelper;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.conn.ConnectionHandlerHelper;
@@ -27,7 +27,7 @@ public class PutBeanKVSOperation extends KVSOperationBase {
     private StatementFactory statementFactory;
     private AnnotatedElement element;
 
-    @Inject
+    @Link
     public PutBeanKVSOperation(StatementFactory statementFactory) {
         this.statementFactory = statementFactory;
     }

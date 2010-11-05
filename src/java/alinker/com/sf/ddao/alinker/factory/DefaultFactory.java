@@ -21,7 +21,7 @@ import com.sf.ddao.alinker.Context;
 import com.sf.ddao.alinker.Factory;
 import com.sf.ddao.alinker.FactoryException;
 import com.sf.ddao.alinker.inject.DependencyInjector;
-import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.alinker.inject.Link;
 import com.sf.ddao.utils.Annotations;
 
 import java.lang.annotation.Annotation;
@@ -38,14 +38,14 @@ public class DefaultFactory implements Factory {
         if (ALinker.class.equals(clazz)) {
             return aLinker;
         }
-        ImplementedBy implementedBy = clazz.getAnnotation(ImplementedBy.class);
+        InstanceOf implementedBy = clazz.getAnnotation(InstanceOf.class);
         if (implementedBy != null) {
             clazz = implementedBy.value();
         }
         try {
             final Constructor[] constructors = clazz.getConstructors();
             for (Constructor constructor : constructors) {
-                final Annotation annotation = Annotations.findAnnotation(constructor, Inject.class);
+                final Annotation annotation = Annotations.findAnnotation(constructor, Link.class);
                 if (annotation != null) {
                     return DependencyInjector.injectConstructor(aLinker, constructor);
                 }

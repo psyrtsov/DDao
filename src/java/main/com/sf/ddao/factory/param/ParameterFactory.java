@@ -18,7 +18,7 @@ package com.sf.ddao.factory.param;
 
 import com.sf.ddao.alinker.ALinker;
 import com.sf.ddao.alinker.factory.Singleton;
-import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.alinker.inject.Link;
 
 import java.lang.reflect.AnnotatedElement;
 import java.util.HashMap;
@@ -35,7 +35,7 @@ public class ParameterFactory {
     private final Map<String, ParameterService> paramTypeMap = new HashMap<String, ParameterService>();
     private final ALinker aLinker;
 
-    @Inject
+    @Link
     public ParameterFactory(ALinker aLinker) {
         this.aLinker = aLinker;
         init();

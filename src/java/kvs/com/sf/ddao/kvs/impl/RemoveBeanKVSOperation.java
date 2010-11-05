@@ -3,7 +3,7 @@ package com.sf.ddao.kvs.impl;
 import com.sf.ddao.DaoException;
 import com.sf.ddao.alinker.ALinker;
 import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.alinker.inject.Link;
 import com.sf.ddao.chain.CtxHelper;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.conn.ConnectionHandlerHelper;
@@ -23,7 +23,7 @@ import java.sql.PreparedStatement;
  * Time: 9:00:31 PM
  */
 public class RemoveBeanKVSOperation extends KVSOperationBase {
-    @Inject
+    @Link
     public ALinker aLinker;
     private StatementFactory[] statementFactoryList;
 

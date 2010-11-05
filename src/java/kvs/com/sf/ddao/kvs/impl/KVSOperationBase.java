@@ -2,7 +2,7 @@ package com.sf.ddao.kvs.impl;
 
 import com.sf.ddao.alinker.ALinker;
 import com.sf.ddao.alinker.Context;
-import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.alinker.inject.Link;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
 import com.sf.ddao.handler.Intializible;
@@ -19,7 +19,7 @@ import java.lang.reflect.AnnotatedElement;
  * Time: 12:01:37 AM
  */
 public abstract class KVSOperationBase implements Command, Intializible {
-    @Inject
+    @Link
     public ALinker aLinker;
     protected StatementFactory keyFactory;
     protected KeyValueStore<String, Object> keyValueStore;

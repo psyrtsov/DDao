@@ -22,7 +22,7 @@ package com.sf.ddao.alinker.factory;
  */
 
 import com.sf.ddao.alinker.*;
-import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.alinker.inject.Link;
 import junit.framework.TestCase;
 
 import java.lang.reflect.InvocationHandler;
@@ -59,7 +59,7 @@ public class FactoryTest extends TestCase {
         @InjectValue("injectedString")
         public String injectedString;
 
-        @Inject
+        @Link
         public InjectedConstructorTest(StringBuilder sb) {
             this.sb = sb;
         }

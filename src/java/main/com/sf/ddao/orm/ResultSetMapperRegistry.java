@@ -31,7 +31,6 @@ import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,11 +41,11 @@ import java.util.Map;
 public class ResultSetMapperRegistry {
     @SuppressWarnings({"UnusedDeclaration"})
     public static ResultSetMapper getResultSetMapper(Method method, Object[] args, ResultSet resultSet) throws ResultSetMapperException {
-        Class<?> returnClass = method.getReturnType();
         Type returnType = method.getGenericReturnType();
         if (method.getReturnType() == Void.TYPE) {
             return createCallbackMapper(args);
         }
+        Class<?> returnClass = method.getReturnType();
         if (returnClass.isArray()) {
             Class itemType = returnClass.getComponentType();
             ResultSetMapper itemMapper = getResultMapper(itemType);
@@ -55,11 +54,15 @@ public class ResultSetMapperRegistry {
         if (Collection.class.isAssignableFrom(returnClass)) {
             Type[] actualTypeArguments = ((ParameterizedType) returnType).getActualTypeArguments();
             Type itemType = actualTypeArguments[0];
-            ResultSetMapper itemMapper = getResultMapper(itemType);
-            //noinspection unchecked
-            return new CollectionResultSetMapper(itemMapper, (Class<? extends List>) returnClass);
+            return getCollectionResultMapper(returnClass, itemType);
         }
         return getResultMapper(returnClass);
+    }
+
+    public static ResultSetMapper getCollectionResultMapper(Class<?> returnClass, Type itemType) {
+        ResultSetMapper itemMapper = getResultMapper(itemType);
+        //noinspection unchecked
+        return new CollectionResultSetMapper(itemMapper, (Class<? extends Collection>) returnClass);
     }
 
     public static ResultSetMapper createCallbackMapper(Object[] args) throws ResultSetMapperException {

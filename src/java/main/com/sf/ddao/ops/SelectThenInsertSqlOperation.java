@@ -2,7 +2,7 @@ package com.sf.ddao.ops;
 
 import com.sf.ddao.SelectThenInsert;
 import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.alinker.inject.Link;
 import com.sf.ddao.chain.CtxHelper;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.factory.StatementFactory;
@@ -22,7 +22,7 @@ public class SelectThenInsertSqlOperation extends UpdateSqlOperation {
     private SelectSqlOperation selectSqlOp;
     public static final String ID_FIELD_NAME = "id";
 
-    @Inject
+    @Link
     public SelectThenInsertSqlOperation(StatementFactory statementFactory, SelectSqlOperation selectSqlOp) {
         super(statementFactory);
         this.selectSqlOp = selectSqlOp;

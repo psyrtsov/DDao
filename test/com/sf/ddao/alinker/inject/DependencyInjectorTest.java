@@ -49,8 +49,8 @@ public class DependencyInjectorTest extends TestCase {
     private class MyInjectorTest {
         String injectedValue = null;
 
-        @Inject
-        public void setInjectedValue(@InjectValue("injectedValue")String injectedValue) {
+        @Link
+        public void setInjectedValue(@InjectValue("injectedValue") String injectedValue) {
             this.injectedValue = injectedValue;
         }
     }

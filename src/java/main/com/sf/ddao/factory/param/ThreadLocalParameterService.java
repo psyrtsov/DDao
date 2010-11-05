@@ -17,7 +17,7 @@
 package com.sf.ddao.factory.param;
 
 import com.sf.ddao.alinker.ALinker;
-import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.alinker.inject.Link;
 
 import java.lang.reflect.AnnotatedElement;
 
@@ -28,7 +28,7 @@ import java.lang.reflect.AnnotatedElement;
  */
 public class ThreadLocalParameterService implements ParameterService {
     public static final String FUNC_NAME = "threadLocal";
-    @Inject
+    @Link
     public ALinker aLinker;
 
     public void register(ParameterFactory parameterFactory) {

@@ -46,6 +46,8 @@ public interface Parameter {
      */
     String extractParam(Context context) throws ParameterException;
 
+    Object extractData(Context context) throws ParameterException;
+
     /**
      * bind parameter extracted from argument list to given prepared statement
      *

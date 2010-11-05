@@ -43,14 +43,14 @@ public class DependencyInjector<T> implements Initializer<T> {
             Class<?> aClass = subj.getClass();
             Field[] fields = aClass.getDeclaredFields();
             for (Field field : fields) {
-                annotation = Annotations.findAnnotation(field, Inject.class);
+                annotation = Annotations.findAnnotation(field, Link.class);
                 if (annotation != null) {
                     injectField(aLinker, subj, field);
                 }
             }
             Method[] methods = aClass.getMethods();
             for (Method method : methods) {
-                annotation = Annotations.findAnnotation(method, Inject.class);
+                annotation = Annotations.findAnnotation(method, Link.class);
                 if (annotation != null) {
                     injectMethod(aLinker, subj, method);
                 }

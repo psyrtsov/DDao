@@ -16,12 +16,14 @@
 
 package com.sf.ddao.factory;
 
-import com.sf.ddao.alinker.factory.ImplementedBy;
+import com.sf.ddao.alinker.factory.InstanceOf;
+import com.sf.ddao.factory.param.Parameter;
 import com.sf.ddao.factory.param.ParameterException;
 import org.apache.commons.chain.Context;
 
 import java.lang.reflect.AnnotatedElement;
 import java.sql.PreparedStatement;
+import java.util.List;
 
 /**
  * Created by Pavel Syrtsov
@@ -34,7 +36,7 @@ import java.sql.PreparedStatement;
  * Then it will be used to create JDBC prepared statement
  * and bind to it arguments data objects if any.
  */
-@ImplementedBy(DefaultStatementFactory.class)
+@InstanceOf(DefaultStatementFactory.class)
 public interface StatementFactory {
     /**
      * Initializes factory object with query data
@@ -69,4 +71,6 @@ public interface StatementFactory {
     PreparedStatement createStatement(Context context, int returnGeneratedKeys) throws StatementFactoryException;
 
     String createText(Context context) throws ParameterException;
+
+    List<Parameter> getRefParametersList();
 }

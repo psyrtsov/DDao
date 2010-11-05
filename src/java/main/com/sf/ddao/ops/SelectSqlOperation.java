@@ -19,7 +19,7 @@ package com.sf.ddao.ops;
 import com.sf.ddao.DaoException;
 import com.sf.ddao.Select;
 import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.alinker.inject.Link;
 import com.sf.ddao.chain.CtxHelper;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.factory.StatementFactory;
@@ -44,7 +44,7 @@ public class SelectSqlOperation implements Command, Intializible {
     private StatementFactory statementFactory;
     private Method method;
 
-    @Inject
+    @Link
     public SelectSqlOperation(StatementFactory statementFactory) {
         this.statementFactory = statementFactory;
     }

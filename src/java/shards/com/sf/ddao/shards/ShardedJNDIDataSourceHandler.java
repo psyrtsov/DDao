@@ -18,7 +18,7 @@ package com.sf.ddao.shards;
 
 import com.sf.ddao.DaoException;
 import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.alinker.inject.Link;
 import com.sf.ddao.chain.CtxHelper;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.conn.ConnectionHandlerHelper;
@@ -131,7 +131,7 @@ public class ShardedJNDIDataSourceHandler extends ConnectionHandlerHelper implem
         }
     }
 
-    @Inject
+    @Link
     public void setShardControlDao(ShardControlDao shardControlDao) {
         this.shardControlDao = shardControlDao;
     }

@@ -18,7 +18,7 @@ package com.sf.ddao.ops;
 
 import com.sf.ddao.Delete;
 import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.alinker.inject.Inject;
+import com.sf.ddao.alinker.inject.Link;
 import com.sf.ddao.factory.StatementFactory;
 
 import java.lang.annotation.Annotation;
@@ -30,7 +30,7 @@ import java.lang.reflect.AnnotatedElement;
  * Time: 1:44:52 AM
  */
 public class DeleteSqlOperation extends UpdateSqlOperation {
-    @Inject
+    @Link
     public DeleteSqlOperation(StatementFactory statementFactory) {
         super(statementFactory);
     }

@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.AnnotatedElement;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -39,8 +40,6 @@ public abstract class ParameterHelper implements Parameter {
         // psdo: move dealing with type to init method to make runtime faster
         this.name = name;
     }
-
-    public abstract Object extractData(Context context) throws ParameterException;
 
     public String extractParam(Context context) throws ParameterException {
         Object param = extractData(context);
@@ -67,26 +66,30 @@ public abstract class ParameterHelper implements Parameter {
                 StatementParamter statementParamter = (StatementParamter) param;
                 statementParamter.bind(preparedStatement, idx, context);
             } else {
-                Class<?> clazz = param.getClass();
-                if (clazz == Integer.class || clazz == Integer.TYPE) {
-                    preparedStatement.setInt(idx, (Integer) param);
-                } else if (clazz == String.class) {
-                    preparedStatement.setString(idx, (String) param);
-                } else if (clazz == Long.class) {
-                    preparedStatement.setLong(idx, (Long) param);
-                } else if (java.util.Date.class.isAssignableFrom(clazz)) {
-                    if (!java.sql.Date.class.isAssignableFrom(clazz)) {
-                        param = new java.sql.Date(((Date) param).getTime());
-                    }
-                    preparedStatement.setDate(idx, (java.sql.Date) param);
-                } else if (Timestamp.class.isAssignableFrom(clazz)) {
-                    preparedStatement.setTimestamp(idx, (Timestamp) param);
-                } else {
-                    throw new ParameterException("Unimplemented type mapping for " + clazz);
-                }
+                bind(preparedStatement, idx, param);
             }
         } catch (Exception e) {
             throw new ParameterException("Failed to bind parameter " + name + " to index " + idx, e);
+        }
+    }
+
+    public static void bind(PreparedStatement preparedStatement, int idx, Object param) throws SQLException, ParameterException {
+        Class<?> clazz = param.getClass();
+        if (clazz == Integer.class || clazz == Integer.TYPE) {
+            preparedStatement.setInt(idx, (Integer) param);
+        } else if (clazz == String.class) {
+            preparedStatement.setString(idx, (String) param);
+        } else if (clazz == Long.class) {
+            preparedStatement.setLong(idx, (Long) param);
+        } else if (Date.class.isAssignableFrom(clazz)) {
+            if (!java.sql.Date.class.isAssignableFrom(clazz)) {
+                param = new java.sql.Date(((Date) param).getTime());
+            }
+            preparedStatement.setDate(idx, (java.sql.Date) param);
+        } else if (Timestamp.class.isAssignableFrom(clazz)) {
+            preparedStatement.setTimestamp(idx, (Timestamp) param);
+        } else {
+            throw new ParameterException("Unimplemented type mapping for " + clazz);
         }
     }
 
