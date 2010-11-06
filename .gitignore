@@ -1,0 +1,6 @@
+.idea/
+build/
+dist/
+lib/dependencies/
+out/
+

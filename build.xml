@@ -41,7 +41,17 @@
         <delete dir="${dist.dir}"/>
     </target>
 
-    <target name="dist" depends="clean,jars,docs">
+    <target name="git">
+        <!--this will fail if there uncommitted changes, all changes have to be checked in to build distributable jar  -->
+        <exec executable="git" failonerror="true">
+            <arg line="commit"/>
+        </exec>
+        <exec executable="git" outputproperty="commitSha1">
+            <arg line="log -1 --pretty=format:%H"/>
+        </exec>
+    </target>
+
+    <target name="dist" depends="clean,git,jars,docs">
         <mkdir dir="${dist.dir}"/>
         <ivy:info file="${ivy.file}"/>
         <zip destfile="${dist.dir}/${ivy.module}-bin.zip">
@@ -67,6 +77,7 @@
              basedir="${build.classes.dir}">
             <manifest>
                 <attribute name="Jar-Version" value="${ivy.new.revision}"/>
+                <attribute name="Commit-Sha1" value="${commitSha1}"/>
             </manifest>
         </jar>
     </target>
