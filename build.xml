@@ -17,6 +17,7 @@
     <path id="src.path">
         <path path="src/java/alinker"/>
         <path path="src/java/main"/>
+        <path path="src/java/astore"/>
         <path path="src/java/shards"/>
     </path>
     <path id="runtime-libs">
@@ -42,10 +43,6 @@
     </target>
 
     <target name="git">
-        <!--this will fail if there uncommitted changes, all changes have to be checked in to build distributable jar  -->
-        <exec executable="git" failonerror="true">
-            <arg line="commit"/>
-        </exec>
         <exec executable="git" outputproperty="commitSha1">
             <arg line="log -1 --pretty=format:%H"/>
         </exec>
