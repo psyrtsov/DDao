@@ -20,12 +20,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * Created by: Pavel Syrtsov
- * Date: Apr 14, 2007
- * Time: 6:01:46 PM
- * we could use design with bean utils Converter,
- * but then we would.n be able to delegate choosing of right
- * getXXX on result set object.
+ * ColumnMapper maps single column value to Object
+ * NOTe: not thread safe, created per JDBC request
  */
 public interface ColumnMapper {
     Object get(ResultSet rs, int idx) throws SQLException;

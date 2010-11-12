@@ -18,6 +18,7 @@ package com.sf.ddao.orm;
 
 import com.sf.ddao.DaoException;
 import com.sf.ddao.SelectCallback;
+import com.sf.ddao.orm.mapper.*;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
 
@@ -59,13 +60,13 @@ public class ResultSetMapperRegistry {
         return getResultMapper(returnClass);
     }
 
-    public static ResultSetMapper getCollectionResultMapper(Class<?> returnClass, Type itemType) {
+    private static ResultSetMapper getCollectionResultMapper(Class<?> returnClass, Type itemType) {
         ResultSetMapper itemMapper = getResultMapper(itemType);
         //noinspection unchecked
         return new CollectionResultSetMapper(itemMapper, (Class<? extends Collection>) returnClass);
     }
 
-    public static ResultSetMapper createCallbackMapper(Object[] args) throws ResultSetMapperException {
+    private static ResultSetMapper createCallbackMapper(Object[] args) throws ResultSetMapperException {
         for (Object arg : args) {
             if (arg instanceof SelectCallback) {
                 final SelectCallback selectCallback = (SelectCallback) arg;

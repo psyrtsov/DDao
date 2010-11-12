@@ -19,10 +19,7 @@ package com.sf.ddao.orm;
 import java.sql.ResultSet;
 
 /**
- * Created by: Pavel Syrtsov
- * Date: Apr 8, 2007
- * Time: 4:28:38 PM
- * Note: instances of result set mappers are not thread safe, they created per invocation
+ * Note: instances of result set mappers are not thread safe, they created per JDBC request
  */
 public interface ResultSetMapper {
     /**

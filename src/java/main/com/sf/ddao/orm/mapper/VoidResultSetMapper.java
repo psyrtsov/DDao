@@ -1,4 +1,6 @@
-package com.sf.ddao.orm;
+package com.sf.ddao.orm.mapper;
+
+import com.sf.ddao.orm.ResultSetMapper;
 
 import java.sql.ResultSet;
 
