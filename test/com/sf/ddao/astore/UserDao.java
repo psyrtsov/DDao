@@ -15,7 +15,7 @@ public interface UserDao {
     @AsyncDBGet(sql = "select id, name from user where id = #id#", cacheKey = "id")
     TestUserBean getUser(TestUserBean userBean);
 
-    @AsyncDBBatchGet(sql = "select id, name from user where id in (#ctx:keyList#)")
+    @AsyncDBBatchGet(sql = "select id, name from user where id in ($ctx:keyList$)")
     Map<Integer, TestUserBean> getUserList(List<Integer> idList);
 
     @AsyncDBPut(sql = "update user set name = #name# where id = #id#", cacheKey = "id")

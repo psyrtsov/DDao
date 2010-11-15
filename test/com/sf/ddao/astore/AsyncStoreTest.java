@@ -1,6 +1,9 @@
 package com.sf.ddao.astore;
 
 import com.mockrunner.jdbc.BasicJDBCTestCaseAdapter;
+import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
+import com.mockrunner.mock.jdbc.MockConnection;
+import com.mockrunner.mock.jdbc.MockResultSet;
 import com.sf.ddao.TestUserBean;
 import com.sf.ddao.alinker.ALinker;
 import org.mockejb.jndi.MockContextFactory;
@@ -26,6 +29,18 @@ public class AsyncStoreTest extends BasicJDBCTestCaseAdapter {
         MockContextFactory.revertSetAsInitial();
     }
 
+    private void createResultSet(Object... data) {
+        MockConnection connection = getJDBCMockObjectFactory().getMockConnection();
+        PreparedStatementResultSetHandler handler = connection.getPreparedStatementResultSetHandler();
+        MockResultSet rs = handler.createResultSet();
+        for (int i = 0; i < data.length; i++) {
+            Object colName = data[i++];
+            Object colValues = data[i];
+            rs.addColumn(colName.toString(), (Object[]) colValues);
+        }
+        handler.prepareGlobalResultSet(rs);
+    }
+
     public void testPut() {
         UserDao userDao = factory.create(UserDao.class);
         TestUserBean testUserBean = new TestUserBean();
@@ -35,6 +50,7 @@ public class AsyncStoreTest extends BasicJDBCTestCaseAdapter {
     }
 
     public void testGet() {
+        createResultSet("id", new Object[]{1}, "name", new Object[]{"user1"});
         UserDao userDao = factory.create(UserDao.class);
         TestUserBean testUserBean = new TestUserBean();
         testUserBean.setId(1);
@@ -42,6 +58,7 @@ public class AsyncStoreTest extends BasicJDBCTestCaseAdapter {
     }
 
     public void testMultiGet() {
+        createResultSet("id", new Object[]{1}, "name", new Object[]{"user1"});
         UserDao userDao = factory.create(UserDao.class);
         List<Integer> list = new ArrayList<Integer>();
         list.add(1);
