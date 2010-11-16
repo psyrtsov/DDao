@@ -25,12 +25,17 @@ import com.sf.ddao.alinker.FactoryException;
 import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.conn.JNDIDataSourceHandler;
 import com.sf.ddao.factory.param.ThreadLocalParameter;
+import com.sf.ddao.orm.RSMapper;
+import com.sf.ddao.orm.UseRSMapper;
+import com.sf.ddao.orm.rsmapper.rowmapper.BeanRowMapper;
 import com.sf.ddao.shards.ShardKey;
 import com.sf.ddao.shards.ShardedJNDIDao;
 import junit.framework.TestCase;
 import org.mockejb.jndi.MockContextFactory;
 
 import javax.naming.InitialContext;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,7 +81,7 @@ public class ShardedJNDIDaoTest extends TestCase {
         TestUserBean[] getUserDataArray(String tableName, int size, @ShardKey int userId);
 
         @Select("select id, name from user_data where user_id = #0#")
-        void processUserData(@ShardKey int userId, SelectCallback selectCallback);
+        void processUserData(@ShardKey int userId, @UseRSMapper RSMapper selectCallback);
 
         /**
          * values that have '()' assumed to be call to static function,
@@ -233,10 +238,15 @@ public class ShardedJNDIDaoTest extends TestCase {
         final List<TestUserBean> res = new ArrayList<TestUserBean>();
 
         // execute dao method
-        dao.processUserData(1, new SelectCallback<TestUserBean>() {
-            public boolean processRecord(TestUserBean record) {
-                res.add(record);
-                return true;
+        dao.processUserData(1, new RSMapper() {
+            BeanRowMapper rowMapper = new BeanRowMapper(TestUserBean.class);
+
+            public Object handle(ResultSet rs) throws SQLException {
+                while (rs.next()) {
+                    res.add((TestUserBean) rowMapper.map(rs));
+                }
+                return null;
+
             }
         });
 

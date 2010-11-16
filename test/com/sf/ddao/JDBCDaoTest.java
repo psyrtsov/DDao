@@ -21,16 +21,21 @@ import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockResultSet;
 import com.sf.ddao.alinker.ALinker;
-import static com.sf.ddao.chain.CtxHelper.context;
 import com.sf.ddao.conn.ConnectionHandlerHelper;
 import com.sf.ddao.factory.param.ThreadLocalParameter;
+import com.sf.ddao.orm.RSMapper;
+import com.sf.ddao.orm.UseRSMapper;
+import com.sf.ddao.orm.rsmapper.rowmapper.BeanRowMapper;
 import org.apache.commons.chain.Context;
 import org.mockejb.jndi.MockContextFactory;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.sf.ddao.chain.CtxHelper.context;
 
 /**
  * JDBCDaoTest is testing basic DDao functionality executed upon simple JDBC connection created by JDBC DriverManager call.
@@ -69,7 +74,7 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         TestUserBean[] getUserArray(String tableName, int size);
 
         @Select("select id, name from user")
-        void processUsers(SelectCallback selectCallback);
+        void processUsers(@UseRSMapper RSMapper selectCallback);
 
         /**
          * values that have '()' assumed to be call to static function,
@@ -191,10 +196,15 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
 
         // execute dao method
         TestUserDao dao = factory.create(TestUserDao.class, null);
-        dao.processUsers(new SelectCallback<TestUserBean>() {
-            public boolean processRecord(TestUserBean record) {
-                res.add(record);
-                return true;
+        dao.processUsers(new RSMapper() {
+            BeanRowMapper rowMapper = new BeanRowMapper(TestUserBean.class);
+
+            public Object handle(ResultSet rs) throws SQLException {
+                while (rs.next()) {
+                    res.add((TestUserBean) rowMapper.map(rs));
+                }
+                return null;
+
             }
         });
 

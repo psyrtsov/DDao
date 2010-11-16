@@ -14,18 +14,17 @@
  * under the License.
  */
 
-package com.sf.ddao.orm.mapper;
+package com.sf.ddao.orm.rsmapper.rowmapper;
 
-import com.sf.ddao.orm.ColumnMapper;
-import com.sf.ddao.orm.ResultSetMapper;
-import com.sf.ddao.orm.ResultSetMapperException;
-import com.sf.ddao.orm.ResultSetMapperRegistry;
+import com.sf.ddao.orm.RSMapperFactoryRegistry;
+import com.sf.ddao.orm.RowMapper;
 
 import java.beans.BeanInfo;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,58 +33,63 @@ import java.util.Map;
  * Date: Apr 8, 2007
  * Time: 6:12:20 PM
  */
-public class BeanResultSetMapper implements ResultSetMapper {
-    private Class itemType;
-    private Object result = null;
-    private PropertyMapper[] mapperList = null;
+public class BeanRowMapper implements RowMapper {
+    private final Class itemType;
+    private volatile PropertyMapper[] mapperList = null;
 
     private class PropertyMapper {
         private Method writeMethod;
-        private ColumnMapper columnMapper;
-        private int idx;
+        private RowMapper columnMapper;
 
-        public PropertyMapper(int i, PropertyDescriptor propertyDescriptor) {
+        public PropertyMapper(int idx, PropertyDescriptor propertyDescriptor) {
             writeMethod = propertyDescriptor.getWriteMethod();
             Class<?> propertyType = propertyDescriptor.getPropertyType();
-            columnMapper = ResultSetMapperRegistry.getColumnMapper(propertyType);
-            idx = i;
+            columnMapper = RSMapperFactoryRegistry.getScalarMapper(propertyType, idx);
         }
 
         public void map(ResultSet resultSet, Object result) throws Exception {
-            Object value = columnMapper.get(resultSet, idx);
+            Object value = columnMapper.map(resultSet);
             writeMethod.invoke(result, value);
         }
     }
 
-    public BeanResultSetMapper(Class itemType) {
+    public BeanRowMapper(Class itemType) {
         this.itemType = itemType;
     }
 
-    public boolean addRecord(ResultSet resultSet) throws Exception {
-        if (mapperList == null) {
-            init(resultSet);
+    public Object map(ResultSet rs) throws SQLException {
+        Object result;
+        try {
+
+            if (mapperList == null) {
+                init(rs);
+            }
+            result = itemType.newInstance();
+            for (PropertyMapper propertyMapper : mapperList) {
+                propertyMapper.map(rs, result);
+            }
+        } catch (SQLException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new SQLException(e);
         }
-        if (result != null) {
-            throw new ResultSetMapperException("Expected only one record for result type " + itemType);
-        }
-        result = itemType.newInstance();
-        for (PropertyMapper propertyMapper : mapperList) {
-            propertyMapper.map(resultSet, result);
-        }
-        return true;
+        return result;
     }
 
-    private void init(ResultSet resultSet) throws Exception {
+    private synchronized void init(ResultSet resultSet) throws Exception {
+        if (this.mapperList != null) {
+            return;
+        }
         ResultSetMetaData metaData = resultSet.getMetaData();
         Map<String, Integer> colNames = new HashMap<String, Integer>();
         int count = metaData.getColumnCount();
         for (int i = 1; i <= count; i++) {
             final String name = metaData.getColumnName(i).toLowerCase();
             if (colNames.put(name, i) != null) {
-                throw new ResultSetMapperException("Ambiguous column name " + name);
+                throw new SQLException("Ambiguous column name " + name);
             }
         }
-        mapperList = new PropertyMapper[count];
+        PropertyMapper[] mapperList = new PropertyMapper[count];
         BeanInfo beanInfo = java.beans.Introspector.getBeanInfo(itemType);
         PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
         for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
@@ -101,16 +105,9 @@ public class BeanResultSetMapper implements ResultSetMapper {
             mapperList[i - 1] = new PropertyMapper(i, propertyDescriptor);
         }
         if (colNames.size() > 0) {
-            throw new ResultSetMapperException("Query result columns " + colNames.keySet()
+            throw new SQLException("Query result columns " + colNames.keySet()
                     + " don`t have matching properties in " + itemType);
         }
-    }
-
-    public Object getResult() {
-        try {
-            return result;
-        } finally {
-            result = null;
-        }
+        this.mapperList = mapperList;
     }
 }

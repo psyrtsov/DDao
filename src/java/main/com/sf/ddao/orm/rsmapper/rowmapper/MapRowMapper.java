@@ -14,12 +14,13 @@
  * under the License.
  */
 
-package com.sf.ddao.orm.mapper;
+package com.sf.ddao.orm.rsmapper.rowmapper;
 
-import com.sf.ddao.orm.ResultSetMapper;
+import com.sf.ddao.orm.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,34 +31,36 @@ import java.util.Map;
  * Date: Apr 8, 2007
  * Time: 6:10:40 PM
  */
-public class MapResultSetMapper implements ResultSetMapper {
-    Map<String, Object> data = new HashMap<String, Object>();
-    List<String> columns = null;
+public class MapRowMapper implements RowMapper {
+    private volatile List<String> columns = null;
 
-    public MapResultSetMapper() {
+    public MapRowMapper() {
     }
 
-    public boolean addRecord(ResultSet resultSet) throws Exception {
+    public Object map(ResultSet rs) throws SQLException {
         if (columns == null) {
-            columns = new ArrayList<String>();
-            final ResultSetMetaData metaData = resultSet.getMetaData();
-            int colCount = metaData.getColumnCount();
-            for (int i = 1; i <= colCount; i++) {
-                String colName = metaData.getColumnName(i);
-                columns.add(colName);
-            }
+            initColumns(rs);
         }
+        Map<String, Object> data = new HashMap<String, Object>();
         for (int i = 0; i < columns.size(); i++) {
             String column = columns.get(i);
-            Object value = resultSet.getObject(i + 1);
+            Object value = rs.getObject(i + 1);
             data.put(column, value);
         }
-        return true;
+        return data;
     }
 
-    public Object getResult() {
-        Map<String, Object> res = data;
-        data = new HashMap<String, Object>();
-        return res;
+    private synchronized void initColumns(ResultSet rs) throws SQLException {
+        if (columns != null) {
+            return;
+        }
+        final ResultSetMetaData metaData = rs.getMetaData();
+        int colCount = metaData.getColumnCount();
+        List<String> columns = new ArrayList<String>(colCount);
+        for (int i = 1; i <= colCount; i++) {
+            String colName = metaData.getColumnName(i);
+            columns.add(colName);
+        }
+        this.columns = columns;
     }
 }

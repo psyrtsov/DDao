@@ -22,7 +22,13 @@
           <root url="file://$MODULE_DIR$/testlib" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="file://$MODULE_DIR$/../../arc/src/mockrunner-0.4.2/src" />
+          <root url="file://$MODULE_DIR$/../../arc/src/mockrunner-0.4.2/srcj2ee1.3" />
+          <root url="file://$MODULE_DIR$/../../arc/src/mockrunner-0.4.2/srcjdk1.4" />
+          <root url="file://$MODULE_DIR$/../../arc/src/mockrunner-0.4.2/srcj2ee1.4" />
+          <root url="file://$MODULE_DIR$/../../arc/src/mockrunner-0.4.2/srcjdk1.3" />
+        </SOURCES>
         <jarDirectory url="file://$MODULE_DIR$/testlib" recursive="false" />
       </library>
     </orderEntry>

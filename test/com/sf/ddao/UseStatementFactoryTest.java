@@ -23,9 +23,14 @@ import com.mockrunner.mock.jdbc.MockDataSource;
 import com.mockrunner.mock.jdbc.MockResultSet;
 import com.sf.ddao.alinker.ALinker;
 import com.sf.ddao.conn.JNDIDataSourceHandler;
+import com.sf.ddao.orm.RSMapper;
+import com.sf.ddao.orm.UseRSMapper;
+import com.sf.ddao.orm.rsmapper.rowmapper.BeanRowMapper;
 import org.mockejb.jndi.MockContextFactory;
 
 import javax.naming.InitialContext;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +53,7 @@ public class UseStatementFactoryTest extends BasicJDBCTestCaseAdapter {
         TestUserBean[] getUserArray(int size);
 
         @Select("select id, name from user")
-        void processUsers(SelectCallback selectCallback);
+        void processUsers(@UseRSMapper RSMapper selectCallback);
     }
 
     ALinker aLinker;
@@ -131,10 +136,15 @@ public class UseStatementFactoryTest extends BasicJDBCTestCaseAdapter {
         UserDao dao = aLinker.create(UserDao.class, null);
         createResultSet("id", new Object[]{1, 2}, "name", new Object[]{"foo", "bar"});
         final List<TestUserBean> res = new ArrayList<TestUserBean>();
-        dao.processUsers(new SelectCallback<TestUserBean>() {
-            public boolean processRecord(TestUserBean record) {
-                res.add(record);
-                return true;
+        dao.processUsers(new RSMapper() {
+            BeanRowMapper rowMapper = new BeanRowMapper(TestUserBean.class);
+
+            public Object handle(ResultSet rs) throws SQLException {
+                while (rs.next()) {
+                    res.add((TestUserBean) rowMapper.map(rs));
+                }
+                return null;
+
             }
         });
         assertNotNull(res);

@@ -24,8 +24,13 @@ import com.mockrunner.mock.jdbc.MockResultSet;
 import com.sf.ddao.alinker.ALinker;
 import com.sf.ddao.conn.DataSourceHandler;
 import com.sf.ddao.factory.param.ThreadLocalParameter;
+import com.sf.ddao.orm.RSMapper;
+import com.sf.ddao.orm.UseRSMapper;
+import com.sf.ddao.orm.rsmapper.rowmapper.BeanRowMapper;
 import org.mockejb.jndi.MockContextFactory;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,7 +72,7 @@ public class DataSourceDaoTest extends BasicJDBCTestCaseAdapter {
         TestUserBean[] getUserArray(String tableName, int size);
 
         @Select("select id, name from user")
-        void processUsers(SelectCallback selectCallback);
+        void processUsers(@UseRSMapper RSMapper selectCallback);
 
         /**
          * values that have '()' assumed to be call to static function,
@@ -108,7 +113,7 @@ public class DataSourceDaoTest extends BasicJDBCTestCaseAdapter {
         // create dao object
         TestUserDao dao = factory.create(TestUserDao.class, null);
 
-        // ruse it for multiple invocations
+        // reuse it for multiple invocations
         getUserOnce(dao, 1, "foo");
         getUserOnce(dao, 2, "bar");
     }
@@ -186,10 +191,15 @@ public class DataSourceDaoTest extends BasicJDBCTestCaseAdapter {
 
         // execute dao method
         TestUserDao dao = factory.create(TestUserDao.class, null);
-        dao.processUsers(new SelectCallback<TestUserBean>() {
-            public boolean processRecord(TestUserBean record) {
-                res.add(record);
-                return true;
+        dao.processUsers(new RSMapper() {
+            BeanRowMapper rowMapper = new BeanRowMapper(TestUserBean.class);
+
+            public Object handle(ResultSet rs) throws SQLException {
+                while (rs.next()) {
+                    res.add((TestUserBean) rowMapper.map(rs));
+                }
+                return null;
+
             }
         });
 

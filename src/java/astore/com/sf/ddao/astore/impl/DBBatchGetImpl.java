@@ -2,18 +2,15 @@ package com.sf.ddao.astore.impl;
 
 import com.sf.ddao.DaoException;
 import com.sf.ddao.astore.DBBatchGet;
+import com.sf.ddao.chain.CtxHelper;
+import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.factory.param.JoinListParameter;
-import com.sf.ddao.orm.ColumnMapper;
-import com.sf.ddao.orm.ResultSetMapper;
-import com.sf.ddao.orm.ResultSetMapperRegistry;
+import com.sf.ddao.orm.RSMapper;
 import org.apache.commons.chain.Context;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -31,36 +28,18 @@ public class DBBatchGetImpl implements DBBatchGet {
 
     public Map batchGet(Collection keys) {
         try {
+            final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
             //noinspection unchecked
             context.put(KEY_LIST_CONTEXT_VALUE, JoinListParameter.join(keys));
             PreparedStatement preparedStatement = operation.getStatementFactory().createStatement(context, Integer.MAX_VALUE);
             ResultSet resultSet = preparedStatement.executeQuery();
-            Map map = loadData(resultSet);
+            RSMapper RSMapper = operation.getMapORMapperFactory().getInstance(callCtx.getArgs(), resultSet);
+            Map map = (Map) RSMapper.handle(resultSet);
             resultSet.close();
             preparedStatement.close();
             return map;
         } catch (Exception t) {
             throw new DaoException("Failed to execute sql operation for " + operation.getMethod(), t);
         }
-    }
-
-    protected Map loadData(ResultSet resultSet) throws Exception {
-        final Type returnType = operation.getMethod().getGenericReturnType();
-        Type[] actualTypeArguments = ((ParameterizedType) returnType).getActualTypeArguments();
-        Type keyType = actualTypeArguments[0]; // first arg in Map<K,V>
-        Type valueType = actualTypeArguments[1]; // second arg in Map<K,V>
-        ColumnMapper keyMapper = ResultSetMapperRegistry.getColumnMapper(keyType);
-        ResultSetMapper valueMapper = ResultSetMapperRegistry.getResultMapper(valueType);
-        Map map = new HashMap();
-        if (resultSet != null) {
-            while (resultSet.next()) {
-                final Object key = keyMapper.get(resultSet, 1);
-                valueMapper.addRecord(resultSet);
-                final Object value = valueMapper.getResult();
-                //noinspection unchecked
-                map.put(key, value);
-            }
-        }
-        return map;
     }
 }

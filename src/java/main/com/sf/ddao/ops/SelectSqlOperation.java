@@ -24,8 +24,9 @@ import com.sf.ddao.chain.CtxHelper;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.handler.Intializible;
-import com.sf.ddao.orm.ResultSetMapper;
-import com.sf.ddao.orm.ResultSetMapperRegistry;
+import com.sf.ddao.orm.RSMapper;
+import com.sf.ddao.orm.RSMapperFactory;
+import com.sf.ddao.orm.RSMapperFactoryRegistry;
 import org.apache.commons.chain.Command;
 import org.apache.commons.chain.Context;
 
@@ -43,6 +44,7 @@ import java.sql.ResultSet;
 public class SelectSqlOperation implements Command, Intializible {
     private StatementFactory statementFactory;
     private Method method;
+    private RSMapperFactory RSMapperFactory;
 
     @Link
     public SelectSqlOperation(StatementFactory statementFactory) {
@@ -56,16 +58,11 @@ public class SelectSqlOperation implements Command, Intializible {
             final Object[] args = callCtx.getArgs();
             PreparedStatement preparedStatement = statementFactory.createStatement(context, Integer.MAX_VALUE);
             ResultSet resultSet = preparedStatement.executeQuery();
-            ResultSetMapper resultSetMapper = ResultSetMapperRegistry.getResultSetMapper(method, args, resultSet);
-            while (resultSet.next()) {
-                if (!resultSetMapper.addRecord(resultSet)) {
-                    break;
-                }
-            }
+            RSMapper RSMapper = RSMapperFactory.getInstance(args, resultSet);
+            final Object res = RSMapper.handle(resultSet);
+            callCtx.setLastReturn(res);
             resultSet.close();
             preparedStatement.close();
-            final Object res = resultSetMapper.getResult();
-            callCtx.setLastReturn(res);
             return CONTINUE_PROCESSING;
         } catch (Exception t) {
             throw new DaoException("Failed to execute sql operation for " + method, t);
@@ -76,6 +73,7 @@ public class SelectSqlOperation implements Command, Intializible {
         try {
             method = (Method) element;
             statementFactory.init(element, sql);
+            RSMapperFactory = RSMapperFactoryRegistry.create(method);
         } catch (Exception e) {
             throw new InitializerException("Failed to initialize sql operation for " + element, e);
         }

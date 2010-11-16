@@ -14,30 +14,33 @@
  * under the License.
  */
 
-package com.sf.ddao.orm.mapper;
+package com.sf.ddao.orm.rsmapper;
 
-import com.sf.ddao.orm.ResultSetMapper;
+import com.sf.ddao.orm.RowMapper;
 
+import java.lang.reflect.Array;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
 
 /**
  * Created by: Pavel Syrtsov
  * Date: Apr 8, 2007
- * Time: 4:49:21 PM
+ * Time: 4:45:07 PM
  */
-public class CollectionResultSetMapper extends ListResultSetMapper {
-    private ResultSetMapper itemMapper;
+public class ArrayRSMapper extends CollectionRSMapper {
+    private final Class itemType;
 
-    public CollectionResultSetMapper(ResultSetMapper itemMapper, Class<? extends Collection> returnType) {
-        super(returnType);
-        this.itemMapper = itemMapper;
+    public ArrayRSMapper(RowMapper rowMapper, Class itemType) {
+        super(rowMapper);
+        this.itemType = itemType;
     }
 
-    public boolean addRecord(ResultSet resultSet) throws Exception {
-        boolean res = itemMapper.addRecord(resultSet);
-        Object o = itemMapper.getResult();
-        addValue(o);
-        return res;
+    @Override
+    public Object handle(ResultSet rs) throws SQLException {
+        Collection list = (Collection) super.handle(rs);
+        Object[] array = (Object[]) Array.newInstance(itemType, list.size());
+        //noinspection unchecked
+        return list.toArray(array);
     }
 }

@@ -12,6 +12,8 @@ import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.param.DefaultParameter;
 import com.sf.ddao.factory.param.Parameter;
 import com.sf.ddao.handler.Intializible;
+import com.sf.ddao.orm.RSMapperFactory;
+import com.sf.ddao.orm.RSMapperFactoryRegistry;
 import org.apache.commons.chain.Command;
 import org.apache.commons.chain.Context;
 
@@ -30,6 +32,7 @@ public class AsyncDBBatchGetOperation implements Command, Intializible {
     private final StatementFactory statementFactory;
     private Method method;
     private Class<? extends DBBatchGet> dbBatchGetClass;
+    private RSMapperFactory mapRSMapperFactory;
 
 
     @Link
@@ -57,10 +60,12 @@ public class AsyncDBBatchGetOperation implements Command, Intializible {
         final String cacheKey = asyncDBBatchGet.cacheKey();
         dbBatchGetClass = asyncDBBatchGet.dbBatchGet();
         method = (Method) element;
-        if (!Map.class.isAssignableFrom(method.getReturnType())) {
+        final Class<?> returnClass = method.getReturnType();
+        if (!Map.class.isAssignableFrom(returnClass)) {
             throw new InitializerException("Method annotated with " + AsyncDBBatchGet.class + " has to have return type Map");
         }
         try {
+            mapRSMapperFactory = RSMapperFactoryRegistry.create(method);
             cacheKeyParam.init(element, cacheKey);
             statementFactory.init(element, sql);
         } catch (Exception e) {
@@ -78,5 +83,9 @@ public class AsyncDBBatchGetOperation implements Command, Intializible {
 
     public Method getMethod() {
         return method;
+    }
+
+    public RSMapperFactory getMapORMapperFactory() {
+        return mapRSMapperFactory;
     }
 }
