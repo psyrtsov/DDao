@@ -35,6 +35,8 @@ import org.mockejb.jndi.MockContextFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -60,8 +62,8 @@ public class ShardedDaoTest extends TestCase {
         @Select("select id, name from user where id = #id#")
         TestUserBean getUser(@ShardKey("id") TestUserBean userBean);
 
-        @Select("select id, name from user_data where user_id = #0#")
-        List<TestUserBean> getUserDataList(@ShardKey int userId);
+        @MultiShardSelect("select id, name from user_data where user_id in ($ctx:keyList$)")
+        List<TestUserBean> getUserDataList(@ShardKey List<Integer> userIdList);
 
         /**
          * 1st parameter passed by reference, 2nd by value (by injecting result of toString() into SQL).
@@ -152,34 +154,49 @@ public class ShardedDaoTest extends TestCase {
         testModule.verifyConnectionClosed();
     }
 
-    public void testGetRecordList() throws Exception {
+    public void testMultiShardGetRecordList() throws Exception {
         TestUserDao dao = factory.create(TestUserDao.class, null);
-        getUserDataList(dao, testModule1, 1);
-        getUserDataList(dao, testModule1, 10);
-        getUserDataList(dao, testModule2, 11);
-        getUserDataList(dao, testModule2, 20);
-
-    }
-
-    private void getUserDataList(TestUserDao dao, JDBCTestModule testModule, int userId) {
         // setup test
-        createResultSet(testModule, "id", new Object[]{1, 2}, "name", new Object[]{"foo", "bar"});
+        createResultSet(testModule1, "id", new Object[]{1, 2}, "name", new Object[]{"u1", "u2"});
+        createResultSet(testModule2, "id", new Object[]{15, 16}, "name", new Object[]{"u15", "u16"});
 
+        List<Integer> userIdList = new ArrayList<Integer>();
+        userIdList.add(1);
+        userIdList.add(2);
+        userIdList.add(15);
+        userIdList.add(16);
         // execute dao method
-        List<TestUserBean> res = dao.getUserDataList(userId);
+        List<TestUserBean> res = dao.getUserDataList(userIdList);
+
+        Collections.sort(res, new Comparator<TestUserBean>() {
+            public int compare(TestUserBean testUserBean, TestUserBean testUserBean1) {
+                return testUserBean.getId() - testUserBean1.getId();
+            }
+        });
 
         // verify result
         assertNotNull(res);
-        assertEquals(res.size(), 2);
-        assertEquals(res.get(0).getId(), 1);
-        assertEquals(res.get(0).getName(), "foo");
-        assertEquals(res.get(1).getId(), 2);
-        assertEquals(res.get(1).getName(), "bar");
+        assertEquals(4, res.size());
 
-        testModule.verifySQLStatementExecuted("select id, name from user");
-        testModule.verifyAllResultSetsClosed();
-        testModule.verifyAllStatementsClosed();
-        testModule.verifyConnectionClosed();
+        assertEquals(1, res.get(0).getId());
+        assertEquals("u1", res.get(0).getName());
+        assertEquals(2, res.get(1).getId());
+        assertEquals("u2", res.get(1).getName());
+
+        assertEquals(15, res.get(2).getId());
+        assertEquals("u15", res.get(2).getName());
+        assertEquals(16, res.get(3).getId());
+        assertEquals("u16", res.get(3).getName());
+
+        testModule1.verifySQLStatementExecuted("select id, name from user");
+        testModule1.verifyAllResultSetsClosed();
+        testModule1.verifyAllStatementsClosed();
+        testModule1.verifyConnectionClosed();
+
+        testModule2.verifySQLStatementExecuted("select id, name from user");
+        testModule2.verifyAllResultSetsClosed();
+        testModule2.verifyAllStatementsClosed();
+        testModule2.verifyConnectionClosed();
     }
 
     public void testGetUserArray() throws Exception {
