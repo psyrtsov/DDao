@@ -45,15 +45,13 @@ public abstract class ConnectionHandlerHelper implements Filter {
     }
 
     public boolean postprocess(Context context, Exception exception) {
-        Connection conn = (Connection) context.get(CONNECTION_KEY);
-        if (conn != null) {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        removeConnection(context);
         return CONTINUE_PROCESSING;
+    }
+
+    public static Connection setConnection(Context context, Connection conn) {
+        //noinspection unchecked
+        return (Connection) context.put(CONNECTION_KEY, conn);
     }
 
 
@@ -66,10 +64,21 @@ public abstract class ConnectionHandlerHelper implements Filter {
             }
             ConnectionHandlerHelper connectionHandlerHelper = (ConnectionHandlerHelper) context.get(ConnectionHandlerHelper.class.toString());
             conn = connectionHandlerHelper.createConnection(context);
-            //noinspection unchecked
-            context.put(CONNECTION_KEY, conn);
+            setConnection(context, conn);
+
         }
         return conn;
+    }
+
+    public static void removeConnection(Context context) {
+        Connection conn = (Connection) context.remove(CONNECTION_KEY);
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public static void putConnectionOnHold(Context context) {

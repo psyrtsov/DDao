@@ -3,6 +3,7 @@ package com.sf.ddao.shards;
 import com.sf.ddao.alinker.factory.UseFactory;
 import com.sf.ddao.chain.ChainHandlerFactory;
 import com.sf.ddao.chain.CommandAnnotation;
+import com.sf.ddao.shards.impl.ShardedDataSourceHandler;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

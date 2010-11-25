@@ -14,7 +14,7 @@
  * under the License.
  */
 
-package com.sf.ddao.shards;
+package com.sf.ddao.shards.impl;
 
 import com.sf.ddao.alinker.ALinker;
 import com.sf.ddao.alinker.initializer.InitializerException;
@@ -23,6 +23,10 @@ import com.sf.ddao.chain.CtxHelper;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.conn.ConnectionHandlerHelper;
 import com.sf.ddao.handler.Intializible;
+import com.sf.ddao.shards.ShardControlDao;
+import com.sf.ddao.shards.ShardException;
+import com.sf.ddao.shards.ShardKey;
+import com.sf.ddao.shards.ShardedDao;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.chain.Context;
 
@@ -63,7 +67,9 @@ public class ShardedDataSourceHandler extends ConnectionHandlerHelper implements
     protected void initShardKeys(Class clazz) {
         for (Method method : clazz.getMethods()) {
             ShardKeyGetter shardKeyGetter = createShardKeyGetter(method);
-            shardKeyGetterMap.put(method, shardKeyGetter);
+            if (shardKeyGetter != null) {
+                shardKeyGetterMap.put(method, shardKeyGetter);
+            }
         }
     }
 
@@ -83,7 +89,7 @@ public class ShardedDataSourceHandler extends ConnectionHandlerHelper implements
                 }
             }
         }
-        throw new ShardException("Expected parameter with annotation " + ShardKey.class + " at method " + method);
+        return null;
     }
 
     public Object extractShardKey(String name, Object shardKey) {
@@ -113,6 +119,9 @@ public class ShardedDataSourceHandler extends ConnectionHandlerHelper implements
     public Connection createConnection(Context context) throws SQLException {
         final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
         final ShardKeyGetter shardKeyGetter = shardKeyGetterMap.get(callCtx.getMethod());
+        if (shardKeyGetter == null) {
+            throw new ShardException("Expected parameter with annotation " + ShardKey.class + " at method " + callCtx.getMethod());
+        }
         Object shardKey = shardKeyGetter.getShardKey(callCtx.getArgs());
         @SuppressWarnings({"unchecked"})
         DataSource ds = shardControlDao.getShard(shardKey, context);
