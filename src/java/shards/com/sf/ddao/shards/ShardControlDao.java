@@ -1,9 +1,8 @@
 package com.sf.ddao.shards;
 
-import com.sf.ddao.JNDIDao;
-import com.sf.ddao.Select;
+import org.apache.commons.chain.Context;
 
-import java.util.List;
+import javax.sql.DataSource;
 
 /**
  * todo: add class comments
@@ -11,8 +10,6 @@ import java.util.List;
  * Date: Jun 19, 2008
  * Time: 12:06:34 PM
  */
-@JNDIDao("jdbc/shardControlDB")
-public interface ShardControlDao {
-    @Select("select startId, endId, dsName from shard where setName = $0$")
-    List<Shard> getShardList(String shardSetKey);
+public interface ShardControlDao<K> {
+    DataSource getShard(K shardKey, Context ctx);
 }

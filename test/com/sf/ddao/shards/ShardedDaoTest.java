@@ -14,26 +14,24 @@
  * under the License.
  */
 
-package com.sf.ddao;
+package com.sf.ddao.shards;
 
 import com.mockrunner.jdbc.JDBCTestModule;
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.JDBCMockObjectFactory;
 import com.mockrunner.mock.jdbc.MockResultSet;
+import com.sf.ddao.Select;
+import com.sf.ddao.TestUserBean;
 import com.sf.ddao.alinker.ALinker;
 import com.sf.ddao.alinker.FactoryException;
 import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.conn.JNDIDataSourceHandler;
 import com.sf.ddao.factory.param.ThreadLocalParameter;
 import com.sf.ddao.orm.RSMapper;
 import com.sf.ddao.orm.UseRSMapper;
 import com.sf.ddao.orm.rsmapper.rowmapper.BeanRowMapper;
-import com.sf.ddao.shards.ShardKey;
-import com.sf.ddao.shards.ShardedJNDIDao;
 import junit.framework.TestCase;
 import org.mockejb.jndi.MockContextFactory;
 
-import javax.naming.InitialContext;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -44,17 +42,13 @@ import java.util.List;
  * Date: Apr 6, 2007
  * Time: 7:00:11 PM
  */
-public class ShardedJNDIDaoTest extends TestCase {
+public class ShardedDaoTest extends TestCase {
     ALinker factory;
     private static final String PART_NAME = "testPartName";
-    private JDBCMockObjectFactory shardControlDBMockFactory1;
-    private JDBCTestModule shardControlDBModule;
     private JDBCTestModule testModule1;
     private JDBCTestModule testModule2;
-    private static final String SHARD1 = "jdbc/shard1";
-    private static final String SHARD2 = "jdbc/shard2";
 
-    @ShardedJNDIDao("testshardset")
+    @ShardedDao(TestShardControlDao.class)
     public static interface TestUserDao {
         /**
          * in this statement we assume that 1st method arg is Java Bean
@@ -95,27 +89,23 @@ public class ShardedJNDIDaoTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        factory = new ALinker();
         super.setUp();
         MockContextFactory.setAsInitial();
-        InitialContext context = new InitialContext();
 
-        shardControlDBMockFactory1 = new JDBCMockObjectFactory();
-        shardControlDBModule = new JDBCTestModule(shardControlDBMockFactory1);
         JDBCMockObjectFactory mockFactory1 = new JDBCMockObjectFactory();
         testModule1 = new JDBCTestModule(mockFactory1);
         JDBCMockObjectFactory mockFactory2 = new JDBCMockObjectFactory();
         testModule2 = new JDBCTestModule(mockFactory2);
-        context.rebind(JNDIDataSourceHandler.DS_CTX_PREFIX + "jdbc/shardControlDB", shardControlDBMockFactory1.getMockDataSource());
-        context.rebind(JNDIDataSourceHandler.DS_CTX_PREFIX + SHARD1, mockFactory1.getMockDataSource());
-        context.rebind(JNDIDataSourceHandler.DS_CTX_PREFIX + SHARD2, mockFactory2.getMockDataSource());
-        setupShardData();
-        this.factory = new ALinker();
+
+        final TestShardControlDao controlDao = factory.create(TestShardControlDao.class);
+        controlDao.setDS1(mockFactory1.getMockDataSource());
+        controlDao.setDS2(mockFactory2.getMockDataSource());
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
         MockContextFactory.revertSetAsInitial();
-        shardControlDBMockFactory1.restoreDrivers();
     }
 
     private void createResultSet(JDBCTestModule testModule, Object... data) {
@@ -129,9 +119,6 @@ public class ShardedJNDIDaoTest extends TestCase {
         handler.prepareGlobalResultSet(rs);
     }
 
-    private void setupShardData() {
-        createResultSet(shardControlDBModule, "startId", new Object[]{1, 11}, "endId", new Object[]{10, 20}, "dsName", new Object[]{SHARD1, SHARD2});
-    }
 
     public void testSingleRecordGet() throws Exception {
         // create dao object

@@ -1,0 +1,122 @@
+/**
+ * Copyright 2008 Pavel Syrtsov
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations
+ * under the License.
+ */
+
+package com.sf.ddao.shards;
+
+import com.sf.ddao.alinker.ALinker;
+import com.sf.ddao.alinker.initializer.InitializerException;
+import com.sf.ddao.alinker.inject.Link;
+import com.sf.ddao.chain.CtxHelper;
+import com.sf.ddao.chain.MethodCallCtx;
+import com.sf.ddao.conn.ConnectionHandlerHelper;
+import com.sf.ddao.handler.Intializible;
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.chain.Context;
+
+import javax.sql.DataSource;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Created-By: Pavel Syrtsov
+ * Date: Apr 10, 2008
+ * Time: 9:39:39 PM
+ */
+public class ShardedDataSourceHandler extends ConnectionHandlerHelper implements Intializible {
+    private final ALinker aLinker;
+    private final Map<Method, ShardKeyGetter> shardKeyGetterMap = new HashMap<Method, ShardKeyGetter>();
+    private ShardControlDao shardControlDao;
+
+    @Link
+    public ShardedDataSourceHandler(ALinker aLinker) {
+        this.aLinker = aLinker;
+    }
+
+
+    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+        initShardKeys((Class) element);
+
+        ShardedDao daoAnnotation = (ShardedDao) annotation;
+        Class<? extends ShardControlDao> shardControlDaoClass = daoAnnotation.value();
+        shardControlDao = aLinker.create(shardControlDaoClass);
+        super.init(element, annotation);
+    }
+
+    protected void initShardKeys(Class clazz) {
+        for (Method method : clazz.getMethods()) {
+            ShardKeyGetter shardKeyGetter = createShardKeyGetter(method);
+            shardKeyGetterMap.put(method, shardKeyGetter);
+        }
+    }
+
+    protected ShardKeyGetter createShardKeyGetter(Method method) {
+        Annotation[][] parametersAnnotations = method.getParameterAnnotations();
+        for (int i = 0; i < parametersAnnotations.length; i++) {
+            Annotation[] parameterAnnotations = parametersAnnotations[i];
+            for (Annotation parameterAnnotation : parameterAnnotations) {
+                if (parameterAnnotation instanceof ShardKey) {
+                    final ShardKey shardKey = (ShardKey) parameterAnnotation;
+                    final int argIdx = i;
+                    return new ShardKeyGetter() {
+                        public Object getShardKey(Object[] args) {
+                            return extractShardKey(shardKey.value(), args[argIdx]);
+                        }
+                    };
+                }
+            }
+        }
+        throw new ShardException("Expected parameter with annotation " + ShardKey.class + " at method " + method);
+    }
+
+    public Object extractShardKey(String name, Object shardKey) {
+        if (name.length() > 0) {
+            // if name defined then key is either mapped value or bean property
+            if (shardKey instanceof Map) {
+                shardKey = ((Map) shardKey).get(name);
+            } else {
+                try {
+                    shardKey = PropertyUtils.getProperty(shardKey, name);
+                } catch (Exception e) {
+                    throw new ShardException("Failed to get shard key " + name + " from " + shardKey, e);
+                }
+            }
+            if (shardKey == null) {
+                throw new ShardException("Failed to find shard key ");
+            }
+        }
+        return shardKey;
+    }
+
+    public static interface ShardKeyGetter {
+        Object getShardKey(Object[] args);
+    }
+
+    @Override
+    public Connection createConnection(Context context) throws SQLException {
+        final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
+        final ShardKeyGetter shardKeyGetter = shardKeyGetterMap.get(callCtx.getMethod());
+        Object shardKey = shardKeyGetter.getShardKey(callCtx.getArgs());
+        @SuppressWarnings({"unchecked"})
+        DataSource ds = shardControlDao.getShard(shardKey, context);
+        //noinspection SuspiciousMethodCalls
+        return ds.getConnection();
+    }
+}
