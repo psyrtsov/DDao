@@ -175,7 +175,7 @@ public class RSMapperFactoryRegistry {
         if (itemType == java.sql.Date.class || itemType == java.util.Date.class) {
             return new RowMapper() {
                 public Object map(ResultSet rs) throws SQLException {
-                    return rs.getDate(idx);
+                    return rs.getTimestamp(idx);
                 }
             };
         }
