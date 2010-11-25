@@ -16,6 +16,7 @@
 package com.sf.ddao.conn;
 
 import com.sf.ddao.alinker.initializer.InitializerException;
+import com.sf.ddao.chain.CtxHelper;
 import org.apache.commons.chain.Context;
 import org.apache.commons.chain.Filter;
 
@@ -39,13 +40,12 @@ public abstract class ConnectionHandlerHelper implements Filter {
     }
 
     public boolean execute(Context context) throws Exception {
-        //noinspection unchecked
-        context.put(ConnectionHandlerHelper.class.toString(), this);
+        CtxHelper.put(context, ConnectionHandlerHelper.class, this);
         return CONTINUE_PROCESSING;
     }
 
     public boolean postprocess(Context context, Exception exception) {
-        removeConnection(context);
+        closeConnection(context);
         return CONTINUE_PROCESSING;
     }
 
@@ -62,7 +62,7 @@ public abstract class ConnectionHandlerHelper implements Filter {
             if (conn != null) {
                 return conn;
             }
-            ConnectionHandlerHelper connectionHandlerHelper = (ConnectionHandlerHelper) context.get(ConnectionHandlerHelper.class.toString());
+            ConnectionHandlerHelper connectionHandlerHelper = CtxHelper.get(context, ConnectionHandlerHelper.class);
             conn = connectionHandlerHelper.createConnection(context);
             setConnection(context, conn);
 
@@ -70,7 +70,7 @@ public abstract class ConnectionHandlerHelper implements Filter {
         return conn;
     }
 
-    public static void removeConnection(Context context) {
+    public static void closeConnection(Context context) {
         Connection conn = (Connection) context.remove(CONNECTION_KEY);
         if (conn != null) {
             try {

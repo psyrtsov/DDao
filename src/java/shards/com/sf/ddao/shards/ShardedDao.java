@@ -3,7 +3,7 @@ package com.sf.ddao.shards;
 import com.sf.ddao.alinker.factory.UseFactory;
 import com.sf.ddao.chain.ChainHandlerFactory;
 import com.sf.ddao.chain.CommandAnnotation;
-import com.sf.ddao.shards.impl.ShardedDataSourceHandler;
+import com.sf.ddao.shards.conn.ShardedConnectionHandler;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @UseFactory(ChainHandlerFactory.class)
-@CommandAnnotation(ShardedDataSourceHandler.class)
+@CommandAnnotation(ShardedConnectionHandler.class)
 public @interface ShardedDao {
     Class<? extends ShardControlDao> value();
 }

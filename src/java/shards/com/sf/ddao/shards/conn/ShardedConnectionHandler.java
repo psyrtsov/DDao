@@ -14,7 +14,7 @@
  * under the License.
  */
 
-package com.sf.ddao.shards.impl;
+package com.sf.ddao.shards.conn;
 
 import com.sf.ddao.alinker.ALinker;
 import com.sf.ddao.alinker.initializer.InitializerException;
@@ -36,6 +36,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,16 +45,21 @@ import java.util.Map;
  * Date: Apr 10, 2008
  * Time: 9:39:39 PM
  */
-public class ShardedDataSourceHandler extends ConnectionHandlerHelper implements Intializible {
+public class ShardedConnectionHandler extends ConnectionHandlerHelper implements Intializible {
     private final ALinker aLinker;
     private final Map<Method, ShardKeyGetter> shardKeyGetterMap = new HashMap<Method, ShardKeyGetter>();
     private ShardControlDao shardControlDao;
 
     @Link
-    public ShardedDataSourceHandler(ALinker aLinker) {
+    public ShardedConnectionHandler(ALinker aLinker) {
         this.aLinker = aLinker;
     }
 
+    @Override
+    public boolean execute(Context context) throws Exception {
+        CtxHelper.put(context, ShardedConnectionHandler.class, this);
+        return super.execute(context);
+    }
 
     public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
         initShardKeys((Class) element);
@@ -127,5 +133,19 @@ public class ShardedDataSourceHandler extends ConnectionHandlerHelper implements
         DataSource ds = shardControlDao.getShard(shardKey, context);
         //noinspection SuspiciousMethodCalls
         return ds.getConnection();
+    }
+
+    public Map<DataSource, Collection<Object>> getShardKeyMapping(Context context) {
+        final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
+        final ShardKeyGetter shardKeyGetter = shardKeyGetterMap.get(callCtx.getMethod());
+        if (shardKeyGetter == null) {
+            throw new ShardException("Expected parameter with annotation " + ShardKey.class + " at method " + callCtx.getMethod());
+        }
+        Object shardKey = shardKeyGetter.getShardKey(callCtx.getArgs());
+        if (!(shardKey instanceof Collection)) {
+            throw new ShardException("Shard key at method " + callCtx.getMethod() + " has to be collection to be used with multi-shard query");
+        }
+        Collection shardKeyCollection = (Collection) shardKey;
+        return shardControlDao.getMultiShard(shardKeyCollection, context);
     }
 }

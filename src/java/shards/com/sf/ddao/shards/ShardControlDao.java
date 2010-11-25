@@ -3,6 +3,8 @@ package com.sf.ddao.shards;
 import org.apache.commons.chain.Context;
 
 import javax.sql.DataSource;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * todo: add class comments
@@ -12,4 +14,6 @@ import javax.sql.DataSource;
  */
 public interface ShardControlDao<K> {
     DataSource getShard(K shardKey, Context ctx);
+
+    Map<DataSource, Collection<K>> getMultiShard(Collection<K> shardKeyCollection, Context context);
 }
