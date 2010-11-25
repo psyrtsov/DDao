@@ -62,6 +62,15 @@ public class ShardedDaoTest extends TestCase {
         @Select("select id, name from user where id = #id#")
         TestUserBean getUser(@ShardKey("id") TestUserBean userBean);
 
+        /**
+         * MultiShardSelect annotation allows to execute SQl statement
+         * on multiple shards and takes care of merging results from multiple shards
+         * by default it assumes that result is a collection of objects and will do merge of collections.
+         * To provide custom merger logic annotation allows to define value for resultMerger class.
+         *
+         * @param userIdList
+         * @return merged
+         */
         @MultiShardSelect("select id, name from user_data where user_id in ($ctx:keyList$)")
         List<TestUserBean> getUserDataList(@ShardKey List<Integer> userIdList);
 
@@ -80,8 +89,11 @@ public class ShardedDaoTest extends TestCase {
         void processUserData(@ShardKey int userId, @UseRSMapper RSMapper selectCallback);
 
         /**
-         * values that have '()' assumed to be call to static function,
-         * at this point we have only function that allows to pass value thrue ThreadLocal
+         * values that have ':' with prefix assumed to be call to predefined static function registered by ParameterService,
+         * there are few if them predefined:
+         * prefix threadLocal: allows to pass value using ThreadLocal
+         * prefix ctx: allows to pass value using Context object in method arguments
+         * prefix joinList: allows to join list of keys in comma separated string
          *
          * @param userId - query paramter
          * @return value returned by query

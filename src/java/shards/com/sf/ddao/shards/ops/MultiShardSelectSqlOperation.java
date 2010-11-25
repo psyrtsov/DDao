@@ -9,7 +9,7 @@ import com.sf.ddao.conn.ConnectionHandlerHelper;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.param.JoinListParameter;
 import com.sf.ddao.ops.SelectSqlOperation;
-import com.sf.ddao.shards.MultiShardResultReducer;
+import com.sf.ddao.shards.MultiShardResultMerger;
 import com.sf.ddao.shards.MultiShardSelect;
 import com.sf.ddao.shards.conn.ShardedConnectionHandler;
 import org.apache.commons.chain.Context;
@@ -29,7 +29,7 @@ import java.util.Map;
 public class MultiShardSelectSqlOperation extends SelectSqlOperation {
     public static final String KEY_LIST_CONTEXT_VALUE = "keyList";
     private final ALinker aLinker;
-    private MultiShardResultReducer resultReducer;
+    private MultiShardResultMerger resultMerger;
 
     @Link
     public MultiShardSelectSqlOperation(ALinker aLinker, StatementFactory statementFactory) {
@@ -57,7 +57,7 @@ public class MultiShardSelectSqlOperation extends SelectSqlOperation {
         }
 
         @SuppressWarnings({"unchecked"})
-        Object res = resultReducer.reduce(resList);
+        Object res = resultMerger.reduce(resList);
         callCtx.setLastReturn(res);
         return CONTINUE_PROCESSING;
     }
@@ -65,7 +65,7 @@ public class MultiShardSelectSqlOperation extends SelectSqlOperation {
     @Override
     public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
         MultiShardSelect multiShardSelect = element.getAnnotation(MultiShardSelect.class);
-        resultReducer = aLinker.create(multiShardSelect.resultReducer());
+        resultMerger = aLinker.create(multiShardSelect.resultMerger());
         super.init(element, multiShardSelect.value());
     }
 }

@@ -17,7 +17,7 @@
 package com.sf.ddao.shards;
 
 import com.sf.ddao.chain.CommandAnnotation;
-import com.sf.ddao.shards.ops.ListMultiShardResultReducer;
+import com.sf.ddao.shards.ops.ListMultiShardResultMerger;
 import com.sf.ddao.shards.ops.MultiShardSelectSqlOperation;
 
 import java.lang.annotation.ElementType;
@@ -38,5 +38,5 @@ import java.lang.annotation.Target;
 public @interface MultiShardSelect {
     String value();
 
-    Class<? extends MultiShardResultReducer> resultReducer() default ListMultiShardResultReducer.class;
+    Class<? extends MultiShardResultMerger> resultMerger() default ListMultiShardResultMerger.class;
 }
