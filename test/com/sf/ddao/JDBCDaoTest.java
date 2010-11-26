@@ -21,6 +21,7 @@ import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockResultSet;
 import com.sf.ddao.alinker.ALinker;
+import com.sf.ddao.chain.UseContext;
 import com.sf.ddao.conn.ConnectionHandlerHelper;
 import com.sf.ddao.factory.param.ThreadLocalParameter;
 import com.sf.ddao.orm.RSMapper;
@@ -84,7 +85,7 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
          * @return id
          */
         @Select("select id from user where part = '$ctx:" + PART_NAME + "$' and name = #0#")
-        int getUserIdByName(String name, Context ctx);
+        int getUserIdByName(String name, @UseContext Context ctx);
 
         @SelectThenInsert({"select nextval from userIdSequence", "insert into user(id,name) values(#threadLocal:id#, #name#)"})
         int addUser(TestUserBean user);
