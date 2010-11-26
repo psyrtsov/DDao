@@ -1,29 +1,45 @@
 @html.header@
-                <p>Dynamic Dao is JDBC ORM framework. It allows to use annotations to attach SQL execution to
-                    interface methods.</p>
+<!--
+  ~ Copyright 2008 Pavel Syrtsov
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and limitations
+  ~  under the License.
+  -->
 
-                <b>It takes care of 3 things:</b>
+<p>Dynamic Dao is JDBC ORM framework. It allows to use annotations to attach SQL execution to
+    interface methods.</p>
 
-                <ol>
-                    <li>Binds method arguments to query parameters</li>
-                    <li>Executes SQL statement</li>
-                    <li>Maps statement's result set to method's return type</li>
-                </ol>
+<b>It takes care of 3 things:</b>
 
-                <p>From developer's prospective it feels like instead of writing method body you just write SQL
-                    statement. Here is
-                    example:</p>
+<ol>
+    <li>Binds method arguments to query parameters</li>
+    <li>Executes SQL statement</li>
+    <li>Maps statement's result set to method's return type</li>
+</ol>
 
-                    <pre>
+<p>From developer's prospective it feels like instead of writing method body you just write SQL
+    statement. Here is
+    example:</p>
+
+<pre>
                         JNDIDao("db/testdb")
                         public interface TestDao {
                             @Select("select id, name from users where id = #1#")
                             UserBean getUser(int id);
                         }
                     </pre>
-                <p>Here is the code that illustrates how to use this dao:</p>
+<p>Here is the code that illustrates how to use this dao:</p>
 
-                    <pre>
+<pre>
                         ALinker factory = new ALinker();
                         TestDao dao = factory.create(TestDao.class);
                         UserBean res = dao.getUser(1);
