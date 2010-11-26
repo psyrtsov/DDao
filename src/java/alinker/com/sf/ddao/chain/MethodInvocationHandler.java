@@ -6,6 +6,7 @@ import org.apache.commons.chain.Context;
 import org.apache.commons.chain.impl.ChainBase;
 import org.apache.commons.chain.impl.ContextBase;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -22,11 +23,13 @@ class MethodInvocationHandler {
     public MethodInvocationHandler(Method method, List<Command> commands) {
         this.method = method;
         this.chain = new ChainBase(commands);
-        final Class<?>[] parameterTypes = method.getParameterTypes();
-        for (int i = 0; i < parameterTypes.length; i++) {
-            if (Context.class.isAssignableFrom(parameterTypes[i])) {
-                contextParamIndex = i;
-                break;
+        final Annotation[][] parametersAnnotations = method.getParameterAnnotations();
+        for (int i = 0; i < parametersAnnotations.length; i++) {
+            for (Annotation parameterAnnotation : parametersAnnotations[i]) {
+                if (parameterAnnotation.annotationType().equals(UseContext.class)) {
+                    contextParamIndex = i;
+                    return;
+                }
             }
         }
     }
