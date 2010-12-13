@@ -43,8 +43,7 @@ import java.sql.ResultSet;
  */
 public class SelectSqlOperation implements Command, Intializible {
     private StatementFactory statementFactory;
-    private Method method;
-    private RSMapperFactory RSMapperFactory;
+    private RSMapperFactory rsMapperFactory;
 
     @Link
     public SelectSqlOperation(StatementFactory statementFactory) {
@@ -53,27 +52,26 @@ public class SelectSqlOperation implements Command, Intializible {
 
 
     public boolean execute(Context context) throws Exception {
+        final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
         try {
-            final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
             final Object[] args = callCtx.getArgs();
             PreparedStatement preparedStatement = statementFactory.createStatement(context, Integer.MAX_VALUE);
             ResultSet resultSet = preparedStatement.executeQuery();
-            RSMapper RSMapper = RSMapperFactory.getInstance(args, resultSet);
+            RSMapper RSMapper = rsMapperFactory.getInstance(args, resultSet);
             final Object res = RSMapper.handle(resultSet);
             callCtx.setLastReturn(res);
             resultSet.close();
             preparedStatement.close();
             return CONTINUE_PROCESSING;
         } catch (Exception t) {
-            throw new DaoException("Failed to execute sql operation for " + method, t);
+            throw new DaoException("Failed to execute sql operation for " + callCtx.getMethod(), t);
         }
     }
 
     public void init(AnnotatedElement element, String sql) throws InitializerException {
         try {
-            method = (Method) element;
             statementFactory.init(element, sql);
-            RSMapperFactory = RSMapperFactoryRegistry.create(method);
+            rsMapperFactory = RSMapperFactoryRegistry.create((Method) element);
         } catch (Exception e) {
             throw new InitializerException("Failed to initialize sql operation for " + element, e);
         }

@@ -64,7 +64,7 @@
         </exec>
     </target>
 
-    <target name="dist" depends="clean,git,jars,docs">
+    <target name="dist" depends="clean,jars,docs">
         <mkdir dir="${dist.dir}"/>
         <ivy:info file="${ivy.file}"/>
         <zip destfile="${dist.dir}/${ivy.module}-bin.zip">
@@ -85,7 +85,7 @@
         </zip>
     </target>
     <target name="jars"
-            depends="compile">
+            depends="compile,git">
         <jar destfile="${build.jar.dir}/${ivy.module}.jar"
              basedir="${build.classes.dir}">
             <manifest>
