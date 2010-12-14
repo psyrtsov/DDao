@@ -28,7 +28,7 @@ import java.util.Map;
  * Date: Jun 19, 2008
  * Time: 12:06:34 PM
  */
-public interface ShardControlDao<K> {
+public interface ShardingService<K> {
     DataSource getShard(K shardKey, Context ctx);
 
     Map<DataSource, Collection<K>> getMultiShard(Collection<K> shardKeyCollection, Context context);

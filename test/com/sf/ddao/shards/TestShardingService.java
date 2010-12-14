@@ -28,7 +28,7 @@ import java.util.Map;
  * Created by psyrtsov
  */
 @Singleton
-public class TestShardControlDao implements ShardControlDao<Integer> {
+public class TestShardingService implements ShardingService<Integer> {
     private DataSource ds1;
     private DataSource ds2;
 

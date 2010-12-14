@@ -37,5 +37,5 @@ import java.lang.annotation.Target;
 @UseFactory(ChainHandlerFactory.class)
 @CommandAnnotation(ShardedConnectionHandler.class)
 public @interface ShardedDao {
-    Class<? extends ShardControlDao> value();
+    Class<? extends ShardingService> value();
 }

@@ -50,7 +50,7 @@ public class ShardedDaoTest extends TestCase {
     private JDBCTestModule testModule1;
     private JDBCTestModule testModule2;
 
-    @ShardedDao(TestShardControlDao.class)
+    @ShardedDao(TestShardingService.class)
     public static interface TestUserDao {
         /**
          * in this statement we assume that 1st method arg is Java Bean
@@ -112,7 +112,7 @@ public class ShardedDaoTest extends TestCase {
         JDBCMockObjectFactory mockFactory2 = new JDBCMockObjectFactory();
         testModule2 = new JDBCTestModule(mockFactory2);
 
-        final TestShardControlDao controlDao = factory.create(TestShardControlDao.class);
+        final TestShardingService controlDao = factory.create(TestShardingService.class);
         controlDao.setDS1(mockFactory1.getMockDataSource());
         controlDao.setDS2(mockFactory2.getMockDataSource());
     }

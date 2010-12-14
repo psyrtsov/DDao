@@ -23,10 +23,10 @@ import com.sf.ddao.chain.CtxHelper;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.conn.ConnectionHandlerHelper;
 import com.sf.ddao.handler.Intializible;
-import com.sf.ddao.shards.ShardControlDao;
 import com.sf.ddao.shards.ShardException;
 import com.sf.ddao.shards.ShardKey;
 import com.sf.ddao.shards.ShardedDao;
+import com.sf.ddao.shards.ShardingService;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.chain.Context;
 
@@ -48,7 +48,7 @@ import java.util.Map;
 public class ShardedConnectionHandler extends ConnectionHandlerHelper implements Intializible {
     private final ALinker aLinker;
     private final Map<Method, ShardKeyGetter> shardKeyGetterMap = new HashMap<Method, ShardKeyGetter>();
-    private ShardControlDao shardControlDao;
+    private ShardingService shardingService;
 
     @Link
     public ShardedConnectionHandler(ALinker aLinker) {
@@ -65,8 +65,8 @@ public class ShardedConnectionHandler extends ConnectionHandlerHelper implements
         initShardKeys((Class) element);
 
         ShardedDao daoAnnotation = (ShardedDao) annotation;
-        Class<? extends ShardControlDao> shardControlDaoClass = daoAnnotation.value();
-        shardControlDao = aLinker.create(shardControlDaoClass);
+        Class<? extends ShardingService> shardControlDaoClass = daoAnnotation.value();
+        shardingService = aLinker.create(shardControlDaoClass);
         super.init(element, annotation);
     }
 
@@ -130,7 +130,7 @@ public class ShardedConnectionHandler extends ConnectionHandlerHelper implements
         }
         Object shardKey = shardKeyGetter.getShardKey(callCtx.getArgs());
         @SuppressWarnings({"unchecked"})
-        DataSource ds = shardControlDao.getShard(shardKey, context);
+        DataSource ds = shardingService.getShard(shardKey, context);
         //noinspection SuspiciousMethodCalls
         return ds.getConnection();
     }
@@ -146,6 +146,6 @@ public class ShardedConnectionHandler extends ConnectionHandlerHelper implements
             throw new ShardException("Shard key at method " + callCtx.getMethod() + " has to be collection to be used with multi-shard query");
         }
         Collection shardKeyCollection = (Collection) shardKey;
-        return shardControlDao.getMultiShard(shardKeyCollection, context);
+        return shardingService.getMultiShard(shardKeyCollection, context);
     }
 }
