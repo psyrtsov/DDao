@@ -16,7 +16,7 @@
 
 package com.sf.ddao;
 
-import java.sql.Connection;
+import org.apache.commons.chain.Context;
 
 /**
  * User: Pavel Syrtsov
@@ -25,5 +25,5 @@ import java.sql.Connection;
  */
 public interface TransactionableDao {
     @TransactionStarter
-    Connection startTransaction();
+    Context startTransaction();
 }

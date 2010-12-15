@@ -17,29 +17,36 @@
 package com.sf.ddao;
 
 import com.sf.ddao.conn.ConnectionHandlerHelper;
+import org.apache.commons.chain.Context;
 
 import java.sql.Connection;
 import java.util.concurrent.Callable;
 
 /**
- * DaoUtils provides utility methods that can be used with DDao framework.
+ * TxHelper provides utility methods that can be used with DDao framework.
  * <p/>
  * Created by Pavel Syrtsov
  * Date: Aug 25, 2007
  * Time: 2:18:03 PM
  */
-public class DaoUtils {
+public class TxHelper {
+    public static final ThreadLocal<Connection> connectionOnHold = new ThreadLocal<Connection>();
+
     public static <T> T execInTx(TransactionableDao dao, Callable<T> callable) throws Exception {
-        Connection conn = dao.startTransaction();
+        Context context = dao.startTransaction();
         boolean success = false;
+        Connection conn;
         try {
+            conn = ConnectionHandlerHelper.getConnectionOnHold(context);
+            connectionOnHold.set(conn);
             conn.setAutoCommit(false);
             T res = callable.call();
             conn.commit();
             success = true;
             return res;
         } finally {
-            conn = ConnectionHandlerHelper.releaseConnectionOnHold();
+            connectionOnHold.remove();
+            conn = ConnectionHandlerHelper.releaseConnectionOnHold(context);
             if (!success) {
                 conn.rollback();
             }
@@ -54,5 +61,9 @@ public class DaoUtils {
                 return null;
             }
         });
+    }
+
+    public static Connection getConnectionOnHold() {
+        return connectionOnHold.get();
     }
 }

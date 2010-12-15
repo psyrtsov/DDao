@@ -135,7 +135,7 @@ public class ShardedConnectionHandler extends ConnectionHandlerHelper implements
             //noinspection SuspiciousMethodCalls
             return ds.getConnection();
         } catch (Exception e) {
-            throw new SQLException("Failed to retrieve shard for key " + shardKey + (shardKey == null ? "" : " of type " + shardKey.getClass()), e);
+            throw new SQLException("Failed to retrieve shard for key " + shardKey + (shardKey == null ? "" : "(" + shardKey.getClass() + ")"), e);
         }
     }
 

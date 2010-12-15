@@ -22,7 +22,6 @@ import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockResultSet;
 import com.sf.ddao.alinker.ALinker;
 import com.sf.ddao.chain.UseContext;
-import com.sf.ddao.conn.ConnectionHandlerHelper;
 import com.sf.ddao.factory.param.ThreadLocalParameter;
 import com.sf.ddao.orm.RSMapper;
 import com.sf.ddao.orm.UseRSMapper;
@@ -253,17 +252,17 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         final TestUserDao dao = factory.create(TestUserDao.class, null);
         final TestUserBean user = new TestUserBean();
         user.setName(testName);
-        DaoUtils.execInTx(dao, new Runnable() {
+        TxHelper.execInTx(dao, new Runnable() {
             public void run() {
                 try {
                     createResultSet("nextval", new Object[]{id});
                     final int res = dao.addUser(user);
-                    final Connection connection1 = ConnectionHandlerHelper.getConnectionOnHold();
+                    final Connection connection1 = TxHelper.getConnectionOnHold();
                     assertNotNull(connection1);
                     assertFalse(connection1.isClosed());
                     verifyNotCommitted();
                     getUserOnce(dao, 11, "user11", false);
-                    final Connection connection2 = ConnectionHandlerHelper.getConnectionOnHold();
+                    final Connection connection2 = TxHelper.getConnectionOnHold();
                     assertSame(connection1, connection2);
                     assertFalse(connection2.isClosed());
                     verifyNotCommitted();
@@ -273,7 +272,7 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
                 }
             }
         });
-        final Connection connection = ConnectionHandlerHelper.getConnectionOnHold();
+        final Connection connection = TxHelper.getConnectionOnHold();
         assertNull(connection);
         verifyCommitted();
         verifySQLStatementExecuted("select nextval from userIdSequence");

@@ -34,9 +34,9 @@ import java.sql.SQLException;
  * Time: 10:50:45 PM
  */
 public abstract class ConnectionHandlerHelper implements Filter {
-    private static final ThreadLocal<Connection> connectionOnHold = new ThreadLocal<Connection>();
-
     public static final String CONNECTION_KEY = ConnectionHandlerHelper.class.toString() + "_CONN";
+
+    private final ThreadLocal<Connection> connectionOnHold = new ThreadLocal<Connection>();
 
     public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
         // do nothing for now
@@ -61,11 +61,11 @@ public abstract class ConnectionHandlerHelper implements Filter {
     public static Connection getConnection(Context context) throws SQLException {
         Connection conn = (Connection) context.get(CONNECTION_KEY);
         if (conn == null) {
-            conn = connectionOnHold.get();
+            ConnectionHandlerHelper connectionHandlerHelper = CtxHelper.get(context, ConnectionHandlerHelper.class);
+            conn = connectionHandlerHelper.connectionOnHold.get();
             if (conn != null) {
                 return conn;
             }
-            ConnectionHandlerHelper connectionHandlerHelper = CtxHelper.get(context, ConnectionHandlerHelper.class);
             conn = connectionHandlerHelper.createConnection(context);
             setConnection(context, conn);
 
@@ -85,17 +85,20 @@ public abstract class ConnectionHandlerHelper implements Filter {
     }
 
     public static void putConnectionOnHold(Context context) {
+        ConnectionHandlerHelper connectionHandlerHelper = CtxHelper.get(context, ConnectionHandlerHelper.class);
         Connection conn = (Connection) context.remove(CONNECTION_KEY);
-        connectionOnHold.set(conn);
+        connectionHandlerHelper.connectionOnHold.set(conn);
     }
 
-    public static Connection getConnectionOnHold() {
-        return connectionOnHold.get();
+    public static Connection getConnectionOnHold(Context context) {
+        ConnectionHandlerHelper connectionHandlerHelper = CtxHelper.get(context, ConnectionHandlerHelper.class);
+        return connectionHandlerHelper.connectionOnHold.get();
     }
 
-    public static Connection releaseConnectionOnHold() {
-        Connection res = connectionOnHold.get();
-        connectionOnHold.remove();
+    public static Connection releaseConnectionOnHold(Context context) {
+        ConnectionHandlerHelper connectionHandlerHelper = CtxHelper.get(context, ConnectionHandlerHelper.class);
+        Connection res = connectionHandlerHelper.connectionOnHold.get();
+        connectionHandlerHelper.connectionOnHold.remove();
         return res;
     }
 
