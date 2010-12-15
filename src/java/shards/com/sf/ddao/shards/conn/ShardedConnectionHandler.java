@@ -130,7 +130,12 @@ public class ShardedConnectionHandler extends ConnectionHandlerHelper implements
         }
         Object shardKey = shardKeyGetter.getShardKey(callCtx.getArgs());
         @SuppressWarnings({"unchecked"})
-        DataSource ds = shardingService.getShard(shardKey, context);
+        DataSource ds = null;
+        try {
+            ds = shardingService.getShard(shardKey, context);
+        } catch (Exception e) {
+            throw new SQLException("Failed to retrieve shard for key " + shardKey + (shardKey == null ? "" : " of type " + shardKey.getClass()), e);
+        }
         //noinspection SuspiciousMethodCalls
         return ds.getConnection();
     }
