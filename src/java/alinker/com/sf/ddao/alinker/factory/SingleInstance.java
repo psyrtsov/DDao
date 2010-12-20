@@ -29,5 +29,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 @UseFactory(SingletonFatory.class)
-public @interface Singleton {
+public @interface SingleInstance {
 }

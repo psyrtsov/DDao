@@ -20,7 +20,7 @@ import com.sf.ddao.alinker.ALinker;
 import com.sf.ddao.alinker.CachingFactory;
 import com.sf.ddao.alinker.Context;
 import com.sf.ddao.alinker.FactoryException;
-import com.sf.ddao.alinker.factory.Singleton;
+import com.sf.ddao.alinker.factory.SingleInstance;
 
 import java.lang.reflect.Proxy;
 
@@ -41,8 +41,8 @@ public class ChainHandlerFactory<T> implements CachingFactory<T> {
             cih.init(iFace);
             //noinspection unchecked
             T res = (T) Proxy.newProxyInstance(iFace.getClassLoader(), iFaceList, cih);
-            Singleton singleton = iFace.getAnnotation(Singleton.class);
-            if (singleton != null) {
+            SingleInstance singleInstance = iFace.getAnnotation(SingleInstance.class);
+            if (singleInstance != null) {
                 cachedProxy = res;
             }
             return res;
