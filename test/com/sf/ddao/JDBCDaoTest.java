@@ -65,12 +65,13 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
 
         /**
          * 1st parametterpassed by reference, 2nd by value (by injecting result of toString() into SQL).
+         * added underscore to column name to verify that it gets stripped
          *
          * @param tableName - paramter object
          * @param size      - max size of return array
          * @return array of TestUserBeans created using data returned by SQL query
          */
-        @Select("select id, name from $0$ limit #1#")
+        @Select("select id, _Name from $0$ limit #1#")
         TestUserBean[] getUserArray(String tableName, int size);
 
         @Select("select id, name from user")
@@ -182,8 +183,8 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         assertEquals(res[1].getId(), 2);
         assertEquals(res[1].getName(), "bar");
 
-        verifySQLStatementExecuted("select id, name from user limit ?");
-        verifySQLStatementParameter("select id, name from user limit ?", 0, 1, 2);
+        verifySQLStatementExecuted("select id, _name from user limit ?");
+        verifySQLStatementParameter("select id, _name from user limit ?", 0, 1, 2);
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
         verifyConnectionClosed();

@@ -84,7 +84,8 @@ public class BeanRowMapper implements RowMapper {
         Map<String, Integer> colNames = new HashMap<String, Integer>();
         int count = metaData.getColumnCount();
         for (int i = 1; i <= count; i++) {
-            final String name = metaData.getColumnName(i).toLowerCase();
+            String name = metaData.getColumnName(i).toLowerCase();
+            name = stripUnderscore(name);
             if (colNames.put(name, i) != null) {
                 throw new SQLException("Ambiguous column name " + name);
             }
@@ -109,5 +110,15 @@ public class BeanRowMapper implements RowMapper {
                     + " don`t have matching properties in " + itemType);
         }
         this.mapperList = mapperList;
+    }
+
+    private static String stripUnderscore(String name) {
+        StringBuilder sb = new StringBuilder(name.length());
+        for (char ch : name.toCharArray()) {
+            if (ch != '_') {
+                sb.append(ch);
+            }
+        }
+        return sb.toString();
     }
 }
