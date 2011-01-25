@@ -16,6 +16,7 @@
 
 package com.sf.ddao;
 
+import com.sf.ddao.shards.ShardKey;
 import org.apache.commons.chain.Context;
 
 /**
@@ -23,7 +24,7 @@ import org.apache.commons.chain.Context;
  * Date: Sep 27, 2008
  * Time: 8:54:19 PM
  */
-public interface TransactionableDao {
+public interface TransactionableDao<T> {
     @TransactionStarter
-    Context startTransaction();
+    Context startTransaction(@ShardKey T shardKey);
 }

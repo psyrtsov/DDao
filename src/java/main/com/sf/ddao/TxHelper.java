@@ -32,8 +32,8 @@ import java.util.concurrent.Callable;
 public class TxHelper {
     public static final ThreadLocal<Connection> connectionOnHold = new ThreadLocal<Connection>();
 
-    public static <T> T execInTx(TransactionableDao dao, Callable<T> callable) throws Exception {
-        Context context = dao.startTransaction();
+    public static <T, SK> T execInTx(TransactionableDao<SK> dao, Callable<T> callable, SK... shardKeys) throws Exception {
+        Context context = dao.startTransaction(shardKeys == null || shardKeys.length == 0 ? null : shardKeys[0]);
         boolean success = false;
         Connection conn;
         try {
@@ -54,13 +54,13 @@ public class TxHelper {
         }
     }
 
-    public static void execInTx(TransactionableDao dao, final Runnable runnable) throws Exception {
+    public static <SK> void execInTx(TransactionableDao dao, final Runnable runnable, SK... shardKeys) throws Exception {
         execInTx(dao, new Callable<Object>() {
             public Object call() throws Exception {
                 runnable.run();
                 return null;
             }
-        });
+        }, shardKeys);
     }
 
     public static Connection getConnectionOnHold() {

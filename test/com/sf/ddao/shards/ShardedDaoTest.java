@@ -20,8 +20,7 @@ import com.mockrunner.jdbc.JDBCTestModule;
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.JDBCMockObjectFactory;
 import com.mockrunner.mock.jdbc.MockResultSet;
-import com.sf.ddao.Select;
-import com.sf.ddao.TestUserBean;
+import com.sf.ddao.*;
 import com.sf.ddao.alinker.ALinker;
 import com.sf.ddao.alinker.FactoryException;
 import com.sf.ddao.alinker.initializer.InitializerException;
@@ -32,6 +31,7 @@ import com.sf.ddao.orm.rsmapper.rowmapper.BeanRowMapper;
 import junit.framework.TestCase;
 import org.mockejb.jndi.MockContextFactory;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ public class ShardedDaoTest extends TestCase {
     private JDBCTestModule testModule2;
 
     @ShardedDao(TestShardingService.class)
-    public static interface TestUserDao {
+    public static interface TestUserDao extends TransactionableDao {
         /**
          * in this statement we assume that 1st method arg is Java Bean
          * and refer to property by name. It works same way for Map.
@@ -100,6 +100,10 @@ public class ShardedDaoTest extends TestCase {
          */
         @Select("select id from user_data where part = '$threadLocal:" + PART_NAME + "$' and user_id = #0#")
         int getUserData(@ShardKey int userId);
+
+        @SelectThenInsert({"select nextval from userIdSequence", "insert into user(id,name) values(#threadLocal:id#, #name#)"})
+        int addUser(@ShardKey("id") TestUserBean user);
+
     }
 
     protected void setUp() throws Exception {
@@ -139,13 +143,13 @@ public class ShardedDaoTest extends TestCase {
         TestUserDao dao = factory.create(TestUserDao.class, null);
 
         // reuse it for multiple invocations
-        getUserOnce(testModule1, dao, 1, "foo1");
-        getUserOnce(testModule1, dao, 10, "foo2");
-        getUserOnce(testModule2, dao, 11, "bar1");
-        getUserOnce(testModule2, dao, 20, "bar2");
+        getUserOnce(testModule1, dao, 1, "foo1", false);
+        getUserOnce(testModule1, dao, 10, "foo2", false);
+        getUserOnce(testModule2, dao, 11, "bar1", false);
+        getUserOnce(testModule2, dao, 20, "bar2", false);
     }
 
-    private void getUserOnce(JDBCTestModule testModule, TestUserDao dao, int id, String name) throws Exception {
+    private void getUserOnce(JDBCTestModule testModule, TestUserDao dao, int id, String name, boolean inTx) throws Exception {
         // setup test
         TestUserBean data = new TestUserBean();
         data.setId(id);
@@ -163,7 +167,9 @@ public class ShardedDaoTest extends TestCase {
         testModule.verifySQLStatementExecuted("select id, name from user where id = ?");
         testModule.verifyAllResultSetsClosed();
         testModule.verifyAllStatementsClosed();
-        testModule.verifyConnectionClosed();
+        if (!inTx) {
+            testModule.verifyConnectionClosed();
+        }
     }
 
     public void testMultiShardGetRecordList() throws Exception {
@@ -309,4 +315,45 @@ public class ShardedDaoTest extends TestCase {
         testModule.verifyAllStatementsClosed();
         testModule.verifyConnectionClosed();
     }
+
+    public void testTx() throws Exception {
+        final int id = 7;
+        final String testName = "testName";
+
+        // execute dao method
+        final TestUserDao dao = factory.create(TestUserDao.class, null);
+        final TestUserBean user = new TestUserBean();
+        user.setName(testName);
+        TxHelper.execInTx(dao, new Runnable() {
+            public void run() {
+                try {
+                    createResultSet(testModule1, "nextval", new Object[]{id});
+                    final int res = dao.addUser(user);
+                    final Connection connection1 = TxHelper.getConnectionOnHold();
+                    assertNotNull(connection1);
+                    assertFalse(connection1.isClosed());
+                    testModule1.verifyNotCommitted();
+                    getUserOnce(testModule1, dao, 11, "user11", true);
+                    final Connection connection2 = TxHelper.getConnectionOnHold();
+                    assertSame(connection1, connection2);
+                    assertFalse(connection2.isClosed());
+                    testModule1.verifyNotCommitted();
+                    assertEquals(id, res);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }, id);
+        final Connection connection = TxHelper.getConnectionOnHold();
+        assertNull(connection);
+        testModule1.verifyCommitted();
+        testModule1.verifySQLStatementExecuted("select nextval from userIdSequence");
+        testModule1.verifySQLStatementExecuted("insert into user(id,name) values(?, ?)");
+        testModule1.verifyPreparedStatementParameter(1, 1, id);
+        testModule1.verifyPreparedStatementParameter(1, 2, testName);
+        testModule1.verifyAllResultSetsClosed();
+        testModule1.verifyAllStatementsClosed();
+        testModule1.verifyConnectionClosed();
+    }
+
 }
