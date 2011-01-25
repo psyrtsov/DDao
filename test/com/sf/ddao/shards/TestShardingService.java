@@ -33,6 +33,9 @@ public class TestShardingService implements ShardingService<Integer> {
     private DataSource ds2;
 
     public DataSource getShard(Integer id, Context ctx) {
+        if (id == null) {
+            throw new NullPointerException("Shard key is not defined");
+        }
         if (1 <= id && id <= 10) {
             return ds1;
         }
