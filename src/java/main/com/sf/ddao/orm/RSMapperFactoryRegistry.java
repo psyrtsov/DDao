@@ -165,6 +165,13 @@ public class RSMapperFactoryRegistry {
                 }
             };
         }
+        if (itemType == Boolean.class || itemType == Boolean.TYPE) {
+            return new RowMapper() {
+                public Object map(ResultSet rs) throws SQLException {
+                    return rs.getBoolean(idx);
+                }
+            };
+        }
         if (itemType == Blob.class) {
             return new RowMapper() {
                 public Object map(ResultSet rs) throws SQLException {

@@ -34,7 +34,7 @@ public interface Parameter {
      * @param element - method object
      * @param name    - name of parameter
      */
-    void init(AnnotatedElement element, String name);
+    void init(AnnotatedElement element, String param);
 
     /**
      * this method will be invoked by statement factory to get string presentation of
@@ -56,6 +56,9 @@ public interface Parameter {
      *                          should be used as second argument for PreparedStatement.setXXX
      * @param args              - method invocation argument list
      * @throws ParameterException - thrown when failed to bind parameter
+     * @returns number of bound parameters
      */
-    void bind(PreparedStatement preparedStatement, int idx, Context args) throws ParameterException;
+    int bind(PreparedStatement preparedStatement, int idx, Context args) throws ParameterException;
+
+    void appendBindMarker(StringBuilder buf);
 }

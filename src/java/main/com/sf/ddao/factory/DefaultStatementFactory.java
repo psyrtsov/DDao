@@ -74,8 +74,8 @@ public class DefaultStatementFactory implements StatementFactory {
                             token.delete(0, token.length());
                             addInlineParameter(element, param.toString());
                         } else {
-                            token.append('?');
-                            addRefParameter(element, param.toString());
+                            Parameter p = addRefParameter(element, param.toString());
+                            p.appendBindMarker(token);
                         }
                         param.delete(0, param.length());
                         paramStarted = false;
@@ -97,9 +97,10 @@ public class DefaultStatementFactory implements StatementFactory {
         }
     }
 
-    public void addRefParameter(AnnotatedElement element, String name) throws ParameterException {
+    public Parameter addRefParameter(AnnotatedElement element, String name) throws ParameterException {
         Parameter parameter = parameterFactory.createStatementParameter(element, name);
         refParametersList.add(parameter);
+        return parameter;
     }
 
     public void addInlineParameter(AnnotatedElement element, String name) throws ParameterException {
@@ -125,7 +126,7 @@ public class DefaultStatementFactory implements StatementFactory {
             }
             int i = 1;
             for (Parameter parameter : refParametersList) {
-                parameter.bind(preparedStatement, i++, context);
+                i += parameter.bind(preparedStatement, i, context);
             }
             return preparedStatement;
         } catch (Exception e) {
