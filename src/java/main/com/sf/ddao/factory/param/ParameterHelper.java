@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.AnnotatedElement;
+import java.math.BigInteger;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -88,6 +89,8 @@ public abstract class ParameterHelper implements Parameter {
             preparedStatement.setLong(idx, (Long) param);
         } else if (clazz == Boolean.class || clazz == Boolean.TYPE) {
             preparedStatement.setBoolean(idx, (Boolean) param);
+        } else if (BigInteger.class.isAssignableFrom(clazz)) {
+            preparedStatement.setString(idx, param.toString());
         } else if (Date.class.isAssignableFrom(clazz)) {
             if (!java.sql.Date.class.isAssignableFrom(clazz)) {
                 param = new java.sql.Date(((Date) param).getTime());
