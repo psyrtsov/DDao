@@ -31,6 +31,7 @@ import org.apache.commons.chain.Context;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -61,6 +62,8 @@ public class InsertAndGetGeneratedKeySqlOperation implements Command, Intializib
                     res = resultSet.getInt(1);
                 } else if (method.getReturnType() == Long.TYPE || method.getReturnType() == Long.class) {
                     res = resultSet.getLong(1);
+                } else if (method.getReturnType() == BigDecimal.class) {
+                    res = resultSet.getBigDecimal(1);
                 }
             }
             resultSet.close();
