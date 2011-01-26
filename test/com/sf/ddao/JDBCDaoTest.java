@@ -245,6 +245,28 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         verifyConnectionClosed();
     }
 
+    public void testNullParameter() throws Exception {
+        // setup test
+        final int id = 77;
+        final String testName = null;
+        final String testPart = "testPart";
+        createResultSet("id", new Object[]{id});
+
+        // execute dao method
+        TestUserDao dao = factory.create(TestUserDao.class, null);
+        int res = dao.getUserIdByName(testName, context(PART_NAME, testPart));
+
+        // verify result
+        ThreadLocalParameter.remove(PART_NAME);
+        assertEquals(id, res);
+
+        verifySQLStatementExecuted("select id from user where part = '" + testPart + "' and name = ?");
+        verifyPreparedStatementParameter(0, 1, testName);
+        verifyAllResultSetsClosed();
+        verifyAllStatementsClosed();
+        verifyConnectionClosed();
+    }
+
     public void testTx() throws Exception {
         final int id = 77;
         final String testName = "testName";
