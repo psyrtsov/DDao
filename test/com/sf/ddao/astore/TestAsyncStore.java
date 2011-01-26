@@ -34,7 +34,7 @@ public class TestAsyncStore implements AsyncDB<Integer, TestUserBean> {
 
     public TestUserBean get(Integer key, Callable<TestUserBean> dbGet) {
         //psdo: verify generated code for com.sf.ddao.astore.TestAsyncStore get
-        return new TestUserBean();
+        return new TestUserBean(true);
     }
 
     public Map<Integer, TestUserBean> batchGet(Collection<Integer> keys, DBBatchGet<Integer, TestUserBean> dbBatchGet) {

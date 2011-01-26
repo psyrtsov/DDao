@@ -123,7 +123,7 @@ public class JNDIDaoTest extends BasicJDBCTestCaseAdapter {
 
     private void getUserOnce(TestUserDao dao, int id, String name) throws Exception {
         // setup test
-        TestUserBean data = new TestUserBean();
+        TestUserBean data = new TestUserBean(true);
         data.setId(id);
         data.setName(name);
         createResultSet("id", new Object[]{data.getId()}, "name", new Object[]{data.getName()});

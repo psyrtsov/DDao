@@ -60,4 +60,9 @@ public class CtxHelper {
         }
         return res;
     }
+
+    public static <T> T remove(Context ctx, Class<T> clazz) {
+        //noinspection unchecked
+        return (T) ctx.remove(clazz.toString());
+    }
 }

@@ -21,6 +21,7 @@ import com.sf.ddao.orm.RowMapper;
 
 import java.beans.BeanInfo;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -34,8 +35,9 @@ import java.util.Map;
  * Time: 6:12:20 PM
  */
 public class BeanRowMapper implements RowMapper {
-    private final Class itemType;
     private volatile PropertyMapper[] mapperList = null;
+    private Constructor constructor;
+    private final Class itemType;
 
     private class PropertyMapper {
         private Method writeMethod;
@@ -55,6 +57,12 @@ public class BeanRowMapper implements RowMapper {
 
     public BeanRowMapper(Class itemType) {
         this.itemType = itemType;
+        for (Constructor c : itemType.getDeclaredConstructors()) {
+            if (c.getParameterTypes().length == 0) {
+                c.setAccessible(true);
+                constructor = c;
+            }
+        }
     }
 
     public Object map(ResultSet rs) throws SQLException {
@@ -64,7 +72,7 @@ public class BeanRowMapper implements RowMapper {
             if (mapperList == null) {
                 init(rs);
             }
-            result = itemType.newInstance();
+            result = constructor.newInstance();
             for (PropertyMapper propertyMapper : mapperList) {
                 propertyMapper.map(rs, result);
             }

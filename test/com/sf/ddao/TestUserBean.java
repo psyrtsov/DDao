@@ -25,6 +25,12 @@ public class TestUserBean {
     private int id;
     private String name;
 
+    private TestUserBean() {
+    }
+
+    public TestUserBean(boolean dummy) {
+    }
+
     public int getId() {
         return id;
     }

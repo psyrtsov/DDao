@@ -59,7 +59,7 @@ public class AsyncStoreTest extends BasicJDBCTestCaseAdapter {
 
     public void testPut() {
         UserDao userDao = factory.create(UserDao.class);
-        TestUserBean testUserBean = new TestUserBean();
+        TestUserBean testUserBean = new TestUserBean(true);
         testUserBean.setId(1);
         testUserBean.setName("new name");
         userDao.updateUser(testUserBean);
@@ -68,7 +68,7 @@ public class AsyncStoreTest extends BasicJDBCTestCaseAdapter {
     public void testGet() {
         createResultSet("id", new Object[]{1}, "name", new Object[]{"user1"});
         UserDao userDao = factory.create(UserDao.class);
-        TestUserBean testUserBean = new TestUserBean();
+        TestUserBean testUserBean = new TestUserBean(true);
         testUserBean.setId(1);
         TestUserBean res = userDao.getUser(testUserBean);
     }

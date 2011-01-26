@@ -124,7 +124,7 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
 
     private void getUserOnce(TestUserDao dao, int id, String name, boolean connShouldBeClosed) {
         // setup test
-        TestUserBean data = new TestUserBean();
+        TestUserBean data = new TestUserBean(true);
         data.setId(id);
         data.setName(name);
         createResultSet("id", new Object[]{data.getId()}, "name", new Object[]{data.getName()});
@@ -273,7 +273,7 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
 
         // execute dao method
         final TestUserDao dao = factory.create(TestUserDao.class, null);
-        final TestUserBean user = new TestUserBean();
+        final TestUserBean user = new TestUserBean(true);
         user.setName(testName);
         TxHelper.execInTx(dao, new Runnable() {
             public void run() {
