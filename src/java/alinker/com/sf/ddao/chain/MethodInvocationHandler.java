@@ -24,7 +24,9 @@ import org.apache.commons.chain.impl.ContextBase;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by pavel
@@ -32,11 +34,23 @@ import java.util.List;
  * Time: 2:29:05 PM
  */
 class MethodInvocationHandler {
+    public static final Set<Class> notNullableTypes = new HashSet<Class>() {{
+        add(Byte.TYPE);
+        add(Short.TYPE);
+        add(Integer.TYPE);
+        add(Long.TYPE);
+        add(Float.TYPE);
+        add(Double.TYPE);
+        add(Boolean.TYPE);
+        add(Character.TYPE);
+    }};
     private final Method method;
     private final Chain chain;
     private int contextParamIndex = -1;
+    private final boolean isNullReturnDisallowed;
 
     public MethodInvocationHandler(Method method, List<Command> commands) {
+        isNullReturnDisallowed = notNullableTypes.contains(method.getReturnType());
         this.method = method;
         this.chain = new ChainBase(commands);
         final Annotation[][] parametersAnnotations = method.getParameterAnnotations();
@@ -58,7 +72,11 @@ class MethodInvocationHandler {
         if (Context.class.isAssignableFrom(method.getReturnType())) {
             return context;
         }
-        return callCtx.getLastReturn();
+        final Object aReturn = callCtx.getLastReturn();
+        if (aReturn == null && isNullReturnDisallowed) {
+            throw new NullPointerException("Null value is not allowed for return type " + method.getReturnType());
+        }
+        return aReturn;
     }
 
     private Context createContext(Object[] args) {
