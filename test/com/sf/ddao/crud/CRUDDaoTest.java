@@ -74,7 +74,7 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
 //        assertNotNull(res);
 //        assertEquals(1, res);
 
-        final String sql = "insert into TestUserBean(name) values(?)";
+        final String sql = "insert into test_user(name) values(?)";
         verifySQLStatementExecuted(sql);
         verifyPreparedStatementParameter(sql, 1, data.getName());
         verifyAllResultSetsClosed();
@@ -96,7 +96,7 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
         assertNotNull(res);
         assertEquals(name, res.getName());
 
-        final String sql = "select name from TestUserBean where id=? limit 1";
+        final String sql = "select name from test_user where id=? limit 1";
         verifySQLStatementExecuted(sql);
         verifyPreparedStatementParameter(sql, 1, id);
         verifyAllResultSetsClosed();
@@ -122,7 +122,7 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
 //        assertNotNull(res);
 //        assertEquals(1, res);
 
-        final String sql = "update TestUserBean set name=? where id=?";
+        final String sql = "update test_user set name=? where id=?";
         verifySQLStatementExecuted(sql);
         verifyPreparedStatementParameter(sql, 1, data.getName());
         verifyPreparedStatementParameter(sql, 2, data.getId());
@@ -145,7 +145,7 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
 //        assertNotNull(res);
 //        assertEquals(1, res);
 
-        final String sql = "delete from TestUserBean where id=?";
+        final String sql = "delete from test_user where id=?";
         verifySQLStatementExecuted(sql);
         verifyPreparedStatementParameter(sql, 1, id);
         verifyAllResultSetsClosed();

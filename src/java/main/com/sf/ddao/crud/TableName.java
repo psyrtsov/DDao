@@ -14,39 +14,18 @@
  *  under the License.
  */
 
-package com.sf.ddao;
+package com.sf.ddao.crud;
 
-import com.sf.ddao.crud.TableName;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Created-By: Pavel Syrtsov
- * Date: Apr 10, 2008
- * Time: 10:24:20 PM
+ * Created by psyrtsov
  */
-@TableName("test_user")
-public class TestUserBean {
-    private long id;
-    private String name;
-
-    private TestUserBean() {
-    }
-
-    public TestUserBean(boolean dummy) {
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface TableName {
+    String value();
 }

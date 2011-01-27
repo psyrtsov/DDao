@@ -16,6 +16,7 @@
 
 package com.sf.ddao.crud.param;
 
+import com.sf.ddao.crud.TableName;
 import com.sf.ddao.factory.param.ParameterException;
 import com.sf.ddao.factory.param.ParameterHelper;
 import org.apache.commons.chain.Context;
@@ -41,6 +42,11 @@ public class CRUDTableNameParameter extends ParameterHelper {
             return;
         }
         final Class<?> crudDaoBeanClass = getCRUDDaoBean(context);
-        tableName = crudDaoBeanClass.getSimpleName();
+        TableName tableName = crudDaoBeanClass.getAnnotation(TableName.class);
+        if (tableName != null) {
+            this.tableName = tableName.value();
+        } else {
+            this.tableName = crudDaoBeanClass.getSimpleName();
+        }
     }
 }
