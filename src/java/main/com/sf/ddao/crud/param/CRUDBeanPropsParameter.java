@@ -34,17 +34,20 @@ import java.text.MessageFormat;
  * Date: Oct 27, 2009
  * Time: 3:36:12 PM
  */
-public class CRUDBindPropsParameter implements ParameterHandler {
-    public static final String CRUD_BIND_PROPS = "crudBindProps";
+public class CRUDBeanPropsParameter implements ParameterHandler {
+    public static final String CRUD_BEAN_PROPS = "crudBeanProps";
     private PropertyDescriptor[] descriptors;
     private int argNum;
     private String fmt;
 
     public void init(AnnotatedElement element, String param, boolean isRef) {
-        assert isRef;
         int commaIdx = param.indexOf(",");
         if (commaIdx < 0) {
-            fmt = "?";
+            if (isRef) {
+                fmt = "?";
+            } else {
+                fmt = "{0}";
+            }
         } else {
             fmt = param.substring(commaIdx + 1);
             param = param.substring(0, commaIdx);
@@ -68,9 +71,24 @@ public class CRUDBindPropsParameter implements ParameterHandler {
             if (c > 0) {
                 sb.append(",");
             }
-            sb.append(MessageFormat.format(fmt, descriptor.getName()));
+            final String fieldName = mapPropName2Field(descriptor);
+            sb.append(MessageFormat.format(fmt, fieldName));
             c++;
         }
+    }
+
+    public static String mapPropName2Field(PropertyDescriptor descriptor) {
+        final String s = descriptor.getName();
+        StringBuilder sb = new StringBuilder(s.length());
+        for (char ch : s.toCharArray()) {
+            if (Character.isUpperCase(ch)) {
+                ch = Character.toLowerCase(ch);
+                sb.append("_").append(ch);
+            } else {
+                sb.append(ch);
+            }
+        }
+        return sb.toString();
     }
 
     public int bindParam(PreparedStatement preparedStatement, int idx, Context ctx) throws ParameterException {

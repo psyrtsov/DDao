@@ -27,6 +27,7 @@ import com.sf.ddao.crud.TableName;
 public class TestUserBean {
     private long id;
     private String name;
+    private String longName;
 
     private TestUserBean() {
     }
@@ -48,5 +49,13 @@ public class TestUserBean {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getLongName() {
+        return longName;
+    }
+
+    public void setLongName(String longName) {
+        this.longName = longName;
     }
 }

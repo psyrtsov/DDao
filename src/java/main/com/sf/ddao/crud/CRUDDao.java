@@ -26,8 +26,7 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.sf.ddao.crud.param.CRUDBindPropsParameter.CRUD_BIND_PROPS;
-import static com.sf.ddao.crud.param.CRUDPropListParameter.CRUD_PROP_LIST;
+import static com.sf.ddao.crud.param.CRUDBeanPropsParameter.CRUD_BEAN_PROPS;
 import static com.sf.ddao.crud.param.CRUDTableNameParameter.CRUD_TABLE_NAME;
 
 /**
@@ -40,16 +39,16 @@ public interface CRUDDao<V> {
     }};
     public static final String CRUD_INSERT =
             "insert into $" + CRUD_TABLE_NAME + ":$" +
-                    "($" + CRUD_PROP_LIST + ":$)" +
-                    " values(#" + CRUD_BIND_PROPS + ":0#)";
+                    "($" + CRUD_BEAN_PROPS + ":0$)" +
+                    " values(#" + CRUD_BEAN_PROPS + ":0#)";
 
     public static final String CRUD_UPDATE =
             "update $" + CRUD_TABLE_NAME + ":$" +
-                    " set #" + CRUD_BIND_PROPS + ":0,{0}=?#" +
+                    " set #" + CRUD_BEAN_PROPS + ":0,{0}=?#" +
                     " where id=#id#";
 
     public static final String CRUD_SELECT =
-            "select $" + CRUD_PROP_LIST + ":$" +
+            "select $" + CRUD_BEAN_PROPS + ":0$" +
                     " from $" + CRUD_TABLE_NAME + ":$" +
                     " where id=#0# limit 1";
 

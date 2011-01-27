@@ -36,9 +36,8 @@ import java.util.Map;
  */
 public class CRUDParameterService implements ParameterService {
     public static final Map<String, Class<? extends ParameterHandler>> classMap = new HashMap<String, Class<? extends ParameterHandler>>() {{
-        put(CRUDBindPropsParameter.CRUD_BIND_PROPS, CRUDBindPropsParameter.class);
+        put(CRUDBeanPropsParameter.CRUD_BEAN_PROPS, CRUDBeanPropsParameter.class);
         put(CRUDTableNameParameter.CRUD_TABLE_NAME, CRUDTableNameParameter.class);
-        put(CRUDPropListParameter.CRUD_PROP_LIST, CRUDPropListParameter.class);
     }};
 
     public void register(ParameterFactory parameterFactory) {
