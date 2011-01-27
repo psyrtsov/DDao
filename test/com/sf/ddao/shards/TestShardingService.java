@@ -28,11 +28,11 @@ import java.util.Map;
  * Created by psyrtsov
  */
 @SingleInstance
-public class TestShardingService implements ShardingService<Integer> {
+public class TestShardingService implements ShardingService<Long> {
     private DataSource ds1;
     private DataSource ds2;
 
-    public DataSource getShard(Integer id, Context ctx) {
+    public DataSource getShard(Long id, Context ctx) {
         if (id == null) {
             throw new NullPointerException("Shard key is not defined");
         }
@@ -45,8 +45,8 @@ public class TestShardingService implements ShardingService<Integer> {
         return null;
     }
 
-    public Map<DataSource, Collection<Integer>> getMultiShard(Collection<Integer> shardKeyCollection, Context context) {
-        Map<DataSource, Collection<Integer>> res = new HashMap<DataSource, Collection<Integer>>();
+    public Map<DataSource, Collection<Long>> getMultiShard(Collection<Long> shardKeyCollection, Context context) {
+        Map<DataSource, Collection<Long>> res = new HashMap<DataSource, Collection<Long>>();
         res.put(ds1, shardKeyCollection);
         res.put(ds2, shardKeyCollection);
         return res;

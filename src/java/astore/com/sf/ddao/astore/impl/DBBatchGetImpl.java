@@ -50,7 +50,7 @@ public class DBBatchGetImpl implements DBBatchGet {
             PreparedStatement preparedStatement = operation.getStatementFactory().createStatement(context, Integer.MAX_VALUE);
             ResultSet resultSet = preparedStatement.executeQuery();
             RSMapper RSMapper = operation.getMapORMapperFactory().getInstance(callCtx.getArgs(), resultSet);
-            Map map = (Map) RSMapper.handle(resultSet);
+            Map map = (Map) RSMapper.handle(context, resultSet);
             resultSet.close();
             preparedStatement.close();
             return map;

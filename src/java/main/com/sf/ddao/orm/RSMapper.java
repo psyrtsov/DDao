@@ -16,6 +16,8 @@
 
 package com.sf.ddao.orm;
 
+import org.apache.commons.chain.Context;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -23,5 +25,5 @@ import java.sql.SQLException;
  * Created by psyrtsov
  */
 public interface RSMapper {
-    Object handle(ResultSet rs) throws SQLException;
+    Object handle(Context context, ResultSet rs) throws SQLException;
 }

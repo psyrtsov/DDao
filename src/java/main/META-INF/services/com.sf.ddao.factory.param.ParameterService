@@ -1,3 +1,4 @@
 com.sf.ddao.factory.param.ThreadLocalParameterService
 com.sf.ddao.factory.param.ContextParameterService
 com.sf.ddao.factory.param.JoinListParameterService
+com.sf.ddao.crud.param.CRUDParameterService

@@ -22,7 +22,7 @@ package com.sf.ddao;
  * Time: 10:24:20 PM
  */
 public class TestUserBean {
-    private int id;
+    private long id;
     private String name;
 
     private TestUserBean() {
@@ -31,11 +31,11 @@ public class TestUserBean {
     public TestUserBean(boolean dummy) {
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

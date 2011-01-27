@@ -18,6 +18,7 @@ package com.sf.ddao.orm.rsmapper;
 
 import com.sf.ddao.orm.RSMapper;
 import com.sf.ddao.orm.RowMapper;
+import org.apache.commons.chain.Context;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -43,7 +44,7 @@ public class CollectionRSMapper implements RSMapper {
         this.rowMapper = rowMapper;
     }
 
-    public Object handle(ResultSet rs) throws SQLException {
+    public Object handle(Context context, ResultSet rs) throws SQLException {
         Collection list;
         try {
             list = listType.newInstance();

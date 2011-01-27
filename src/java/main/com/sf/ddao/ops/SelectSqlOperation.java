@@ -58,7 +58,7 @@ public class SelectSqlOperation implements Command, Intializible {
             PreparedStatement preparedStatement = statementFactory.createStatement(context, Integer.MAX_VALUE);
             ResultSet resultSet = preparedStatement.executeQuery();
             RSMapper RSMapper = rsMapperFactory.getInstance(args, resultSet);
-            final Object res = RSMapper.handle(resultSet);
+            final Object res = RSMapper.handle(context, resultSet);
             callCtx.setLastReturn(res);
             resultSet.close();
             preparedStatement.close();

@@ -26,18 +26,18 @@ import java.util.concurrent.Callable;
 /**
  * Created by psyrtsov
  */
-public class TestAsyncStore implements AsyncDB<Integer, TestUserBean> {
-    public void put(Integer key, TestUserBean value, Command dbPut) {
+public class TestAsyncStore implements AsyncDB<Long, TestUserBean> {
+    public void put(Long key, TestUserBean value, Command dbPut) {
         //psdo: verify generated code for com.sf.ddao.astore.TestAsyncStore put
         System.err.println("");
     }
 
-    public TestUserBean get(Integer key, Callable<TestUserBean> dbGet) {
+    public TestUserBean get(Long key, Callable<TestUserBean> dbGet) {
         //psdo: verify generated code for com.sf.ddao.astore.TestAsyncStore get
         return new TestUserBean(true);
     }
 
-    public Map<Integer, TestUserBean> batchGet(Collection<Integer> keys, DBBatchGet<Integer, TestUserBean> dbBatchGet) {
+    public Map<Long, TestUserBean> batchGet(Collection<Long> keys, DBBatchGet<Long, TestUserBean> dbBatchGet) {
         return dbBatchGet.batchGet(keys);
     }
 }

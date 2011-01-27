@@ -17,6 +17,7 @@
 package com.sf.ddao.orm.rsmapper;
 
 import com.sf.ddao.orm.RowMapper;
+import org.apache.commons.chain.Context;
 
 import java.lang.reflect.Array;
 import java.sql.ResultSet;
@@ -37,8 +38,8 @@ public class ArrayRSMapper extends CollectionRSMapper {
     }
 
     @Override
-    public Object handle(ResultSet rs) throws SQLException {
-        Collection list = (Collection) super.handle(rs);
+    public Object handle(Context context, ResultSet rs) throws SQLException {
+        Collection list = (Collection) super.handle(context, rs);
         Object[] array = (Object[]) Array.newInstance(itemType, list.size());
         //noinspection unchecked
         return list.toArray(array);

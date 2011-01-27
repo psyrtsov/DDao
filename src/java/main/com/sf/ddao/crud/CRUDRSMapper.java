@@ -14,26 +14,36 @@
  *  under the License.
  */
 
-package com.sf.ddao.orm.rsmapper;
+package com.sf.ddao.crud;
 
 import com.sf.ddao.orm.RSMapper;
-import com.sf.ddao.orm.RowMapper;
+import com.sf.ddao.orm.rsmapper.SingleRowRSMapper;
 import org.apache.commons.chain.Context;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import static com.sf.ddao.crud.param.CRUDParameterService.getCRUDDaoBean;
+import static com.sf.ddao.orm.RSMapperFactoryRegistry.getRowMapper;
+
 /**
  * Created by psyrtsov
  */
-public class SingleRowRSMapper implements RSMapper {
-    private final RowMapper rowMapper;
-
-    public SingleRowRSMapper(RowMapper rowMapper) {
-        this.rowMapper = rowMapper;
-    }
+public class CRUDRSMapper implements RSMapper {
+    RSMapper beanMapper;
 
     public Object handle(Context context, ResultSet rs) throws SQLException {
-        return rs.next() ? rowMapper.map(rs) : null;
+        if (beanMapper == null) {
+            init(context);
+        }
+        return beanMapper.handle(context, rs);
+    }
+
+    private synchronized void init(Context ctx) {
+        if (beanMapper != null) {
+            return;
+        }
+        Class<?> beanClass = getCRUDDaoBean(ctx);
+        beanMapper = new SingleRowRSMapper(getRowMapper(beanClass));
     }
 }

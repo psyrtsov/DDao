@@ -29,6 +29,7 @@ import com.sf.ddao.orm.RSMapper;
 import com.sf.ddao.orm.UseRSMapper;
 import com.sf.ddao.orm.rsmapper.rowmapper.BeanRowMapper;
 import junit.framework.TestCase;
+import org.apache.commons.chain.Context;
 import org.mockejb.jndi.MockContextFactory;
 
 import java.sql.Connection;
@@ -83,10 +84,10 @@ public class ShardedDaoTest extends TestCase {
          * @return objects created from data returned by sql
          */
         @Select("select id, name from $0$ where user_id = #2# limit #1#")
-        TestUserBean[] getUserDataArray(String tableName, int size, @ShardKey int userId);
+        TestUserBean[] getUserDataArray(String tableName, int size, @ShardKey long userId);
 
         @Select("select id, name from user_data where user_id = #0#")
-        void processUserData(@ShardKey int userId, @UseRSMapper RSMapper selectCallback);
+        void processUserData(@ShardKey long userId, @UseRSMapper RSMapper selectCallback);
 
         /**
          * values that have ':' with prefix assumed to be call to predefined static function registered by ParameterService,
@@ -99,10 +100,10 @@ public class ShardedDaoTest extends TestCase {
          * @return value returned by query
          */
         @Select("select id from user_data where part = '$threadLocal:" + PART_NAME + "$' and user_id = #0#")
-        int getUserData(@ShardKey int userId);
+        int getUserData(@ShardKey long userId);
 
         @SelectThenInsert({"select nextval from userIdSequence", "insert into user(id,name) values(#threadLocal:id#, #name#)"})
-        int addUser(@ShardKey("id") TestUserBean user);
+        long addUser(@ShardKey("id") TestUserBean user);
 
     }
 
@@ -188,7 +189,7 @@ public class ShardedDaoTest extends TestCase {
 
         Collections.sort(res, new Comparator<TestUserBean>() {
             public int compare(TestUserBean testUserBean, TestUserBean testUserBean1) {
-                return testUserBean.getId() - testUserBean1.getId();
+                return (int) (testUserBean.getId() - testUserBean1.getId());
             }
         });
 
@@ -263,7 +264,7 @@ public class ShardedDaoTest extends TestCase {
         dao.processUserData(1, new RSMapper() {
             BeanRowMapper rowMapper = new BeanRowMapper(TestUserBean.class);
 
-            public Object handle(ResultSet rs) throws SQLException {
+            public Object handle(Context context, ResultSet rs) throws SQLException {
                 while (rs.next()) {
                     res.add((TestUserBean) rowMapper.map(rs));
                 }
@@ -295,7 +296,7 @@ public class ShardedDaoTest extends TestCase {
 
     }
 
-    private void getUserData(TestUserDao dao, int userId, JDBCTestModule testModule, int idx) {
+    private void getUserData(TestUserDao dao, long userId, JDBCTestModule testModule, int idx) {
         // setup test
         final int id = 11;
         final String testPart = "testPart";
@@ -317,7 +318,7 @@ public class ShardedDaoTest extends TestCase {
     }
 
     public void testTx() throws Exception {
-        final int id = 7;
+        final long id = 7;
         final String testName = "testName";
 
         // execute dao method
@@ -328,7 +329,7 @@ public class ShardedDaoTest extends TestCase {
             public void run() {
                 try {
                     createResultSet(testModule1, "nextval", new Object[]{id});
-                    final int res = dao.addUser(user);
+                    final long res = dao.addUser(user);
                     final Connection connection1 = TxHelper.getConnectionOnHold();
                     assertNotNull(connection1);
                     assertFalse(connection1.isClosed());

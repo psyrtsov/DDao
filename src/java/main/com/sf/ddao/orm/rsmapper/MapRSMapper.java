@@ -18,6 +18,7 @@ package com.sf.ddao.orm.rsmapper;
 
 import com.sf.ddao.orm.RSMapper;
 import com.sf.ddao.orm.RowMapper;
+import org.apache.commons.chain.Context;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,7 +37,7 @@ public class MapRSMapper implements RSMapper {
         this.valueMapper = valueMapper;
     }
 
-    public Object handle(ResultSet rs) throws SQLException {
+    public Object handle(Context context, ResultSet rs) throws SQLException {
         Map res = new HashMap();
         while (rs.next()) {
             Object key = keyMapper.map(rs);

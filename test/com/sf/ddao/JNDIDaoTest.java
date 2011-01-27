@@ -27,6 +27,7 @@ import com.sf.ddao.factory.param.ThreadLocalParameter;
 import com.sf.ddao.orm.RSMapper;
 import com.sf.ddao.orm.UseRSMapper;
 import com.sf.ddao.orm.rsmapper.rowmapper.BeanRowMapper;
+import org.apache.commons.chain.Context;
 import org.mockejb.jndi.MockContextFactory;
 
 import javax.naming.InitialContext;
@@ -197,7 +198,7 @@ public class JNDIDaoTest extends BasicJDBCTestCaseAdapter {
         dao.processUsers(new RSMapper() {
             BeanRowMapper rowMapper = new BeanRowMapper(TestUserBean.class);
 
-            public Object handle(ResultSet rs) throws SQLException {
+            public Object handle(Context context, ResultSet rs) throws SQLException {
                 while (rs.next()) {
                     res.add((TestUserBean) rowMapper.map(rs));
                 }

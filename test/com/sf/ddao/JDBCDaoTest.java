@@ -200,7 +200,7 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         dao.processUsers(new RSMapper() {
             BeanRowMapper rowMapper = new BeanRowMapper(TestUserBean.class);
 
-            public Object handle(ResultSet rs) throws SQLException {
+            public Object handle(Context context, ResultSet rs) throws SQLException {
                 while (rs.next()) {
                     res.add((TestUserBean) rowMapper.map(rs));
                 }
