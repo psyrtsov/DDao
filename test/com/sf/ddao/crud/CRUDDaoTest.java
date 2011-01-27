@@ -96,7 +96,7 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
         assertNotNull(res);
         assertEquals(name, res.getName());
 
-        final String sql = "select long_name,name from test_user where id=? limit 1";
+        final String sql = "select * from test_user where id=? limit 1";
         verifySQLStatementExecuted(sql);
         verifyPreparedStatementParameter(sql, 1, id);
         verifyAllResultSetsClosed();

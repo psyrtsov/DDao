@@ -48,8 +48,7 @@ public interface CRUDDao<V> {
                     " where id=#id#";
 
     public static final String CRUD_SELECT =
-            "select $" + CRUD_BEAN_PROPS + ":0$" +
-                    " from $" + CRUD_TABLE_NAME + ":$" +
+            "select * from $" + CRUD_TABLE_NAME + ":$" +
                     " where id=#0# limit 1";
 
     public static final String CRUD_DELETE =
