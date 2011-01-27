@@ -33,45 +33,47 @@ import java.util.Date;
  * Date: Apr 10, 2008
  * Time: 4:30:20 PM
  */
-public abstract class ParameterHelper implements Parameter {
+public abstract class ParameterHelper implements ParameterHandler {
     public static final Logger log = LoggerFactory.getLogger(ParameterHelper.class.getName());
     protected String name;
+    private boolean ref;
 
-    public void init(AnnotatedElement element, String name) {
-        // psdo: move dealing with type to init method to make runtime faster
+    public void init(AnnotatedElement element, String name, boolean isRef) {
         this.name = name;
+        this.ref = isRef;
     }
 
-    public String extractParam(Context context) throws ParameterException {
-        Object param = extractData(context);
+    public void appendParam(Context context, StringBuilder sb) throws ParameterException {
+        if (ref) {
+            sb.append("?");
+            return;
+        }
+        Object param = extractParam(context);
         if (param == null) {
-            throw new ParameterException("Parameter '" + this.name + "' is not defined");
+            throw new ParameterException("ParameterHandler '" + this.name + "' is not defined");
         }
         if (param instanceof StatementParamter) {
             StatementParamter statementParamter = (StatementParamter) param;
-            return statementParamter.statementParameter();
+            statementParamter.appendParam(context, sb);
+        } else {
+            sb.append(param.toString());
         }
-        return param.toString();
     }
 
-    public int bind(PreparedStatement preparedStatement, int idx, Context context) throws ParameterException {
-        Object param = extractData(context);
+    public int bindParam(PreparedStatement preparedStatement, int idx, Context context) throws ParameterException {
+        Object param = extractParam(context);
         log.debug("query parameter {}={}", name, param);
         try {
             if (param instanceof StatementParamter) {
                 StatementParamter statementParamter = (StatementParamter) param;
-                statementParamter.bind(preparedStatement, idx, context);
+                statementParamter.bindParam(preparedStatement, idx, context);
             } else {
                 bind(preparedStatement, idx, param);
             }
         } catch (Exception e) {
-            throw new ParameterException("Failed to bind parameter " + name + " to index " + idx, e);
+            throw new ParameterException("Failed to bindParam parameter " + name + " to index " + idx, e);
         }
         return 1;
-    }
-
-    public void appendBindMarker(StringBuilder buf) {
-        buf.append('?');
     }
 
     public static void bind(PreparedStatement preparedStatement, int idx, Object param) throws SQLException, ParameterException {

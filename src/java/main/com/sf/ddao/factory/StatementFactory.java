@@ -17,8 +17,8 @@
 package com.sf.ddao.factory;
 
 import com.sf.ddao.alinker.factory.InstanceOf;
-import com.sf.ddao.factory.param.Parameter;
 import com.sf.ddao.factory.param.ParameterException;
+import com.sf.ddao.factory.param.ParameterHandler;
 import org.apache.commons.chain.Context;
 
 import java.lang.reflect.AnnotatedElement;
@@ -31,10 +31,10 @@ import java.util.List;
  * Time: 8:16:33 PM
  * <p/>
  * StatementFactory interface defines ability of the object to:
- * create prepared statment and bind all necessary parameters to it.
+ * create prepared statment and bindParam all necessary parameters to it.
  * When this factory object created framework will initialize it with method setup
  * Then it will be used to create JDBC prepared statement
- * and bind to it arguments data objects if any.
+ * and bindParam to it arguments data objects if any.
  */
 @InstanceOf(DefaultStatementFactory.class)
 public interface StatementFactory {
@@ -72,5 +72,5 @@ public interface StatementFactory {
 
     String createText(Context context) throws ParameterException;
 
-    List<Parameter> getRefParametersList();
+    List<ParameterHandler> getRefParametersList();
 }

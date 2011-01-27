@@ -37,14 +37,14 @@ public class DefaultParameter extends ParameterHelper {
     private Integer num = null;
 
     @Override
-    public void init(AnnotatedElement element, String name) {
+    public void init(AnnotatedElement element, String name, boolean isRef) {
         if (NumberUtils.isNumber(name)) {
             num = NumberUtils.createInteger(name);
         }
-        super.init(element, name);
+        super.init(element, name, isRef);
     }
 
-    public Object extractData(Context context) throws ParameterException {
+    public Object extractParam(Context context) throws ParameterException {
         final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
         Object[] args = callCtx.getArgs();
         if (num != null) {

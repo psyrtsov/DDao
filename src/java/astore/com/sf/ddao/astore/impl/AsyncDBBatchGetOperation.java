@@ -26,7 +26,7 @@ import com.sf.ddao.chain.CtxHelper;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.param.DefaultParameter;
-import com.sf.ddao.factory.param.Parameter;
+import com.sf.ddao.factory.param.ParameterHandler;
 import com.sf.ddao.handler.Intializible;
 import com.sf.ddao.orm.RSMapperFactory;
 import com.sf.ddao.orm.RSMapperFactoryRegistry;
@@ -44,7 +44,7 @@ import java.util.Map;
  */
 public class AsyncDBBatchGetOperation implements Command, Intializible {
     private final ALinker aLinker;
-    private final Parameter cacheKeyParam;
+    private final ParameterHandler cacheKeyParam;
     private final StatementFactory statementFactory;
     private Method method;
     private Class<? extends DBBatchGet> dbBatchGetClass;
@@ -60,7 +60,7 @@ public class AsyncDBBatchGetOperation implements Command, Intializible {
 
     public boolean execute(Context context) throws Exception {
         final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
-        Collection keyList = (Collection) cacheKeyParam.extractData(context);
+        Collection keyList = (Collection) cacheKeyParam.extractParam(context);
         final AsyncDB asyncDB = AsyncStoreHandler.getAsyncDB(context);
         DBBatchGet dbBatchGet = aLinker.create(dbBatchGetClass);
         dbBatchGet.init(this, context);
@@ -82,14 +82,14 @@ public class AsyncDBBatchGetOperation implements Command, Intializible {
         }
         try {
             mapRSMapperFactory = RSMapperFactoryRegistry.create(method);
-            cacheKeyParam.init(element, cacheKey);
+            cacheKeyParam.init(element, cacheKey, true);
             statementFactory.init(element, sql);
         } catch (Exception e) {
             throw new InitializerException("Failed to initialize sql operation for " + element, e);
         }
     }
 
-    public Parameter getCacheKeyParam() {
+    public ParameterHandler getCacheKeyParam() {
         return cacheKeyParam;
     }
 

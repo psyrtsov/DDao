@@ -34,9 +34,9 @@ public class JoinListParameterService implements ParameterService {
         parameterFactory.register(FUNC_NAME, this);
     }
 
-    public Parameter create(AnnotatedElement element, String funcName, String param) {
+    public ParameterHandler create(AnnotatedElement element, String funcName, String param, boolean isRef) {
         final JoinListParameter res = aLinker.create(JoinListParameter.class);
-        res.init(element, param);
+        res.init(element, param, isRef);
         return res;
     }
 }

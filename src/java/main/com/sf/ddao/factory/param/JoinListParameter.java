@@ -26,8 +26,8 @@ import java.util.List;
  * Time: 3:36:12 PM
  */
 public class JoinListParameter extends DefaultParameter {
-    public Object extractData(Context context) throws ParameterException {
-        final List list = (List) super.extractData(context);
+    public Object extractParam(Context context) throws ParameterException {
+        final List list = (List) super.extractParam(context);
         return join(list);
     }
 

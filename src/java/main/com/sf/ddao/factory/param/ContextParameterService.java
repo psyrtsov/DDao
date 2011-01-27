@@ -34,9 +34,9 @@ public class ContextParameterService implements ParameterService {
         parameterFactory.register(FUNC_NAME, this);
     }
 
-    public Parameter create(AnnotatedElement element, String funcName, String paramName) {
+    public ParameterHandler create(AnnotatedElement element, String funcName, String paramName, boolean isRef) {
         final ContextParameter res = aLinker.create(ContextParameter.class);
-        res.init(element, paramName);
+        res.init(element, paramName, isRef);
         return res;
     }
 }

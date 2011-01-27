@@ -23,7 +23,7 @@ import org.apache.commons.chain.Context;
  * Time: 3:36:12 PM
  */
 public class ContextParameter extends ParameterHelper {
-    public Object extractData(Context context) throws ParameterException {
+    public Object extractParam(Context context) throws ParameterException {
         return context.get(name);
     }
 }

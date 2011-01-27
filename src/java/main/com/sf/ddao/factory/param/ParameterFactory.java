@@ -49,7 +49,7 @@ public class ParameterFactory {
         }
     }
 
-    public Parameter createStatementParameter(AnnotatedElement element, String name) throws ParameterException {
+    public ParameterHandler createStatementParameter(AnnotatedElement element, String name, boolean isRef) throws ParameterException {
         try {
             final int colonIdx = name.indexOf(':');
             if (colonIdx > 0) {
@@ -59,10 +59,10 @@ public class ParameterFactory {
                 if (parameterService == null) {
                     throw new Exception("Factory is not defined for '" + factoryName + "':" + paramTypeMap);
                 }
-                return parameterService.create(element, factoryName, paramName);
+                return parameterService.create(element, factoryName, paramName, isRef);
             }
-            Parameter param = aLinker.create(DefaultParameter.class);
-            param.init(element, name);
+            ParameterHandler param = aLinker.create(DefaultParameter.class);
+            param.init(element, name, isRef);
             return param;
         } catch (Exception e) {
             throw new ParameterException("Failed to create parameter '" + name + "'", e);

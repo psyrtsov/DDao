@@ -35,9 +35,9 @@ public class ThreadLocalParameterService implements ParameterService {
         parameterFactory.register(FUNC_NAME, this);
     }
 
-    public Parameter create(AnnotatedElement element, String funcName, String paramName) {
+    public ParameterHandler create(AnnotatedElement element, String funcName, String paramName, boolean isRef) {
         ThreadLocalParameter res = aLinker.create(ThreadLocalParameter.class);
-        res.init(element, paramName);
+        res.init(element, paramName, isRef);
         return res;
 
     }

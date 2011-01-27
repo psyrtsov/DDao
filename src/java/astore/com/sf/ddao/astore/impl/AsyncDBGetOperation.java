@@ -24,7 +24,7 @@ import com.sf.ddao.chain.CtxHelper;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.param.DefaultParameter;
-import com.sf.ddao.factory.param.Parameter;
+import com.sf.ddao.factory.param.ParameterHandler;
 import com.sf.ddao.handler.Intializible;
 import com.sf.ddao.ops.SelectSqlOperation;
 import org.apache.commons.chain.Command;
@@ -39,7 +39,7 @@ import java.util.concurrent.Callable;
  */
 public class AsyncDBGetOperation implements Command, Intializible {
     private final SelectSqlOperation selectSqlOperation;
-    private final Parameter cacheKeyParam;
+    private final ParameterHandler cacheKeyParam;
 
     @Link
     public AsyncDBGetOperation(StatementFactory statementFactory, DefaultParameter cacheKeyParam) {
@@ -49,7 +49,7 @@ public class AsyncDBGetOperation implements Command, Intializible {
 
     public boolean execute(Context context) throws Exception {
         final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
-        Object key = cacheKeyParam.extractData(context);
+        Object key = cacheKeyParam.extractParam(context);
         final AsyncDB asyncDB = AsyncStoreHandler.getAsyncDB(context);
         Callable dbGet = new DBGetCallable(context);
         @SuppressWarnings({"unchecked"})
@@ -62,7 +62,7 @@ public class AsyncDBGetOperation implements Command, Intializible {
         AsyncDBGet asyncDBGet = (AsyncDBGet) annotation;
         final String sql = asyncDBGet.sql();
         final String cacheKey = asyncDBGet.cacheKey();
-        cacheKeyParam.init(element, cacheKey);
+        cacheKeyParam.init(element, cacheKey, true);
         selectSqlOperation.init(element, sql);
     }
 

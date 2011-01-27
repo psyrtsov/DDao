@@ -23,8 +23,8 @@ import com.sf.ddao.astore.AsyncDBPut;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
 import com.sf.ddao.factory.param.DefaultParameter;
-import com.sf.ddao.factory.param.Parameter;
 import com.sf.ddao.factory.param.ParameterException;
+import com.sf.ddao.factory.param.ParameterHandler;
 import com.sf.ddao.handler.Intializible;
 import org.apache.commons.chain.Command;
 import org.apache.commons.chain.Context;
@@ -39,8 +39,8 @@ import java.util.List;
  */
 public class AsyncDBPutOperation implements Command, Intializible {
     private final StatementFactory statementFactory;
-    private final Parameter cacheKeyParam;
-    private final Parameter cacheValueParam;
+    private final ParameterHandler cacheKeyParam;
+    private final ParameterHandler cacheValueParam;
 
     @Link
     public AsyncDBPutOperation(StatementFactory statementFactory, DefaultParameter cacheKeyParam, DefaultParameter cacheValueParam) {
@@ -53,8 +53,8 @@ public class AsyncDBPutOperation implements Command, Intializible {
         final String sql = statementFactory.createText(context);
         final List<Object> paramData = extractParamData(context);
         Command dbPut = new DBPutCommand(sql, paramData);
-        Object key = cacheKeyParam.extractData(context);
-        Object value = cacheValueParam.extractData(context);
+        Object key = cacheKeyParam.extractParam(context);
+        Object value = cacheValueParam.extractParam(context);
         final AsyncDB asyncDB = AsyncStoreHandler.getAsyncDB(context);
         //noinspection unchecked
         asyncDB.put(key, value, dbPut);
@@ -62,10 +62,10 @@ public class AsyncDBPutOperation implements Command, Intializible {
     }
 
     private List<Object> extractParamData(Context context) throws ParameterException {
-        final List<Parameter> refParametersList = statementFactory.getRefParametersList();
+        final List<ParameterHandler> refParametersList = statementFactory.getRefParametersList();
         final List<Object> paramData = new ArrayList<Object>(refParametersList.size());
-        for (Parameter parameter : refParametersList) {
-            Object o = parameter.extractData(context);
+        for (ParameterHandler parameter : refParametersList) {
+            Object o = parameter.extractParam(context);
             paramData.add(o);
         }
         return paramData;
@@ -77,8 +77,8 @@ public class AsyncDBPutOperation implements Command, Intializible {
         final String cacheKey = asyncDBPut.cacheKey();
         final String cacheValue = asyncDBPut.cacheValue();
         try {
-            cacheKeyParam.init(element, cacheKey);
-            cacheValueParam.init(element, cacheValue);
+            cacheKeyParam.init(element, cacheKey, true);
+            cacheValueParam.init(element, cacheValue, true);
             statementFactory.init(element, sql);
         } catch (StatementFactoryException e) {
             throw new InitializerException("Failed to setup sql operation " + sql + " for method " + element, e);

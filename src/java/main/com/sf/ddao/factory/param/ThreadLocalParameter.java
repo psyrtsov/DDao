@@ -30,7 +30,7 @@ public class ThreadLocalParameter extends ParameterHelper {
     private static ThreadLocal<Map<String, Object>> data = new ThreadLocal<Map<String, Object>>();
 
     @Override
-    public Object extractData(Context context) throws ParameterException {
+    public Object extractParam(Context context) throws ParameterException {
         final Map<String, Object> dataMap = data.get();
         if (dataMap == null) {
             return null;

@@ -16,6 +16,7 @@
 
 package com.sf.ddao.factory;
 
+import com.sf.ddao.factory.param.ParameterException;
 import org.apache.commons.chain.Context;
 
 import java.sql.PreparedStatement;
@@ -24,7 +25,25 @@ import java.sql.PreparedStatement;
  *
  */
 public interface StatementParamter {
-    void bind(PreparedStatement preparedStatement, int idx, Context context) throws Exception;
+    /**
+     * this method should append string presentation of
+     * parameter that will be inlined in query text or binding mark if this is ref parameter,
+     *
+     * @return value extracted from argument list
+     * @throws com.sf.ddao.factory.param.ParameterException
+     *          - thrown when failed to extract parameter
+     */
+    void appendParam(Context context, StringBuilder sb) throws ParameterException;
 
-    String statementParameter();
+    /**
+     * bindParam parameter extracted from argument list to given prepared statement
+     *
+     * @param preparedStatement - prepared statement that has to be bound with parameter
+     * @param idx               - index of parameter that should be bound,
+     *                          should be used as second argument for PreparedStatement.setXXX
+     * @param args              - method invocation argument list
+     * @throws ParameterException - thrown when failed to bindParam parameter
+     * @returns number of bound parameters
+     */
+    int bindParam(PreparedStatement preparedStatement, int idx, Context args) throws ParameterException;
 }

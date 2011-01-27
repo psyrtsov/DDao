@@ -16,14 +16,25 @@
 
 package com.sf.ddao.factory.param;
 
+import com.sf.ddao.factory.StatementParamter;
+import org.apache.commons.chain.Context;
+
 import java.lang.reflect.AnnotatedElement;
 
 /**
- * Date: Oct 27, 2009
- * Time: 2:16:25 PM
+ * StatementParameter defines ability of object to extract value from method argument list
+ * that can be passed as parameter to prepared statement.
+ * <p/>
+ * Created by Pavel Syrtsov
+ * Date: Nov 27, 2007
+ * Time: 7:07:45 PM
  */
-public interface ParameterService {
-    void register(ParameterFactory parameterFactory);
+public interface ParameterHandler extends StatementParamter {
+    /**
+     * @param element - method object
+     * @param isRef
+     */
+    void init(AnnotatedElement element, String param, boolean isRef);
 
-    ParameterHandler create(AnnotatedElement element, String funcName, String paramName, boolean isRef);
+    Object extractParam(Context context) throws ParameterException;
 }
