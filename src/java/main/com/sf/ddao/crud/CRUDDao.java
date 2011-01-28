@@ -33,9 +33,10 @@ import static com.sf.ddao.crud.param.CRUDTableNameParameter.CRUD_TABLE_NAME;
  * Created by psyrtsov
  */
 public interface CRUDDao<V> {
+    public static final String ID_FIELD = "id";
     public static final Set<String> IGNORED_PROPS = new HashSet<String>() {{
         add("class");
-        add("id");
+        add(ID_FIELD);
     }};
     public static final String CRUD_INSERT =
             "insert into $" + CRUD_TABLE_NAME + ":$" +
