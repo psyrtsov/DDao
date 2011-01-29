@@ -22,6 +22,7 @@ import com.sf.ddao.crud.CRUDDao;
 import com.sf.ddao.factory.param.ParameterFactory;
 import com.sf.ddao.factory.param.ParameterHandler;
 import com.sf.ddao.factory.param.ParameterService;
+import com.sf.ddao.shards.ShardedCRUDDao;
 import org.apache.commons.chain.Context;
 
 import java.lang.reflect.AnnotatedElement;
@@ -63,11 +64,12 @@ public class CRUDParameterService implements ParameterService {
         Class iFace = connectionHandlerHelper.getDaoClass();
         for (Type type : iFace.getGenericInterfaces()) {
             final ParameterizedType parameterizedType = (ParameterizedType) type;
-            if (parameterizedType.getRawType().equals(CRUDDao.class)) {
+            // psdo: make it more generic
+            if (parameterizedType.getRawType().equals(CRUDDao.class) || parameterizedType.getRawType().equals(ShardedCRUDDao.class)) {
                 final Type[] typeArguments = parameterizedType.getActualTypeArguments();
                 return (Class<?>) typeArguments[0];
             }
         }
-        throw new RuntimeException(iFace + "expected to extend " + CRUDDao.class);
+        throw new RuntimeException(iFace + " expected to extend " + CRUDDao.class);
     }
 }
