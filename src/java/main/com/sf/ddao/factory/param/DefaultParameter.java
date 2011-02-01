@@ -35,11 +35,20 @@ import java.util.Map;
  */
 public class DefaultParameter extends ParameterHelper {
     private Integer num = null;
+    private String propName = null;
 
     @Override
     public void init(AnnotatedElement element, String name, boolean isRef) {
-        if (NumberUtils.isNumber(name)) {
-            num = NumberUtils.createInteger(name);
+        int dotIndex = name.indexOf(".");
+        String numStr = name;
+        if (dotIndex > 0) {
+            numStr = name.substring(0, dotIndex);
+            propName = name.substring(dotIndex + 1);
+        }
+        if (NumberUtils.isNumber(numStr)) {
+            num = NumberUtils.createInteger(numStr);
+        } else {
+            propName = name;
         }
         super.init(element, name, isRef);
     }
@@ -47,18 +56,23 @@ public class DefaultParameter extends ParameterHelper {
     public Object extractParam(Context context) throws ParameterException {
         final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
         Object[] args = callCtx.getArgs();
+        Object param;
         if (num != null) {
             if (args.length <= num) {
                 throw new ParameterException("Query refers to argument #" + num + ", while method has only " + args.length + " arguments");
             }
-            return args[num];
+            param = args[num];
+        } else {
+            param = args[0];
         }
-        Object param = args[0];
+        if (propName == null) {
+            return param;
+        }
         if (param instanceof Map) {
-            return ((Map) param).get(name);
+            return ((Map) param).get(propName);
         }
         try {
-            return PropertyUtils.getProperty(param, name);
+            return PropertyUtils.getProperty(param, propName);
         } catch (Exception e) {
             throw new ParameterException("Failed to get statement parameter " + name + " from " + param, e);
         }
