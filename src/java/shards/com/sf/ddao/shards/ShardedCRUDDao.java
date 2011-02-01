@@ -26,6 +26,8 @@ import com.sf.ddao.orm.UseRSMapper;
 import java.math.BigDecimal;
 
 import static com.sf.ddao.crud.CRUDDao.*;
+import static com.sf.ddao.crud.param.CRUDParameterService.USE_GENERICS;
+import static com.sf.ddao.crud.param.CRUDTableNameParameter.CRUD_TABLE_NAME;
 
 /**
  * Created by psyrtsov
@@ -51,10 +53,9 @@ public interface ShardedCRUDDao<V, K> {
     @Update(CRUD_UPDATE)
     int update(@ShardKey(ID_FIELD) V bean);
 
-    @Delete(CRUD_DELETE)
+    @Delete("delete from $" + CRUD_TABLE_NAME + ":" + USE_GENERICS + "$ where id=#0#")
     int delete(Number id, @ShardKey K key);
 
-    @Delete(CRUD_DELETE)
+    @Delete("delete from $" + CRUD_TABLE_NAME + ":" + USE_GENERICS + "$ where id=#0#")
     int delete(@ShardKey Number id);
-
 }

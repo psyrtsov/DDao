@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.sf.ddao.crud.param.CRUDBeanPropsParameter.CRUD_BEAN_PROPS;
+import static com.sf.ddao.crud.param.CRUDParameterService.USE_GENERICS;
 import static com.sf.ddao.crud.param.CRUDTableNameParameter.CRUD_TABLE_NAME;
 
 /**
@@ -38,34 +39,35 @@ public interface CRUDDao<V> {
         add("class");
         add(ID_FIELD);
     }};
+
     public static final String CRUD_INSERT =
-            "insert into $" + CRUD_TABLE_NAME + ":$" +
+            "insert into $" + CRUD_TABLE_NAME + ":0$" +
                     "($" + CRUD_BEAN_PROPS + ":0$)" +
                     " values(#" + CRUD_BEAN_PROPS + ":0#)";
 
-    public static final String CRUD_UPDATE =
-            "update $" + CRUD_TABLE_NAME + ":$" +
-                    " set #" + CRUD_BEAN_PROPS + ":0,{0}=?#" +
-                    " where id=#id#";
+    @InsertAndGetGeneratedKey(CRUD_INSERT)
+    BigDecimal create(V bean);
 
     public static final String CRUD_SELECT =
             "select * from $" + CRUD_TABLE_NAME + ":$" +
                     " where id=#0# limit 1";
 
-    public static final String CRUD_DELETE =
-            "delete from $" + CRUD_TABLE_NAME + ":$" +
-                    " where id=#0#";
-
-    @InsertAndGetGeneratedKey(CRUD_INSERT)
-    BigDecimal create(V bean);
-
     @UseRSMapper(CRUDRSMapper.class)
     @Select(CRUD_SELECT)
     V read(Number key);
 
+    public static final String CRUD_UPDATE =
+            "update $" + CRUD_TABLE_NAME + ":0$" +
+                    " set #" + CRUD_BEAN_PROPS + ":0,{0}=?#" +
+                    " where id=#id#";
+
     @Update(CRUD_UPDATE)
     int update(V bean);
 
-    @Delete(CRUD_DELETE)
+    public static final String CRUD_DELETE =
+            "delete from $" + CRUD_TABLE_NAME + ":0$" +
+                    " where id=#id#";
+
+    @Delete("delete from $" + CRUD_TABLE_NAME + ":" + USE_GENERICS + "$ where id=#0#")
     int delete(Number id);
 }

@@ -20,22 +20,37 @@ import com.mockrunner.jdbc.JDBCTestModule;
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.JDBCMockObjectFactory;
 import com.mockrunner.mock.jdbc.MockResultSet;
+import com.sf.ddao.Delete;
+import com.sf.ddao.InsertAndGetGeneratedKey;
 import com.sf.ddao.TestUserBean;
 import com.sf.ddao.alinker.ALinker;
 import junit.framework.TestCase;
 import org.mockejb.jndi.MockContextFactory;
+
+import java.math.BigDecimal;
+
+import static com.sf.ddao.crud.CRUDDao.CRUD_DELETE;
+import static com.sf.ddao.crud.CRUDDao.CRUD_INSERT;
 
 /**
  * Created by psyrtsov
  */
 public class ShardedCRUDDaoTest extends TestCase {
     ALinker factory;
-    private static final String PART_NAME = "testPartName";
     private JDBCTestModule testModule1;
     private JDBCTestModule testModule2;
 
     @ShardedDao(TestShardingService.class)
     public static interface TestUserDao extends ShardedCRUDDao<TestUserBean, Long> {
+    }
+
+    @ShardedDao(TestShardingService.class)
+    public static interface TestUserDao1 {
+        @InsertAndGetGeneratedKey(CRUD_INSERT)
+        BigDecimal create(@ShardKey("id") TestUserBean bean);
+
+        @Delete(CRUD_DELETE)
+        int delete(@ShardKey("id") TestUserBean bean);
     }
 
     protected void setUp() throws Exception {
@@ -72,6 +87,32 @@ public class ShardedCRUDDaoTest extends TestCase {
     public void testCreate() throws Exception {
         // create dao object
         TestUserDao dao = factory.create(TestUserDao.class, null);
+
+        final long id = 7;
+        createResultSet(testModule1, "id", new Object[]{id});
+        // setup test
+        TestUserBean data = new TestUserBean(true);
+        data.setId(id);
+        data.setName("name");
+
+        // execute dao method
+        Number res = dao.create(data);
+
+        // verify result
+//        assertNotNull(res);
+//        assertEquals(1, res);
+
+        final String sql = "insert into test_user(long_name,name) values(?,?)";
+        testModule1.verifySQLStatementExecuted(sql);
+        testModule1.verifyPreparedStatementParameter(sql, 2, data.getName());
+        testModule1.verifyAllResultSetsClosed();
+        testModule1.verifyAllStatementsClosed();
+        testModule1.verifyConnectionClosed();
+    }
+
+    public void testCreateWithSeparateMethod() throws Exception {
+        // create dao object
+        TestUserDao1 dao = factory.create(TestUserDao1.class, null);
 
         final long id = 7;
         createResultSet(testModule1, "id", new Object[]{id});
@@ -153,6 +194,31 @@ public class ShardedCRUDDaoTest extends TestCase {
 
         // execute dao method
         Number res = dao.delete(id);
+
+        // verify result
+//        assertNotNull(res);
+//        assertEquals(1, res);
+
+        final String sql = "delete from test_user where id=?";
+        testModule2.verifySQLStatementExecuted(sql);
+        testModule2.verifyPreparedStatementParameter(sql, 1, id);
+        testModule2.verifyAllResultSetsClosed();
+        testModule2.verifyAllStatementsClosed();
+        testModule2.verifyConnectionClosed();
+    }
+
+    public void testDeleteWithSeparateMethod() throws Exception {
+        // create dao object
+        TestUserDao1 dao = factory.create(TestUserDao1.class, null);
+
+        final long id = 17;
+        TestUserBean data = new TestUserBean(true);
+        data.setId(id);
+
+        createResultSet(testModule2, "id", new Object[]{id});
+
+        // execute dao method
+        Number res = dao.delete(data);
 
         // verify result
 //        assertNotNull(res);

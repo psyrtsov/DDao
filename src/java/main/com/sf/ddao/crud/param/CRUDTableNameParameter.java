@@ -21,6 +21,8 @@ import com.sf.ddao.factory.param.ParameterException;
 import com.sf.ddao.factory.param.ParameterHelper;
 import org.apache.commons.chain.Context;
 
+import java.lang.reflect.AnnotatedElement;
+
 import static com.sf.ddao.crud.param.CRUDParameterService.getCRUDDaoBean;
 
 /**
@@ -29,6 +31,15 @@ import static com.sf.ddao.crud.param.CRUDParameterService.getCRUDDaoBean;
 public class CRUDTableNameParameter extends ParameterHelper {
     public static final String CRUD_TABLE_NAME = "crudTableName";
     private String tableName = null;
+    private int argNum;
+
+    public void init(AnnotatedElement element, String param, boolean isRef) {
+        if (param.length() > 0) {
+            argNum = Integer.parseInt(param);
+        } else {
+            argNum = CRUDParameterService.USE_RETURN_TYPE;
+        }
+    }
 
     public Object extractParam(Context context) throws ParameterException {
         if (tableName == null) {
@@ -41,7 +52,7 @@ public class CRUDTableNameParameter extends ParameterHelper {
         if (tableName != null) {
             return;
         }
-        final Class<?> crudDaoBeanClass = getCRUDDaoBean(context);
+        final Class<?> crudDaoBeanClass = getCRUDDaoBean(context, argNum);
         TableName tableName = crudDaoBeanClass.getAnnotation(TableName.class);
         if (tableName != null) {
             this.tableName = tableName.value();

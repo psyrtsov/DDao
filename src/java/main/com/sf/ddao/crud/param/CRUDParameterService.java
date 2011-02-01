@@ -17,15 +17,15 @@
 package com.sf.ddao.crud.param;
 
 import com.sf.ddao.chain.CtxHelper;
-import com.sf.ddao.conn.ConnectionHandlerHelper;
+import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.crud.CRUDDao;
 import com.sf.ddao.factory.param.ParameterFactory;
 import com.sf.ddao.factory.param.ParameterHandler;
 import com.sf.ddao.factory.param.ParameterService;
-import com.sf.ddao.shards.ShardedCRUDDao;
 import org.apache.commons.chain.Context;
 
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -40,6 +40,9 @@ public class CRUDParameterService implements ParameterService {
         put(CRUDBeanPropsParameter.CRUD_BEAN_PROPS, CRUDBeanPropsParameter.class);
         put(CRUDTableNameParameter.CRUD_TABLE_NAME, CRUDTableNameParameter.class);
     }};
+    public static final int USE_GENERICS = -2;
+    public static final int USE_RETURN_TYPE = -1;
+    public static final int GENERICS_ARG_NUM = 0;
 
     public void register(ParameterFactory parameterFactory) {
         for (String name : classMap.keySet()) {
@@ -59,15 +62,26 @@ public class CRUDParameterService implements ParameterService {
         return res;
     }
 
-    public static Class<?> getCRUDDaoBean(Context ctx) {
-        ConnectionHandlerHelper connectionHandlerHelper = CtxHelper.get(ctx, ConnectionHandlerHelper.class);
-        Class iFace = connectionHandlerHelper.getDaoClass();
+    public static Class<?> getCRUDDaoBean(Context ctx, int idx) {
+        final MethodCallCtx callCtx = CtxHelper.get(ctx, MethodCallCtx.class);
+        final Method method = callCtx.getMethod();
+        if (idx != USE_GENERICS) {
+            Type beanClass;
+            if (idx == USE_RETURN_TYPE) {
+                beanClass = method.getGenericReturnType();
+            } else {
+                beanClass = method.getGenericParameterTypes()[idx];
+            }
+            if (beanClass instanceof Class) {
+                return (Class) beanClass;
+            }
+        }
+        Class<?> iFace = callCtx.getSubjClass();
         for (Type type : iFace.getGenericInterfaces()) {
             final ParameterizedType parameterizedType = (ParameterizedType) type;
-            // psdo: make it more generic
-            if (parameterizedType.getRawType().equals(CRUDDao.class) || parameterizedType.getRawType().equals(ShardedCRUDDao.class)) {
+            if (parameterizedType.getRawType().equals(method.getDeclaringClass())) {
                 final Type[] typeArguments = parameterizedType.getActualTypeArguments();
-                return (Class<?>) typeArguments[0];
+                return (Class<?>) typeArguments[GENERICS_ARG_NUM];
             }
         }
         throw new RuntimeException(iFace + " expected to extend " + CRUDDao.class);

@@ -37,10 +37,8 @@ public abstract class ConnectionHandlerHelper implements Filter {
     public static final String CONNECTION_KEY = ConnectionHandlerHelper.class.toString() + "_CONN";
 
     private final ThreadLocal<Connection> connectionOnHold = new ThreadLocal<Connection>();
-    private Class daoClass;
 
     public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
-        daoClass = (Class) element;
     }
 
     public boolean execute(Context context) throws Exception {
@@ -104,8 +102,4 @@ public abstract class ConnectionHandlerHelper implements Filter {
     }
 
     public abstract Connection createConnection(Context chainInvocationContext) throws SQLException;
-
-    public Class getDaoClass() {
-        return daoClass;
-    }
 }

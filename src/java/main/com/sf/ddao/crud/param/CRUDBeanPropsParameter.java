@@ -30,6 +30,8 @@ import java.lang.reflect.AnnotatedElement;
 import java.sql.PreparedStatement;
 import java.text.MessageFormat;
 
+import static com.sf.ddao.crud.param.CRUDParameterService.USE_RETURN_TYPE;
+
 /**
  * Date: Oct 27, 2009
  * Time: 3:36:12 PM
@@ -52,7 +54,11 @@ public class CRUDBeanPropsParameter implements ParameterHandler {
             fmt = param.substring(commaIdx + 1);
             param = param.substring(0, commaIdx);
         }
-        argNum = Integer.parseInt(param);
+        if (param.length() > 0) {
+            argNum = Integer.parseInt(param);
+        } else {
+            argNum = USE_RETURN_TYPE;
+        }
     }
 
     public String extractParam(Context context) throws ParameterException {
@@ -118,7 +124,7 @@ public class CRUDBeanPropsParameter implements ParameterHandler {
         if (descriptors != null) {
             return;
         }
-        Class<?> beanClass = CRUDParameterService.getCRUDDaoBean(ctx);
+        Class<?> beanClass = CRUDParameterService.getCRUDDaoBean(ctx, argNum);
         descriptors = PropertyUtils.getPropertyDescriptors(beanClass);
     }
 }

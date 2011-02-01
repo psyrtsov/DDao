@@ -25,12 +25,14 @@ import java.lang.reflect.Method;
 @SuppressWarnings({"unchecked"})
 public class MethodCallCtx {
     private Method method;
+    private Class<?> subjClass;
     private Object[] args;
     private Object lastReturn;
 
-    public MethodCallCtx(Object[] args, Method method) {
+    public MethodCallCtx(Object[] args, Method method, Class<?> subjClass) {
         this.args = args;
         this.method = method;
+        this.subjClass = subjClass;
     }
 
     public Object[] getArgs() {
@@ -55,5 +57,13 @@ public class MethodCallCtx {
 
     public void setMethod(Method method) {
         this.method = method;
+    }
+
+    public Class<?> getSubjClass() {
+        return subjClass;
+    }
+
+    public void setSubjClass(Class<?> subjClass) {
+        this.subjClass = subjClass;
     }
 }

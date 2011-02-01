@@ -44,12 +44,14 @@ class MethodInvocationHandler {
         add(Boolean.TYPE);
         add(Character.TYPE);
     }};
+    private final Class<?> iFace;
     private final Method method;
     private final Chain chain;
     private int contextParamIndex = -1;
     private final boolean isNullReturnDisallowed;
 
-    public MethodInvocationHandler(Method method, List<Command> commands) {
+    public MethodInvocationHandler(Class<?> iFace, Method method, List<Command> commands) {
+        this.iFace = iFace;
         isNullReturnDisallowed = notNullableTypes.contains(method.getReturnType());
         this.method = method;
         this.chain = new ChainBase(commands);
@@ -66,7 +68,7 @@ class MethodInvocationHandler {
 
     public Object invoke(Object[] args) throws Throwable {
         Context context = createContext(args);
-        final MethodCallCtx callCtx = new MethodCallCtx(args, method);
+        final MethodCallCtx callCtx = new MethodCallCtx(args, method, iFace);
         CtxHelper.put(context, MethodCallCtx.class, callCtx);
         chain.execute(context);
         if (Context.class.isAssignableFrom(method.getReturnType())) {

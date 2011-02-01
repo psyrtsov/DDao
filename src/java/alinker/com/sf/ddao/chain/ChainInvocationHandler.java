@@ -47,15 +47,15 @@ public class ChainInvocationHandler implements InvocationHandler {
         return methodHandler.invoke(args);
     }
 
-    public void init(AnnotatedElement iFace) throws InitializerException {
+    public void init(Class<?> iFace) throws InitializerException {
         List<Command> classLevelList = new ArrayList<Command>();
         addChainMemebers(iFace, classLevelList);
-        final Method[] methods = ((Class<?>) iFace).getMethods();
+        final Method[] methods = iFace.getMethods();
         for (Method method : methods) {
             List<Command> list = new ArrayList<Command>(classLevelList.size() + method.getAnnotations().length);
             list.addAll(classLevelList);
             addChainMemebers(method, list);
-            map.put(method, new MethodInvocationHandler(method, list));
+            map.put(method, new MethodInvocationHandler(iFace, method, list));
         }
     }
 

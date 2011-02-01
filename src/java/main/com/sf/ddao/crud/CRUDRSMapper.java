@@ -43,7 +43,7 @@ public class CRUDRSMapper implements RSMapper {
         if (beanMapper != null) {
             return;
         }
-        Class<?> beanClass = getCRUDDaoBean(ctx);
+        Class<?> beanClass = getCRUDDaoBean(ctx, -1);
         beanMapper = new SingleRowRSMapper(getRowMapper(beanClass));
     }
 }
