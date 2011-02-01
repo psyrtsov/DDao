@@ -103,17 +103,17 @@ public class CRUDBeanPropsParameter implements ParameterHandler {
             init(ctx);
         }
         int c = 0;
-        try {
-            final MethodCallCtx callCtx = CtxHelper.get(ctx, MethodCallCtx.class);
-            Object[] args = callCtx.getArgs();
-            final Object bean = args[argNum];
-            for (PropertyDescriptor descriptor : descriptors) {
+        final MethodCallCtx callCtx = CtxHelper.get(ctx, MethodCallCtx.class);
+        Object[] args = callCtx.getArgs();
+        final Object bean = args[argNum];
+        for (PropertyDescriptor descriptor : descriptors) {
+            try {
                 Object v = descriptor.getReadMethod().invoke(bean);
                 ParameterHelper.bind(preparedStatement, idx++, v);
                 c++;
+            } catch (Exception e) {
+                throw new ParameterException(descriptor.getName(), e);
             }
-        } catch (Exception e) {
-            throw new ParameterException(e);
         }
         return c;
     }
