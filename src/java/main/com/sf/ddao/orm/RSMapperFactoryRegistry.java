@@ -201,6 +201,18 @@ public class RSMapperFactoryRegistry {
                 };
             }
         }
+        if (Enum.class.isAssignableFrom((Class<?>) itemType)) {
+            return new RowMapper() {
+                public Object map(ResultSet rs) throws SQLException {
+                    String s = rs.getString(idx);
+                    if (s == null) {
+                        return null;
+                    }
+                    //noinspection unchecked
+                    return Enum.valueOf((Class<Enum>) itemType, s);
+                }
+            };
+        }
         return null;
     }
 }
