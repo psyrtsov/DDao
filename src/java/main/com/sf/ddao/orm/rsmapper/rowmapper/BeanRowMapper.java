@@ -46,10 +46,7 @@ public class BeanRowMapper implements RowMapper {
         public PropertyMapper(int idx, PropertyDescriptor propertyDescriptor) {
             writeMethod = propertyDescriptor.getWriteMethod();
             Class<?> propertyType = propertyDescriptor.getPropertyType();
-            columnMapper = RSMapperFactoryRegistry.getScalarMapper(propertyType, idx);
-            if (columnMapper == null) {
-                throw new IllegalArgumentException("no mapping defined for " + propertyType);
-            }
+            columnMapper = RSMapperFactoryRegistry.getScalarMapper(propertyType, idx, true);
         }
 
         public void map(ResultSet resultSet, Object result) throws Exception {

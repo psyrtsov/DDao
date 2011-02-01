@@ -82,7 +82,7 @@ public class RSMapperFactoryRegistry {
             Type[] actualTypeArguments = ((ParameterizedType) returnType).getActualTypeArguments();
             Type keyType = actualTypeArguments[0];
             Type valueType = actualTypeArguments[1];
-            RowMapper keyMapper = getScalarMapper(keyType, 1);
+            RowMapper keyMapper = getScalarMapper(keyType, 1, true);
             RowMapper valueMapper = getRowMapper(valueType);
             return new MapRSMapper(keyMapper, valueMapper);
         }
@@ -110,7 +110,7 @@ public class RSMapperFactoryRegistry {
 
     public static RowMapper getRowMapper(Type itemType) {
         // see if return type is simple so that we should map just first column 
-        RowMapper scalarMapper = getScalarMapper(itemType, 1);
+        RowMapper scalarMapper = getScalarMapper(itemType, 1, false);
         if (scalarMapper != null) {
             return scalarMapper;
         }
@@ -129,7 +129,7 @@ public class RSMapperFactoryRegistry {
         throw new DaoException("No mapping defined for type " + itemType);
     }
 
-    public static RowMapper getScalarMapper(final Type itemType, final int idx) {
+    public static RowMapper getScalarMapper(final Type itemType, final int idx, boolean req) {
         if (itemType == String.class) {
             return new RowMapper() {
                 public Object map(ResultSet rs) throws SQLException {
@@ -212,6 +212,9 @@ public class RSMapperFactoryRegistry {
                     return Enum.valueOf((Class<Enum>) itemType, s);
                 }
             };
+        }
+        if (req) {
+            throw new IllegalArgumentException("no mapping defined for " + itemType);
         }
         return null;
     }
