@@ -34,8 +34,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.sf.ddao.crud.param.CRUDParameterService.USE_RETURN_TYPE;
-
 /**
  * Date: Oct 27, 2009
  * Time: 3:36:12 PM
@@ -49,20 +47,11 @@ public class CRUDBeanPropsParameter implements ParameterHandler {
     public void init(AnnotatedElement element, String param, boolean isRef) {
         int commaIdx = param.indexOf(",");
         if (commaIdx < 0) {
-            if (isRef) {
-                fmt = "?";
-            } else {
-                fmt = "{0}";
-            }
-        } else {
-            fmt = param.substring(commaIdx + 1);
-            param = param.substring(0, commaIdx);
+            throw new IllegalArgumentException("Expected 2 arguments for parameter function CRUD_BEAN_PROPS:" + param);
         }
-        if (param.length() > 0) {
-            argNum = Integer.parseInt(param);
-        } else {
-            argNum = USE_RETURN_TYPE;
-        }
+        fmt = param.substring(commaIdx + 1);
+        param = param.substring(0, commaIdx);
+        argNum = Integer.parseInt(param);
     }
 
     public String extractParam(Context context) throws ParameterException {

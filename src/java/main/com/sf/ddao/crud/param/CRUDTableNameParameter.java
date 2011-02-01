@@ -34,10 +34,10 @@ public class CRUDTableNameParameter extends ParameterHelper {
     private int argNum;
 
     public void init(AnnotatedElement element, String param, boolean isRef) {
-        if (param.length() > 0) {
+        try {
             argNum = Integer.parseInt(param);
-        } else {
-            argNum = CRUDParameterService.USE_RETURN_TYPE;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("CRUD_TABLE_NAME requires bean object position argument: ", e);
         }
     }
 

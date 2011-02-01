@@ -28,6 +28,7 @@ import java.util.Set;
 
 import static com.sf.ddao.crud.param.CRUDBeanPropsParameter.CRUD_BEAN_PROPS;
 import static com.sf.ddao.crud.param.CRUDParameterService.USE_GENERICS;
+import static com.sf.ddao.crud.param.CRUDParameterService.USE_RETURN_TYPE;
 import static com.sf.ddao.crud.param.CRUDTableNameParameter.CRUD_TABLE_NAME;
 
 /**
@@ -42,14 +43,14 @@ public interface CRUDDao<V> {
 
     public static final String CRUD_INSERT =
             "insert into $" + CRUD_TABLE_NAME + ":0$" +
-                    "($" + CRUD_BEAN_PROPS + ":0$)" +
-                    " values(#" + CRUD_BEAN_PROPS + ":0#)";
+                    "($" + CRUD_BEAN_PROPS + ":0,{0}$)" +
+                    " values(#" + CRUD_BEAN_PROPS + ":0,?#)";
 
     @InsertAndGetGeneratedKey(CRUD_INSERT)
     BigDecimal create(V bean);
 
     public static final String CRUD_SELECT =
-            "select * from $" + CRUD_TABLE_NAME + ":$" +
+            "select * from $" + CRUD_TABLE_NAME + ":" + USE_RETURN_TYPE + "$" +
                     " where id=#0# limit 1";
 
     @UseRSMapper(CRUDRSMapper.class)
