@@ -30,7 +30,7 @@ import static com.sf.ddao.crud.param.CRUDParameterService.getCRUDDaoBean;
  */
 public class CRUDTableNameParameter extends ParameterHelper {
     public static final String CRUD_TABLE_NAME = "crudTableName";
-    private String tableName = null;
+    private volatile String tableName = null;
     private int argNum;
 
     public void init(AnnotatedElement element, String param, boolean isRef) {

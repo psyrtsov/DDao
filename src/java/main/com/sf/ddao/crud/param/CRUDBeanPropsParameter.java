@@ -19,6 +19,7 @@ package com.sf.ddao.crud.param;
 import com.sf.ddao.chain.CtxHelper;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.crud.CRUDDao;
+import com.sf.ddao.crud.CRUDIgnore;
 import com.sf.ddao.factory.param.ParameterException;
 import com.sf.ddao.factory.param.ParameterHandler;
 import com.sf.ddao.factory.param.ParameterHelper;
@@ -27,8 +28,11 @@ import org.apache.commons.chain.Context;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.sf.ddao.crud.param.CRUDParameterService.USE_RETURN_TYPE;
 
@@ -38,7 +42,7 @@ import static com.sf.ddao.crud.param.CRUDParameterService.USE_RETURN_TYPE;
  */
 public class CRUDBeanPropsParameter implements ParameterHandler {
     public static final String CRUD_BEAN_PROPS = "crudBeanProps";
-    private PropertyDescriptor[] descriptors;
+    private volatile List<PropertyDescriptor> descriptors;
     private int argNum;
     private String fmt;
 
@@ -71,9 +75,6 @@ public class CRUDBeanPropsParameter implements ParameterHandler {
         }
         int c = 0;
         for (PropertyDescriptor descriptor : descriptors) {
-            if (CRUDDao.IGNORED_PROPS.contains(descriptor.getName())) {
-                continue;
-            }
             if (c > 0) {
                 sb.append(",");
             }
@@ -107,9 +108,6 @@ public class CRUDBeanPropsParameter implements ParameterHandler {
             Object[] args = callCtx.getArgs();
             final Object bean = args[argNum];
             for (PropertyDescriptor descriptor : descriptors) {
-                if (CRUDDao.IGNORED_PROPS.contains(descriptor.getName())) {
-                    continue;
-                }
                 Object v = descriptor.getReadMethod().invoke(bean);
                 ParameterHelper.bind(preparedStatement, idx++, v);
                 c++;
@@ -125,6 +123,21 @@ public class CRUDBeanPropsParameter implements ParameterHandler {
             return;
         }
         Class<?> beanClass = CRUDParameterService.getCRUDDaoBean(ctx, argNum);
-        descriptors = PropertyUtils.getPropertyDescriptors(beanClass);
+        final PropertyDescriptor[] descriptors = PropertyUtils.getPropertyDescriptors(beanClass);
+        List<PropertyDescriptor> res = new ArrayList<PropertyDescriptor>(descriptors.length);
+        for (PropertyDescriptor descriptor : descriptors) {
+            if (CRUDDao.IGNORED_PROPS.contains(descriptor.getName())) {
+                continue;
+            }
+            final Method readMethod = descriptor.getReadMethod();
+            if (readMethod == null) {
+                continue;
+            }
+            if (readMethod.getAnnotation(CRUDIgnore.class) != null) {
+                continue;
+            }
+            res.add(descriptor);
+        }
+        this.descriptors = res;
     }
 }
