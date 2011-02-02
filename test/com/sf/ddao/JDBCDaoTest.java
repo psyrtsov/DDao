@@ -89,6 +89,9 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
 
         @SelectThenInsert({"select nextval from userIdSequence", "insert into user(id,name) values(#threadLocal:id#, #name#)"})
         int addUser(TestUserBean user);
+
+        @Insert("insert into user (id, name) values #fwd:0#")
+        int insertDynamic(DynamicQuery dq);
     }
 
     protected void setUp() throws Exception {
@@ -306,4 +309,25 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         verifyAllStatementsClosed();
         verifyConnectionClosed();
     }
+
+    public void testDynamicQuery() throws Exception {
+        // create dao object
+        TestUserDao dao = factory.create(TestUserDao.class, null);
+
+        DynamicQuery dq = new DynamicQuery();
+        dq.add("(?,?)", 1, "foo");
+        dq.add("(?,?)", 2, "bar");
+        dao.insertDynamic(dq);
+
+        final String sql = "insert into user (id, name) values (?,?)(?,?)";
+        verifySQLStatementExecuted(sql);
+        verifySQLStatementParameter(sql, 0, 1, 1);
+        verifySQLStatementParameter(sql, 0, 2, "foo");
+        verifySQLStatementParameter(sql, 0, 3, 2);
+        verifySQLStatementParameter(sql, 0, 4, "bar");
+        verifyAllResultSetsClosed();
+        verifyAllStatementsClosed();
+        verifyConnectionClosed();
+    }
+
 }

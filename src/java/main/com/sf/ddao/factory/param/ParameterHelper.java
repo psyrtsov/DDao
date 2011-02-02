@@ -66,7 +66,8 @@ public abstract class ParameterHelper implements ParameterHandler {
         try {
             if (param instanceof StatementParamter) {
                 StatementParamter statementParamter = (StatementParamter) param;
-                statementParamter.bindParam(preparedStatement, idx, context);
+                int res = statementParamter.bindParam(preparedStatement, idx, context);
+                assert res == 1;
             } else {
                 bind(preparedStatement, idx, param);
             }

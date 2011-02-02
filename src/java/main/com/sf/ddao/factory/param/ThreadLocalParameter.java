@@ -28,8 +28,8 @@ import java.util.Map;
  */
 public class ThreadLocalParameter extends ParameterHelper {
     private static ThreadLocal<Map<String, Object>> data = new ThreadLocal<Map<String, Object>>();
+    public static final String FUNC_NAME = "threadLocal";
 
-    @Override
     public Object extractParam(Context context) throws ParameterException {
         final Map<String, Object> dataMap = data.get();
         if (dataMap == null) {

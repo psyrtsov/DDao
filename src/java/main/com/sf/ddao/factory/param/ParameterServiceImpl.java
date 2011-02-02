@@ -20,25 +20,40 @@ import com.sf.ddao.alinker.ALinker;
 import com.sf.ddao.alinker.inject.Link;
 
 import java.lang.reflect.AnnotatedElement;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created-By: Pavel Syrtsov
  * Date: Apr 10, 2008
  * Time: 4:14:54 PM
  */
-public class ThreadLocalParameterService implements ParameterService {
-    public static final String FUNC_NAME = "threadLocal";
+public class ParameterServiceImpl implements ParameterService {
+    public static final Map<String, Class<? extends ParameterHandler>> classMap = new HashMap<String, Class<? extends ParameterHandler>>() {{
+        put(ContextParameter.FUNC_NAME, ContextParameter.class);
+        put(JoinListParameter.FUNC_NAME, JoinListParameter.class);
+        put(ThreadLocalParameter.FUNC_NAME, ThreadLocalParameter.class);
+        put(ForwardParameter.FUNC_NAME, ForwardParameter.class);
+    }};
     @Link
     public ALinker aLinker;
 
     public void register(ParameterFactory parameterFactory) {
-        parameterFactory.register(FUNC_NAME, this);
+        for (String name : classMap.keySet()) {
+            parameterFactory.register(name, this);
+        }
     }
 
     public ParameterHandler create(AnnotatedElement element, String funcName, String paramName, boolean isRef) {
-        ThreadLocalParameter res = aLinker.create(ThreadLocalParameter.class);
+        final Class<? extends ParameterHandler> aClass = classMap.get(funcName);
+        final ParameterHandler res;
+        try {
+            res = aClass.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        aLinker.init(res);
         res.init(element, paramName, isRef);
         return res;
-
     }
 }
