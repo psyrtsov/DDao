@@ -62,7 +62,7 @@ public class JNDIDaoTest extends BasicJDBCTestCaseAdapter {
         List<TestUserBean> getUserList();
 
         /**
-         * 2nd by value (by injecting result of toString() into SQL).
+         * 1st parametter passed by  value (by injecting result of toString() into SQL), 2nd parametter passed by reference,
          *
          * @param tableName - reffered in query text by enclosing prameter number in dollar sign ('$0$'),
          *                  it means parametter passed by binding it as JDBC prepared statement parameter.

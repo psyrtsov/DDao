@@ -64,7 +64,7 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         List<TestUserBean> getUserList();
 
         /**
-         * 1st parametterpassed by reference, 2nd by value (by injecting result of toString() into SQL).
+         * 1st parametter passed by  value (by injecting result of toString() into SQL), 2nd parametter passed by reference,
          * added underscore to column name to verify that it gets stripped
          *
          * @param tableName - paramter object
