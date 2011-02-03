@@ -98,7 +98,7 @@ public class CRUDBeanPropsParameter implements ParameterHandler {
         for (PropertyDescriptor descriptor : descriptors) {
             try {
                 Object v = descriptor.getReadMethod().invoke(bean);
-                ParameterHelper.bind(preparedStatement, idx++, v);
+                ParameterHelper.bind(preparedStatement, idx++, v, descriptor.getPropertyType());
                 c++;
             } catch (Exception e) {
                 throw new ParameterException(descriptor.getName(), e);

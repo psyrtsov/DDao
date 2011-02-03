@@ -83,7 +83,10 @@ public abstract class ParameterHelper implements ParameterHandler {
             preparedStatement.setNull(idx, parameterType);
             return;
         }
-        Class<?> clazz = param.getClass();
+        bind(preparedStatement, idx, param, param.getClass());
+    }
+
+    public static void bind(PreparedStatement preparedStatement, int idx, Object param, Class<?> clazz) throws SQLException, ParameterException {
         if (clazz == Integer.class || clazz == Integer.TYPE) {
             preparedStatement.setInt(idx, (Integer) param);
         } else if (clazz == String.class) {
