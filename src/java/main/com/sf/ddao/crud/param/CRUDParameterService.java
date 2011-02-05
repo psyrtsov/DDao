@@ -19,6 +19,7 @@ package com.sf.ddao.crud.param;
 import com.sf.ddao.chain.CtxHelper;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.crud.CRUDDao;
+import com.sf.ddao.factory.param.DefaultParameter;
 import com.sf.ddao.factory.param.ParameterFactory;
 import com.sf.ddao.factory.param.ParameterHandler;
 import com.sf.ddao.factory.param.ParameterService;
@@ -41,7 +42,6 @@ public class CRUDParameterService implements ParameterService {
         put(CRUDTableNameParameter.CRUD_TABLE_NAME, CRUDTableNameParameter.class);
     }};
     public static final int USE_GENERICS = -2;
-    public static final int USE_RETURN_TYPE = -1;
     public static final int GENERICS_ARG_NUM = 0;
 
     public void register(ParameterFactory parameterFactory) {
@@ -67,7 +67,7 @@ public class CRUDParameterService implements ParameterService {
         final Method method = callCtx.getMethod();
         if (idx != USE_GENERICS) {
             Type beanClass;
-            if (idx == USE_RETURN_TYPE) {
+            if (idx == DefaultParameter.RETURN_ARG_IDX) {
                 beanClass = method.getGenericReturnType();
             } else {
                 beanClass = method.getGenericParameterTypes()[idx];

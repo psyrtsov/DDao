@@ -20,6 +20,7 @@ import com.sf.ddao.chain.CtxHelper;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.crud.CRUDDao;
 import com.sf.ddao.crud.CRUDIgnore;
+import com.sf.ddao.factory.param.DefaultParameter;
 import com.sf.ddao.factory.param.ParameterException;
 import com.sf.ddao.factory.param.ParameterHandler;
 import com.sf.ddao.factory.param.ParameterHelper;
@@ -94,7 +95,12 @@ public class CRUDBeanPropsParameter implements ParameterHandler {
         int c = 0;
         final MethodCallCtx callCtx = CtxHelper.get(ctx, MethodCallCtx.class);
         Object[] args = callCtx.getArgs();
-        final Object bean = args[argNum];
+        final Object bean;
+        if (argNum == DefaultParameter.RETURN_ARG_IDX) {
+            bean = callCtx.getLastReturn();
+        } else {
+            bean = args[argNum];
+        }
         for (PropertyDescriptor descriptor : descriptors) {
             try {
                 Object v = descriptor.getReadMethod().invoke(bean);

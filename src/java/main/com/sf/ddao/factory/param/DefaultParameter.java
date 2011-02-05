@@ -34,6 +34,7 @@ import java.util.Map;
  * Time: 8:48:16 PM
  */
 public class DefaultParameter extends ParameterHelper {
+    public static final int RETURN_ARG_IDX = -1;
     private Integer num = null;
     private String propName = null;
 
@@ -58,10 +59,14 @@ public class DefaultParameter extends ParameterHelper {
         Object[] args = callCtx.getArgs();
         Object param;
         if (num != null) {
-            if (args.length <= num) {
-                throw new ParameterException("Query refers to argument #" + num + ", while method has only " + args.length + " arguments");
+            if (num == RETURN_ARG_IDX) {
+                param = callCtx.getLastReturn();
+            } else {
+                if (args.length <= num) {
+                    throw new ParameterException("Query refers to argument #" + num + ", while method has only " + args.length + " arguments");
+                }
+                param = args[num];
             }
-            param = args[num];
         } else {
             param = args[0];
         }

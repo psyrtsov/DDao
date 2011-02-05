@@ -32,7 +32,7 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
     ALinker factory;
 
     @JDBCDao(value = "jdbc://test", driver = "com.mockrunner.mock.jdbc.MockDriver")
-    public static interface TestUserDao extends CRUDDao<TestUserBean> {
+    public static interface TestUserDao extends CRUDDao<TestUserBean>, UpdateCallbackDao<TestUserBean> {
     }
 
     protected void setUp() throws Exception {
@@ -151,6 +151,50 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
         verifyConnectionClosed();
+    }
+
+    public void testReadWithCallbackThenUpdate() throws Exception {
+        // create dao object
+        TestUserDao dao = factory.create(TestUserDao.class, null);
+
+        final long id = 77;
+        String name = "name77";
+        String longName = "longName77";
+        createResultSet("id", new Object[]{id}, "name", new Object[]{name}, "longName", new Object[]{longName});
+        // setup test
+        ResultHolderUpdateCallback<TestUserBean> updateCallback = new ResultHolderUpdateCallback<TestUserBean>();
+        dao.update(id, updateCallback);
+        TestUserBean res = updateCallback.getRes();
+
+        // verify result
+        assertNotNull(res);
+        assertEquals(name, res.getName());
+
+        final String selectSql = "select * from test_user where id=? limit 1";
+        verifySQLStatementExecuted(selectSql);
+        verifyPreparedStatementParameter(selectSql, 1, id);
+
+        final String updateSql = "update test_user set long_name=?,name=? where id=?";
+        verifySQLStatementExecuted(updateSql);
+        verifyPreparedStatementParameter(updateSql, 1, longName);
+        verifyPreparedStatementParameter(updateSql, 2, name);
+        verifyPreparedStatementParameter(updateSql, 3, id);
+
+        verifyAllResultSetsClosed();
+        verifyAllStatementsClosed();
+        verifyConnectionClosed();
+    }
+
+    private class ResultHolderUpdateCallback<T> implements UpdateCallback<T> {
+        private T res;
+
+        public void update(T bean) {
+            res = bean;
+        }
+
+        public T getRes() {
+            return res;
+        }
     }
 
 }

@@ -26,9 +26,9 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.sf.ddao.factory.param.DefaultParameter.RETURN_ARG_IDX;
 import static com.sf.ddao.crud.param.CRUDBeanPropsParameter.CRUD_BEAN_PROPS;
 import static com.sf.ddao.crud.param.CRUDParameterService.USE_GENERICS;
-import static com.sf.ddao.crud.param.CRUDParameterService.USE_RETURN_TYPE;
 import static com.sf.ddao.crud.param.CRUDTableNameParameter.CRUD_TABLE_NAME;
 
 /**
@@ -50,7 +50,7 @@ public interface CRUDDao<V> {
     BigDecimal create(V bean);
 
     public static final String CRUD_SELECT =
-            "select * from $" + CRUD_TABLE_NAME + ":" + USE_RETURN_TYPE + "$" +
+            "select * from $" + CRUD_TABLE_NAME + ":" + RETURN_ARG_IDX + "$" +
                     " where id=#0# limit 1";
 
     @UseRSMapper(CRUDRSMapper.class)
