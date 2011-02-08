@@ -23,7 +23,6 @@ import com.sf.ddao.astore.AsyncDBPut;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
 import com.sf.ddao.factory.param.DefaultParameter;
-import com.sf.ddao.factory.param.ParameterException;
 import com.sf.ddao.factory.param.ParameterHandler;
 import com.sf.ddao.handler.Intializible;
 import org.apache.commons.chain.Command;
@@ -31,6 +30,7 @@ import org.apache.commons.chain.Context;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +61,7 @@ public class AsyncDBPutOperation implements Command, Intializible {
         return CONTINUE_PROCESSING;
     }
 
-    private List<Object> extractParamData(Context context) throws ParameterException {
+    private List<Object> extractParamData(Context context) throws SQLException {
         final List<ParameterHandler> refParametersList = statementFactory.getRefParametersList();
         final List<Object> paramData = new ArrayList<Object>(refParametersList.size());
         for (ParameterHandler parameter : refParametersList) {

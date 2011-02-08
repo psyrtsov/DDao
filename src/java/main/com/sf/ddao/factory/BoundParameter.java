@@ -18,20 +18,23 @@ package com.sf.ddao.factory;
 
 import org.apache.commons.chain.Context;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- *
+ * Created by psyrtsov
  */
-public interface StatementParamter extends BoundParameter {
+public interface BoundParameter {
     /**
-     * this method should append string presentation of
-     * parameter that will be inlined in query text or binding mark if this is ref parameter,
+     * bindParam parameter extracted from argument list to given prepared statement
      *
-     * @return value extracted from argument list
+     * @param preparedStatement - prepared statement that has to be bound with parameter
+     * @param idx               - index of parameter that should be bound,
+     *                          should be used as second argument for PreparedStatement.setXXX
+     * @param context           - method invocation argument list
      * @throws com.sf.ddao.factory.param.ParameterException
-     *          - thrown when failed to extract parameter
+     *          - thrown when failed to bindParam parameter
+     * @returns number of bound parameters
      */
-    void appendParam(Context context, StringBuilder sb) throws SQLException;
-
+    int bindParam(PreparedStatement preparedStatement, int idx, Context context) throws SQLException;
 }

@@ -17,7 +17,6 @@
 package com.sf.ddao.astore.impl;
 
 import com.sf.ddao.conn.ConnectionHandlerHelper;
-import com.sf.ddao.factory.param.ParameterException;
 import com.sf.ddao.factory.param.ParameterHelper;
 import org.apache.commons.chain.Command;
 import org.apache.commons.chain.Context;
@@ -51,13 +50,13 @@ public class DBPutCommand implements Serializable, Command {
         return CONTINUE_PROCESSING;
     }
 
-    public PreparedStatement prepareStatement(Context context) throws SQLException, ParameterException {
+    public PreparedStatement prepareStatement(Context context) throws SQLException {
         final Connection connection = ConnectionHandlerHelper.getConnection(context);
         PreparedStatement preparedStatement;
         preparedStatement = connection.prepareStatement(sql);
         int i = 1;
         for (Object parameter : paramData) {
-            ParameterHelper.bind(preparedStatement, i++, parameter);
+            ParameterHelper.bind(preparedStatement, i++, parameter, context);
         }
         return preparedStatement;
     }

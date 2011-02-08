@@ -17,11 +17,11 @@
 package com.sf.ddao.crud.param;
 
 import com.sf.ddao.crud.TableName;
-import com.sf.ddao.factory.param.ParameterException;
 import com.sf.ddao.factory.param.ParameterHelper;
 import org.apache.commons.chain.Context;
 
 import java.lang.reflect.AnnotatedElement;
+import java.sql.SQLException;
 
 import static com.sf.ddao.crud.param.CRUDParameterService.getCRUDDaoBean;
 
@@ -41,7 +41,7 @@ public class CRUDTableNameParameter extends ParameterHelper {
         }
     }
 
-    public Object extractParam(Context context) throws ParameterException {
+    public Object extractParam(Context context) throws SQLException {
         if (tableName == null) {
             init(context);
         }

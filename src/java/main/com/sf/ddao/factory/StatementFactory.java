@@ -17,12 +17,12 @@
 package com.sf.ddao.factory;
 
 import com.sf.ddao.alinker.factory.InstanceOf;
-import com.sf.ddao.factory.param.ParameterException;
 import com.sf.ddao.factory.param.ParameterHandler;
 import org.apache.commons.chain.Context;
 
 import java.lang.reflect.AnnotatedElement;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -70,7 +70,7 @@ public interface StatementFactory {
      */
     PreparedStatement createStatement(Context context, int returnGeneratedKeys) throws StatementFactoryException;
 
-    String createText(Context context) throws ParameterException;
+    String createText(Context context) throws SQLException;
 
     List<ParameterHandler> getRefParametersList();
 }

@@ -74,9 +74,10 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
 //        assertNotNull(res);
 //        assertEquals(1, res);
 
-        final String sql = "insert into test_user(long_name,name) values(?,?)";
+        final String sql = "insert into test_user(gender,long_name,name) values(?,?,?)";
         verifySQLStatementExecuted(sql);
-        verifyPreparedStatementParameter(sql, 2, data.getName());
+        verifyPreparedStatementParameter(sql, 1, data.getGender().name());
+        verifyPreparedStatementParameter(sql, 3, data.getName());
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
         verifyConnectionClosed();
@@ -122,10 +123,11 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
 //        assertNotNull(res);
 //        assertEquals(1, res);
 
-        final String sql = "update test_user set long_name=?,name=? where id=?";
+        final String sql = "update test_user set gender=?,long_name=?,name=? where id=?";
         verifySQLStatementExecuted(sql);
-        verifyPreparedStatementParameter(sql, 2, data.getName());
-        verifyPreparedStatementParameter(sql, 3, data.getId());
+        verifyPreparedStatementParameter(sql, 1, data.getGender().name());
+        verifyPreparedStatementParameter(sql, 3, data.getName());
+        verifyPreparedStatementParameter(sql, 4, data.getId());
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
         verifyConnectionClosed();
@@ -174,11 +176,12 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
         verifySQLStatementExecuted(selectSql);
         verifyPreparedStatementParameter(selectSql, 1, id);
 
-        final String updateSql = "update test_user set long_name=?,name=? where id=?";
+        final String updateSql = "update test_user set gender=?,long_name=?,name=? where id=?";
         verifySQLStatementExecuted(updateSql);
-        verifyPreparedStatementParameter(updateSql, 1, longName);
-        verifyPreparedStatementParameter(updateSql, 2, name);
-        verifyPreparedStatementParameter(updateSql, 3, id);
+        verifyPreparedStatementParameter(updateSql, 1, TestUserBean.Gender.GIRL.name());
+        verifyPreparedStatementParameter(updateSql, 2, longName);
+        verifyPreparedStatementParameter(updateSql, 3, name);
+        verifyPreparedStatementParameter(updateSql, 4, id);
 
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();

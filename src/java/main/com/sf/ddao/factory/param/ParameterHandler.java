@@ -20,6 +20,7 @@ import com.sf.ddao.factory.StatementParamter;
 import org.apache.commons.chain.Context;
 
 import java.lang.reflect.AnnotatedElement;
+import java.sql.SQLException;
 
 /**
  * StatementParameter defines ability of object to extract value from method argument list
@@ -36,5 +37,13 @@ public interface ParameterHandler extends StatementParamter {
      */
     void init(AnnotatedElement element, String param, boolean isRef);
 
-    Object extractParam(Context context) throws ParameterException;
+    /**
+     * used for direct access to data object by some internal classes
+     * psdo: we might want to remove it from iface
+     *
+     * @param context
+     * @return
+     * @throws ParameterException
+     */
+    Object extractParam(Context context) throws SQLException;
 }

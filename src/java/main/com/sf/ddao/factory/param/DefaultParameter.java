@@ -23,6 +23,7 @@ import org.apache.commons.chain.Context;
 import org.apache.commons.lang.math.NumberUtils;
 
 import java.lang.reflect.AnnotatedElement;
+import java.sql.SQLException;
 import java.util.Map;
 
 /**
@@ -54,7 +55,7 @@ public class DefaultParameter extends ParameterHelper {
         super.init(element, name, isRef);
     }
 
-    public Object extractParam(Context context) throws ParameterException {
+    public Object extractParam(Context context) throws SQLException {
         final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
         Object[] args = callCtx.getArgs();
         Object param;
@@ -63,7 +64,7 @@ public class DefaultParameter extends ParameterHelper {
                 param = callCtx.getLastReturn();
             } else {
                 if (args.length <= num) {
-                    throw new ParameterException("Query refers to argument #" + num + ", while method has only " + args.length + " arguments");
+                    throw new SQLException("Query refers to argument #" + num + ", while method has only " + args.length + " arguments");
                 }
                 param = args[num];
             }
@@ -79,7 +80,7 @@ public class DefaultParameter extends ParameterHelper {
         try {
             return PropertyUtils.getProperty(param, propName);
         } catch (Exception e) {
-            throw new ParameterException("Failed to get statement parameter " + name + " from " + param, e);
+            throw new SQLException("Failed to get statement parameter " + name + " from " + param, e);
         }
     }
 

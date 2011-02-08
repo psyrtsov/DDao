@@ -102,9 +102,10 @@ public class ShardedCRUDDaoTest extends TestCase {
 //        assertNotNull(res);
 //        assertEquals(1, res);
 
-        final String sql = "insert into test_user(long_name,name) values(?,?)";
+        final String sql = "insert into test_user(gender,long_name,name) values(?,?,?)";
         testModule1.verifySQLStatementExecuted(sql);
-        testModule1.verifyPreparedStatementParameter(sql, 2, data.getName());
+        testModule1.verifyPreparedStatementParameter(sql, 1, data.getGender().name());
+        testModule1.verifyPreparedStatementParameter(sql, 3, data.getName());
         testModule1.verifyAllResultSetsClosed();
         testModule1.verifyAllStatementsClosed();
         testModule1.verifyConnectionClosed();
@@ -128,9 +129,10 @@ public class ShardedCRUDDaoTest extends TestCase {
 //        assertNotNull(res);
 //        assertEquals(1, res);
 
-        final String sql = "insert into test_user(long_name,name) values(?,?)";
+        final String sql = "insert into test_user(gender,long_name,name) values(?,?,?)";
         testModule1.verifySQLStatementExecuted(sql);
-        testModule1.verifyPreparedStatementParameter(sql, 2, data.getName());
+        testModule1.verifyPreparedStatementParameter(sql, 1, data.getGender().name());
+        testModule1.verifyPreparedStatementParameter(sql, 3, data.getName());
         testModule1.verifyAllResultSetsClosed();
         testModule1.verifyAllStatementsClosed();
         testModule1.verifyConnectionClosed();
@@ -176,10 +178,11 @@ public class ShardedCRUDDaoTest extends TestCase {
 //        assertNotNull(res);
 //        assertEquals(1, res);
 
-        final String sql = "update test_user set long_name=?,name=? where id=?";
+        final String sql = "update test_user set gender=?,long_name=?,name=? where id=?";
         testModule2.verifySQLStatementExecuted(sql);
-        testModule2.verifyPreparedStatementParameter(sql, 2, data.getName());
-        testModule2.verifyPreparedStatementParameter(sql, 3, data.getId());
+        testModule2.verifyPreparedStatementParameter(sql, 1, data.getGender().name());
+        testModule2.verifyPreparedStatementParameter(sql, 3, data.getName());
+        testModule2.verifyPreparedStatementParameter(sql, 4, data.getId());
         testModule2.verifyAllResultSetsClosed();
         testModule2.verifyAllStatementsClosed();
         testModule2.verifyConnectionClosed();

@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.AnnotatedElement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -136,7 +137,7 @@ public class DefaultStatementFactory implements StatementFactory {
         }
     }
 
-    public String createText(Context context) throws ParameterException {
+    public String createText(Context context) throws SQLException {
         Iterator<String> iterator = stmtTokens.iterator();
         String stmt = iterator.next();
         if (iterator.hasNext()) {

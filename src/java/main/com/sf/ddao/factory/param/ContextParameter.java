@@ -18,6 +18,8 @@ package com.sf.ddao.factory.param;
 
 import org.apache.commons.chain.Context;
 
+import java.sql.SQLException;
+
 /**
  * Date: Oct 27, 2009
  * Time: 3:36:12 PM
@@ -25,7 +27,7 @@ import org.apache.commons.chain.Context;
 public class ContextParameter extends ParameterHelper {
     public static final String FUNC_NAME = "ctx";
 
-    public Object extractParam(Context context) throws ParameterException {
+    public Object extractParam(Context context) throws SQLException {
         return context.get(name);
     }
 }

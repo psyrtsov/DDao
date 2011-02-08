@@ -17,7 +17,6 @@
 package com.sf.ddao;
 
 import com.sf.ddao.factory.StatementParamter;
-import com.sf.ddao.factory.param.ParameterException;
 import com.sf.ddao.factory.param.ParameterHelper;
 import org.apache.commons.chain.Context;
 
@@ -34,16 +33,16 @@ public class DynamicQuery implements StatementParamter {
     private StringBuilder sb = new StringBuilder();
     private List<Object> params = new ArrayList<Object>();
 
-    public void appendParam(Context context, StringBuilder sb) throws ParameterException {
+    public void appendParam(Context context, StringBuilder sb) throws SQLException {
         sb.append(this.sb.toString());
     }
 
-    public int bindParam(PreparedStatement preparedStatement, int idx, Context args) throws ParameterException {
+    public int bindParam(PreparedStatement preparedStatement, int idx, Context context) throws SQLException {
         for (Object param : params) {
             try {
-                ParameterHelper.bind(preparedStatement, idx++, param);
+                ParameterHelper.bind(preparedStatement, idx++, param, context);
             } catch (SQLException e) {
-                throw new ParameterException("Paramter #" + --idx + ":" + param, e);
+                throw new SQLException("Paramter #" + --idx + ":" + param, e);
             }
         }
         return params.size();

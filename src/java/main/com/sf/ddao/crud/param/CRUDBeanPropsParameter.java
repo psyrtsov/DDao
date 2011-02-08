@@ -21,7 +21,6 @@ import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.crud.CRUDDao;
 import com.sf.ddao.crud.CRUDIgnore;
 import com.sf.ddao.factory.param.DefaultParameter;
-import com.sf.ddao.factory.param.ParameterException;
 import com.sf.ddao.factory.param.ParameterHandler;
 import com.sf.ddao.factory.param.ParameterHelper;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -31,6 +30,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,11 +55,11 @@ public class CRUDBeanPropsParameter implements ParameterHandler {
         argNum = Integer.parseInt(param);
     }
 
-    public String extractParam(Context context) throws ParameterException {
+    public String extractParam(Context context) throws SQLException {
         throw new UnsupportedOperationException();
     }
 
-    public void appendParam(Context ctx, StringBuilder sb) throws ParameterException {
+    public void appendParam(Context ctx, StringBuilder sb) throws SQLException {
         if (descriptors == null) {
             init(ctx);
         }
@@ -88,12 +88,12 @@ public class CRUDBeanPropsParameter implements ParameterHandler {
         return sb.toString();
     }
 
-    public int bindParam(PreparedStatement preparedStatement, int idx, Context ctx) throws ParameterException {
+    public int bindParam(PreparedStatement preparedStatement, int idx, Context context) throws SQLException {
         if (descriptors == null) {
-            init(ctx);
+            init(context);
         }
         int c = 0;
-        final MethodCallCtx callCtx = CtxHelper.get(ctx, MethodCallCtx.class);
+        final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
         Object[] args = callCtx.getArgs();
         final Object bean;
         if (argNum == DefaultParameter.RETURN_ARG_IDX) {
@@ -104,10 +104,10 @@ public class CRUDBeanPropsParameter implements ParameterHandler {
         for (PropertyDescriptor descriptor : descriptors) {
             try {
                 Object v = descriptor.getReadMethod().invoke(bean);
-                ParameterHelper.bind(preparedStatement, idx++, v, descriptor.getPropertyType());
+                ParameterHelper.bind(preparedStatement, idx++, v, descriptor.getPropertyType(), context);
                 c++;
             } catch (Exception e) {
-                throw new ParameterException(descriptor.getName(), e);
+                throw new SQLException(descriptor.getName(), e);
             }
         }
         return c;

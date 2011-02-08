@@ -18,6 +18,7 @@ package com.sf.ddao.factory.param;
 
 import org.apache.commons.chain.Context;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,7 +29,7 @@ import java.util.List;
 public class JoinListParameter extends DefaultParameter {
     public static final String FUNC_NAME = "joinList";
 
-    public Object extractParam(Context context) throws ParameterException {
+    public Object extractParam(Context context) throws SQLException {
         final List list = (List) super.extractParam(context);
         return join(list);
     }

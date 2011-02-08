@@ -16,12 +16,14 @@
 
 package com.sf.ddao.factory.param;
 
+import com.sf.ddao.factory.BoundParameter;
 import com.sf.ddao.factory.StatementParamter;
 import org.apache.commons.chain.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.AnnotatedElement;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -43,14 +45,14 @@ public abstract class ParameterHelper implements ParameterHandler {
         this.ref = isRef;
     }
 
-    public void appendParam(Context context, StringBuilder sb) throws ParameterException {
+    public void appendParam(Context context, StringBuilder sb) throws SQLException {
         if (ref) {
             sb.append("?");
             return;
         }
         Object param = extractParam(context);
         if (param == null) {
-            throw new ParameterException("ParameterHandler '" + this.name + "' is not defined");
+            throw new SQLException("ParameterHandler '" + this.name + "' is not defined");
         }
         if (param instanceof StatementParamter) {
             StatementParamter statementParamter = (StatementParamter) param;
@@ -60,33 +62,33 @@ public abstract class ParameterHelper implements ParameterHandler {
         }
     }
 
-    public int bindParam(PreparedStatement preparedStatement, int idx, Context context) throws ParameterException {
+    public int bindParam(PreparedStatement preparedStatement, int idx, Context context) throws SQLException {
         Object param = extractParam(context);
         log.debug("query parameter {}={}", name, param);
         try {
-            if (param instanceof StatementParamter) {
-                StatementParamter statementParamter = (StatementParamter) param;
+            if (param instanceof BoundParameter) {
+                BoundParameter statementParamter = (BoundParameter) param;
                 int res = statementParamter.bindParam(preparedStatement, idx, context);
                 assert res == 1;
             } else {
-                bind(preparedStatement, idx, param);
+                bind(preparedStatement, idx, param, context);
             }
         } catch (Exception e) {
-            throw new ParameterException("Failed to bindParam parameter " + name + " to index " + idx, e);
+            throw new SQLException("Failed to bindParam parameter " + name + " to index " + idx, e);
         }
         return 1;
     }
 
-    public static void bind(PreparedStatement preparedStatement, int idx, Object param) throws SQLException, ParameterException {
+    public static void bind(PreparedStatement preparedStatement, int idx, Object param, Context context) throws SQLException {
         if (param == null) {
             final int parameterType = preparedStatement.getParameterMetaData().getParameterType(idx);
             preparedStatement.setNull(idx, parameterType);
             return;
         }
-        bind(preparedStatement, idx, param, param.getClass());
+        bind(preparedStatement, idx, param, param.getClass(), context);
     }
 
-    public static void bind(PreparedStatement preparedStatement, int idx, Object param, Class<?> clazz) throws SQLException, ParameterException {
+    public static void bind(PreparedStatement preparedStatement, int idx, Object param, Class<?> clazz, Context context) throws SQLException {
         if (clazz == Integer.class || clazz == Integer.TYPE) {
             preparedStatement.setInt(idx, (Integer) param);
         } else if (clazz == String.class) {
@@ -96,7 +98,8 @@ public abstract class ParameterHelper implements ParameterHandler {
         } else if (clazz == Boolean.class || clazz == Boolean.TYPE) {
             preparedStatement.setBoolean(idx, (Boolean) param);
         } else if (BigInteger.class.isAssignableFrom(clazz)) {
-            preparedStatement.setString(idx, param.toString());
+            BigInteger bi = (BigInteger) param;
+            preparedStatement.setBigDecimal(idx, new BigDecimal(bi));
         } else if (Date.class.isAssignableFrom(clazz)) {
             if (!java.sql.Date.class.isAssignableFrom(clazz)) {
                 param = new java.sql.Date(((Date) param).getTime());
@@ -104,8 +107,10 @@ public abstract class ParameterHelper implements ParameterHandler {
             preparedStatement.setDate(idx, (java.sql.Date) param);
         } else if (Timestamp.class.isAssignableFrom(clazz)) {
             preparedStatement.setTimestamp(idx, (Timestamp) param);
+        } else if (BoundParameter.class.isAssignableFrom(clazz)) {
+            ((BoundParameter) param).bindParam(preparedStatement, idx, context);
         } else {
-            throw new ParameterException("Unimplemented type mapping for " + clazz);
+            throw new SQLException("Unimplemented type mapping for " + clazz);
         }
     }
 

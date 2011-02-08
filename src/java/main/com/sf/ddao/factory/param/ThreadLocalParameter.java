@@ -18,6 +18,7 @@ package com.sf.ddao.factory.param;
 
 import org.apache.commons.chain.Context;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +31,7 @@ public class ThreadLocalParameter extends ParameterHelper {
     private static ThreadLocal<Map<String, Object>> data = new ThreadLocal<Map<String, Object>>();
     public static final String FUNC_NAME = "threadLocal";
 
-    public Object extractParam(Context context) throws ParameterException {
+    public Object extractParam(Context context) throws SQLException {
         final Map<String, Object> dataMap = data.get();
         if (dataMap == null) {
             return null;

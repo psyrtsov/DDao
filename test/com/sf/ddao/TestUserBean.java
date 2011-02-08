@@ -17,6 +17,11 @@
 package com.sf.ddao;
 
 import com.sf.ddao.crud.TableName;
+import com.sf.ddao.factory.BoundParameter;
+import org.apache.commons.chain.Context;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 /**
  * Created-By: Pavel Syrtsov
@@ -28,10 +33,13 @@ public class TestUserBean {
     private long id;
     private String name;
     private String longName;
+    private Gender gender = Gender.GIRL;
 
+    @SuppressWarnings({"UnusedDeclaration"})
     private TestUserBean() {
     }
 
+    @SuppressWarnings({"UnusedDeclaration"})
     public TestUserBean(boolean dummy) {
     }
 
@@ -57,5 +65,22 @@ public class TestUserBean {
 
     public void setLongName(String longName) {
         this.longName = longName;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public static enum Gender implements BoundParameter {
+        BOY, GIRL;
+
+        public int bindParam(PreparedStatement preparedStatement, int idx, Context context) throws SQLException {
+            preparedStatement.setString(idx, name());
+            return 1;
+        }
     }
 }
