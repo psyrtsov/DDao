@@ -83,7 +83,7 @@ public class RSMapperFactoryRegistry {
             Type keyType = actualTypeArguments[0];
             Type valueType = actualTypeArguments[1];
             RowMapper keyMapper = getScalarMapper(keyType, 1, true);
-            RowMapper valueMapper = getRowMapper(valueType);
+            RowMapper valueMapper = getRowMapper(valueType, 2);
             return new MapRSMapper(keyMapper, valueMapper);
         }
         return new SingleRowRSMapper(getRowMapper(returnType));
@@ -109,8 +109,12 @@ public class RSMapperFactoryRegistry {
     }
 
     public static RowMapper getRowMapper(Type itemType) {
-        // see if return type is simple so that we should map just first column 
-        RowMapper scalarMapper = getScalarMapper(itemType, 1, false);
+        return getRowMapper(itemType, 1);
+    }
+
+    public static RowMapper getRowMapper(Type itemType, int startIdx) {
+        // see if return type is simple so that we should map just startIdx column 
+        RowMapper scalarMapper = getScalarMapper(itemType, startIdx, false);
         if (scalarMapper != null) {
             return scalarMapper;
         }
