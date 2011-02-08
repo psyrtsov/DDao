@@ -27,7 +27,7 @@ import java.util.List;
  * Time: 3:36:12 PM
  */
 public class JoinListParameter extends DefaultParameter {
-    public static final String FUNC_NAME = "joinList";
+    public static final String JOIN_LIST = "joinList";
 
     public Object extractParam(Context context) throws SQLException {
         final List list = (List) super.extractParam(context);

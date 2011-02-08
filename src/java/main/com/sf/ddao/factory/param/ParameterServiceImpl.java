@@ -30,10 +30,10 @@ import java.util.Map;
  */
 public class ParameterServiceImpl implements ParameterService {
     public static final Map<String, Class<? extends ParameterHandler>> classMap = new HashMap<String, Class<? extends ParameterHandler>>() {{
-        put(ContextParameter.FUNC_NAME, ContextParameter.class);
-        put(JoinListParameter.FUNC_NAME, JoinListParameter.class);
-        put(ThreadLocalParameter.FUNC_NAME, ThreadLocalParameter.class);
-        put(ForwardParameter.FUNC_NAME, ForwardParameter.class);
+        put(ContextParameter.CTX, ContextParameter.class);
+        put(JoinListParameter.JOIN_LIST, JoinListParameter.class);
+        put(ThreadLocalParameter.THREAD_LOCAL, ThreadLocalParameter.class);
+        put(ForwardParameter.FWD, ForwardParameter.class);
     }};
     @Link
     public ALinker aLinker;

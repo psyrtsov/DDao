@@ -25,7 +25,7 @@ import java.sql.SQLException;
  * Time: 3:36:12 PM
  */
 public class ContextParameter extends ParameterHelper {
-    public static final String FUNC_NAME = "ctx";
+    public static final String CTX = "ctx";
 
     public Object extractParam(Context context) throws SQLException {
         return context.get(name);

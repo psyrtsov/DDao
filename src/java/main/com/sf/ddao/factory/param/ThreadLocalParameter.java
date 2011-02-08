@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public class ThreadLocalParameter extends ParameterHelper {
     private static ThreadLocal<Map<String, Object>> data = new ThreadLocal<Map<String, Object>>();
-    public static final String FUNC_NAME = "threadLocal";
+    public static final String THREAD_LOCAL = "threadLocal";
 
     public Object extractParam(Context context) throws SQLException {
         final Map<String, Object> dataMap = data.get();

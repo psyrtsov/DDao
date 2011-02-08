@@ -27,7 +27,7 @@ import java.sql.SQLException;
  * Time: 3:36:12 PM
  */
 public class ForwardParameter extends DefaultParameter {
-    public static final String FUNC_NAME = "fwd";
+    public static final String FWD = "fwd";
 
     @Override
     public void appendParam(Context context, StringBuilder sb) throws SQLException {
