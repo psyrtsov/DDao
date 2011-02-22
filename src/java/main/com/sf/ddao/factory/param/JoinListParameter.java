@@ -40,7 +40,11 @@ public class JoinListParameter extends DefaultParameter {
             if (sb.length() > 0) {
                 sb.append(',');
             }
-            sb.append(item);
+            if (item instanceof Number) {
+                sb.append(item);
+            } else {
+                sb.append("'").append(item).append("'");
+            }
         }
         return sb.toString();
     }
