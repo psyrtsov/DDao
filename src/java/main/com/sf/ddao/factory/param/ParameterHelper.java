@@ -81,8 +81,7 @@ public abstract class ParameterHelper implements ParameterHandler {
 
     public static void bind(PreparedStatement preparedStatement, int idx, Object param, Context context) throws SQLException {
         if (param == null) {
-            final int parameterType = preparedStatement.getParameterMetaData().getParameterType(idx);
-            preparedStatement.setNull(idx, parameterType);
+            preparedStatement.setNull(idx, java.sql.Types.NULL);
             return;
         }
         bind(preparedStatement, idx, param, param.getClass(), context);
