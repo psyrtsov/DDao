@@ -99,13 +99,13 @@ public abstract class ParameterHelper implements ParameterHandler {
         } else if (BigInteger.class.isAssignableFrom(clazz)) {
             BigInteger bi = (BigInteger) param;
             preparedStatement.setBigDecimal(idx, new BigDecimal(bi));
+        } else if (Timestamp.class.isAssignableFrom(clazz)) {
+            preparedStatement.setTimestamp(idx, (Timestamp) param);
         } else if (Date.class.isAssignableFrom(clazz)) {
             if (!java.sql.Date.class.isAssignableFrom(clazz)) {
                 param = new java.sql.Date(((Date) param).getTime());
             }
             preparedStatement.setDate(idx, (java.sql.Date) param);
-        } else if (Timestamp.class.isAssignableFrom(clazz)) {
-            preparedStatement.setTimestamp(idx, (Timestamp) param);
         } else if (BoundParameter.class.isAssignableFrom(clazz)) {
             ((BoundParameter) param).bindParam(preparedStatement, idx, context);
         } else {
