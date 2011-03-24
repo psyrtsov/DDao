@@ -101,21 +101,27 @@ public class BeanRowMapper implements RowMapper {
         PropertyMapper[] mapperList = new PropertyMapper[count];
         BeanInfo beanInfo = java.beans.Introspector.getBeanInfo(itemType);
         PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
+        StringBuilder propList = new StringBuilder();
         for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
             if (propertyDescriptor.getWriteMethod() == null) {
+                propList.append(propertyDescriptor.getName()).append(" - no writer\n");
                 continue;
             }
             String name = propertyDescriptor.getName();
             name = name.toLowerCase();
             Integer i = colNames.remove(name);
             if (i == null) {
+                propList.append(propertyDescriptor.getName()).append(" - no matching column\n");
                 continue;
+            } else {
+                propList.append(propertyDescriptor.getName()).append(" - found matching column\n");
             }
             mapperList[i - 1] = new PropertyMapper(i, propertyDescriptor);
         }
         if (colNames.size() > 0) {
             throw new SQLException("Query result columns " + colNames.keySet()
-                    + " don`t have matching properties in " + itemType);
+                    + " don`t have matching properties in " + itemType
+                    + (propList.length() > 0 ? ", list of existing writable properties:\n" + propList : ""));
         }
         this.mapperList = mapperList;
     }
