@@ -66,10 +66,13 @@ public class MultiShardSelectSqlOperation extends SelectSqlOperation {
             //noinspection unchecked
             context.put(KEY_LIST_CONTEXT_VALUE, JoinListParameter.join(keys));
             Connection oldConnection = ConnectionHandlerHelper.setConnection(context, ds.getConnection());
-            assert oldConnection == null;
-            super.execute(context);
-            resList.add(callCtx.getLastReturn());
-            ConnectionHandlerHelper.closeConnection(context);
+            try {
+                assert oldConnection == null;
+                super.execute(context);
+                resList.add(callCtx.getLastReturn());
+            } finally {
+                ConnectionHandlerHelper.closeConnection(context);
+            }
         }
 
         @SuppressWarnings({"unchecked"})
