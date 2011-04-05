@@ -89,13 +89,15 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
 
         final long id = 77;
         String name = "name77";
-        createResultSet("name", new Object[]{name});
+        String gender = TestUserBean.Gender.GIRL.name();
+        createResultSet("name", new Object[]{name}, "gender", new Object[]{gender});
         // setup test
         TestUserBean res = dao.read(id);
 
         // verify result
         assertNotNull(res);
         assertEquals(name, res.getName());
+        assertEquals(TestUserBean.Gender.GIRL, res.getGender());
 
         final String sql = "select * from test_user where id=? limit 1";
         verifySQLStatementExecuted(sql);

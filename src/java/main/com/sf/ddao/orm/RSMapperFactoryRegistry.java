@@ -118,13 +118,19 @@ public class RSMapperFactoryRegistry {
         if (scalarMapper != null) {
             return scalarMapper;
         }
+        if (itemType instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) itemType;
+            final Type rawType = parameterizedType.getRawType();
+            if (rawType instanceof Class && Map.class.isAssignableFrom((Class<?>) rawType)) {
+                return new MapRowMapper();
+            }
+        }
         if (itemType instanceof Class) {
             Class itemClass = (Class) itemType;
             if (RowMapper.class.isAssignableFrom(itemClass)) {
                 //noinspection unchecked
                 return new SelfRowMapper(itemClass);
             }
-
             if (Map.class.isAssignableFrom(itemClass)) {
                 return new MapRowMapper();
             }
@@ -204,18 +210,18 @@ public class RSMapperFactoryRegistry {
                     }
                 };
             }
-        }
-        if (Enum.class.isAssignableFrom((Class<?>) itemType)) {
-            return new RowMapper() {
-                public Object map(ResultSet rs) throws SQLException {
-                    String s = rs.getString(idx);
-                    if (s == null) {
-                        return null;
+            if (Enum.class.isAssignableFrom((Class<?>) itemType)) {
+                return new RowMapper() {
+                    public Object map(ResultSet rs) throws SQLException {
+                        String s = rs.getString(idx);
+                        if (s == null) {
+                            return null;
+                        }
+                        //noinspection unchecked
+                        return Enum.valueOf((Class<Enum>) itemType, s);
                     }
-                    //noinspection unchecked
-                    return Enum.valueOf((Class<Enum>) itemType, s);
-                }
-            };
+                };
+            }
         }
         if (req) {
             throw new IllegalArgumentException("no mapping defined for " + itemType);

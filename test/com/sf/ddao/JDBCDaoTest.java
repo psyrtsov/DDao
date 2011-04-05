@@ -34,6 +34,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.sf.ddao.chain.CtxHelper.context;
 
@@ -62,6 +63,9 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
 
         @Select("select id, name from user")
         List<TestUserBean> getUserList();
+
+        @Select("select id, name from user")
+        List<Map<String, String>> getMapList();
 
         /**
          * 1st parametter passed by  value (by injecting result of toString() into SQL), 2nd parametter passed by reference,
@@ -163,6 +167,28 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         assertEquals(res.get(0).getName(), "foo");
         assertEquals(res.get(1).getId(), 2);
         assertEquals(res.get(1).getName(), "bar");
+
+        verifySQLStatementExecuted("select id, name from user");
+        verifyAllResultSetsClosed();
+        verifyAllStatementsClosed();
+        verifyConnectionClosed();
+    }
+
+    public void testGetMapList() throws Exception {
+        // setup test
+        createResultSet("id", new Object[]{1, 2}, "name", new Object[]{"foo", "bar"});
+
+        // execute dao method
+        TestUserDao dao = factory.create(TestUserDao.class, null);
+        List<Map<String, String>> res = dao.getMapList();
+
+        // verify result
+        assertNotNull(res);
+        assertEquals(res.size(), 2);
+        assertEquals(res.get(0).get("id"), 1);
+        assertEquals(res.get(0).get("name"), "foo");
+        assertEquals(res.get(1).get("id"), 2);
+        assertEquals(res.get(1).get("name"), "bar");
 
         verifySQLStatementExecuted("select id, name from user");
         verifyAllResultSetsClosed();
