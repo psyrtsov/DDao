@@ -198,6 +198,14 @@ public class RSMapperFactoryRegistry {
         }
         if (itemType instanceof Class) {
             final Class itemClass = (Class) itemType;
+            final ColumnMapper columnMapper = ColumnMapperRegistry.lookup(itemClass);
+            if (columnMapper != null) {
+                return new RowMapper() {
+                    public Object map(ResultSet rs) throws SQLException {
+                        return columnMapper.map(rs, idx);
+                    }
+                };
+            }
             final Converter converter = ConvertUtils.lookup(itemClass);
             if (converter != null) {
                 return new RowMapper() {
