@@ -23,7 +23,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by tojoko
  */
 public class ColumnMapperRegistry {
-    private static ColumnMapperRegistry instance = new ColumnMapperRegistry();
+    private static class Holder {
+        private static ColumnMapperRegistry instance = new ColumnMapperRegistry();
+    }
 
     private final Map<Class, ColumnMapper> columnMappers;
 
@@ -32,10 +34,10 @@ public class ColumnMapperRegistry {
     }
 
     public static ColumnMapper lookup(java.lang.Class clazz) {
-        return instance.columnMappers.get(clazz);
+        return Holder.instance.columnMappers.get(clazz);
     }
 
     public static void register(java.lang.Class clazz, ColumnMapper columnMapper) {
-        instance.columnMappers.put(clazz, columnMapper);
+        Holder.instance.columnMappers.put(clazz, columnMapper);
     }
 }
