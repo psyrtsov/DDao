@@ -33,6 +33,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.URL;
 import java.sql.Blob;
 import java.sql.ResultSet;
@@ -158,6 +159,14 @@ public class RSMapperFactoryRegistry {
             return new RowMapper() {
                 public Object map(ResultSet rs) throws SQLException {
                     return rs.getURL(idx);
+                }
+            };
+        }
+        if (itemType == BigInteger.class) {
+            return new RowMapper() {
+                public Object map(ResultSet rs) throws SQLException {
+                    final BigDecimal res = rs.getBigDecimal(idx);
+                    return res == null ? null : res.toBigInteger();
                 }
             };
         }
