@@ -73,13 +73,17 @@ public class BeanRowMapper implements RowMapper {
                 init(rs);
             }
             result = constructor.newInstance();
-            for (PropertyMapper propertyMapper : mapperList) {
-                propertyMapper.map(rs, result);
-            }
         } catch (SQLException e) {
             throw e;
         } catch (Exception e) {
             throw new SQLException(e);
+        }
+        for (PropertyMapper propertyMapper : mapperList) {
+            try {
+                propertyMapper.map(rs, result);
+            } catch (Exception e) {
+                throw new SQLException("Error mapping property " + propertyMapper.writeMethod, e);
+            }
         }
         return result;
     }
