@@ -26,7 +26,9 @@ import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,6 +37,7 @@ import java.util.Map;
  * Time: 6:12:20 PM
  */
 public class BeanRowMapper implements RowMapper {
+    private volatile List<PropertyMapper> mapperList = null;
     private Constructor constructor;
     private final Class itemType;
 
@@ -42,10 +45,10 @@ public class BeanRowMapper implements RowMapper {
         private Method writeMethod;
         private RowMapper columnMapper;
 
-        public PropertyMapper(int idx, PropertyDescriptor propertyDescriptor) {
+        public PropertyMapper(String name, PropertyDescriptor propertyDescriptor) {
             writeMethod = propertyDescriptor.getWriteMethod();
             Class<?> propertyType = propertyDescriptor.getPropertyType();
-            columnMapper = RSMapperFactoryRegistry.getScalarMapper(propertyType, idx, true);
+            columnMapper = RSMapperFactoryRegistry.getScalarMapper(propertyType, name, true);
         }
 
         public void map(ResultSet resultSet, Object result) throws Exception {
@@ -66,11 +69,10 @@ public class BeanRowMapper implements RowMapper {
 
     public Object map(ResultSet rs) throws SQLException {
         Object result;
-        PropertyMapper[] mapperList;
         try {
-            // can't cache here due to to different order of columns in shards, 
-            // psdo: may be able to do at least some caching
-            mapperList = init(rs);
+            if (mapperList == null) {
+                init(rs);
+            }
             result = constructor.newInstance();
         } catch (SQLException e) {
             throw e;
@@ -87,18 +89,19 @@ public class BeanRowMapper implements RowMapper {
         return result;
     }
 
-    private PropertyMapper[] init(ResultSet resultSet) throws Exception {
+    private void init(ResultSet resultSet) throws Exception {
         ResultSetMetaData metaData = resultSet.getMetaData();
-        Map<String, Integer> colNames = new HashMap<String, Integer>();
+        Map<String, String> colNames = new HashMap<String, String>();
         int count = metaData.getColumnCount();
         for (int i = 1; i <= count; i++) {
-            String name = metaData.getColumnName(i).toLowerCase();
+            final String colName = metaData.getColumnName(i);
+            String name = colName.toLowerCase();
             name = stripUnderscore(name);
-            if (colNames.put(name, i) != null) {
+            if (colNames.put(name, colName) != null) {
                 throw new SQLException("Ambiguous column name " + name);
             }
         }
-        PropertyMapper[] mapperList = new PropertyMapper[count];
+        List<PropertyMapper> mapperList = new ArrayList<PropertyMapper>(count);
         BeanInfo beanInfo = java.beans.Introspector.getBeanInfo(itemType);
         PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
         StringBuilder propList = new StringBuilder();
@@ -109,21 +112,21 @@ public class BeanRowMapper implements RowMapper {
             }
             String name = propertyDescriptor.getName();
             name = name.toLowerCase();
-            Integer i = colNames.remove(name);
-            if (i == null) {
+            String colName = colNames.remove(name);
+            if (colName == null) {
                 propList.append(propertyDescriptor.getName()).append(" - no matching column\n");
                 continue;
             } else {
                 propList.append(propertyDescriptor.getName()).append(" - found matching column\n");
             }
-            mapperList[i - 1] = new PropertyMapper(i, propertyDescriptor);
+            mapperList.add(new PropertyMapper(colName, propertyDescriptor));
         }
         if (colNames.size() > 0) {
-            throw new SQLException("Query result columns " + colNames.keySet()
+            throw new SQLException("Query result columns " + colNames.values()
                     + " don`t have matching properties in " + itemType
                     + (propList.length() > 0 ? ", list of existing writable properties:\n" + propList : ""));
         }
-        return mapperList;
+        this.mapperList = mapperList;
     }
 
     private static String stripUnderscore(String name) {

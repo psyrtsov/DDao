@@ -245,4 +245,112 @@ public class RSMapperFactoryRegistry {
         }
         return null;
     }
+
+    //psdo: merge this with index based scalar mapper
+
+    public static RowMapper getScalarMapper(final Type itemType, final String name, boolean req) {
+        if (itemType == String.class) {
+            return new RowMapper() {
+                public Object map(ResultSet rs) throws SQLException {
+                    return rs.getString(name);
+                }
+            };
+        }
+        if (itemType == Integer.class || itemType == Integer.TYPE) {
+            return new RowMapper() {
+                public Object map(ResultSet rs) throws SQLException {
+                    return rs.getInt(name);
+                }
+            };
+        }
+        if (itemType == URL.class) {
+            return new RowMapper() {
+                public Object map(ResultSet rs) throws SQLException {
+                    return rs.getURL(name);
+                }
+            };
+        }
+        if (itemType == BigInteger.class) {
+            return new RowMapper() {
+                public Object map(ResultSet rs) throws SQLException {
+                    final BigDecimal res = rs.getBigDecimal(name);
+                    return res == null ? null : res.toBigInteger();
+                }
+            };
+        }
+        if (itemType == BigDecimal.class) {
+            return new RowMapper() {
+                public Object map(ResultSet rs) throws SQLException {
+                    return rs.getBigDecimal(name);
+                }
+            };
+        }
+        if (itemType == InputStream.class) {
+            return new RowMapper() {
+                public Object map(ResultSet rs) throws SQLException {
+                    return rs.getBinaryStream(name);
+                }
+            };
+        }
+        if (itemType == Boolean.class || itemType == Boolean.TYPE) {
+            return new RowMapper() {
+                public Object map(ResultSet rs) throws SQLException {
+                    return rs.getBoolean(name);
+                }
+            };
+        }
+        if (itemType == Blob.class) {
+            return new RowMapper() {
+                public Object map(ResultSet rs) throws SQLException {
+                    return rs.getBlob(name);
+                }
+            };
+        }
+        if (itemType == java.sql.Date.class || itemType == java.util.Date.class) {
+            return new RowMapper() {
+                public Object map(ResultSet rs) throws SQLException {
+                    return rs.getTimestamp(name);
+                }
+            };
+        }
+        if (itemType instanceof Class) {
+            final Class itemClass = (Class) itemType;
+            final ColumnMapper columnMapper = ColumnMapperRegistry.lookup(itemClass);
+            if (columnMapper != null) {
+                return new RowMapper() {
+                    public Object map(ResultSet rs) throws SQLException {
+                        return columnMapper.map(rs, name);
+                    }
+                };
+            }
+            final Converter converter = ConvertUtils.lookup(itemClass);
+            if (converter != null) {
+                return new RowMapper() {
+                    public Object map(ResultSet rs) throws SQLException {
+                        String s = rs.getString(name);
+                        if (s == null) {
+                            return null;
+                        }
+                        return converter.convert(itemClass, s);
+                    }
+                };
+            }
+            if (Enum.class.isAssignableFrom((Class<?>) itemType)) {
+                return new RowMapper() {
+                    public Object map(ResultSet rs) throws SQLException {
+                        String s = rs.getString(name);
+                        if (s == null) {
+                            return null;
+                        }
+                        //noinspection unchecked
+                        return Enum.valueOf((Class<Enum>) itemType, s);
+                    }
+                };
+            }
+        }
+        if (req) {
+            throw new IllegalArgumentException("no mapping defined for " + itemType);
+        }
+        return null;
+    }
 }

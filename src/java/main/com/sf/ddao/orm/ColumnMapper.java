@@ -24,4 +24,6 @@ import java.sql.SQLException;
  */
 public interface ColumnMapper {
     Object map(ResultSet rs, int idx) throws SQLException;
+
+    Object map(ResultSet rs, String name) throws SQLException;
 }
