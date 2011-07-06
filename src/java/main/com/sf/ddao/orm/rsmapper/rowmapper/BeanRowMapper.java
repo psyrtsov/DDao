@@ -35,7 +35,6 @@ import java.util.Map;
  * Time: 6:12:20 PM
  */
 public class BeanRowMapper implements RowMapper {
-    private volatile PropertyMapper[] mapperList = null;
     private Constructor constructor;
     private final Class itemType;
 
@@ -67,11 +66,11 @@ public class BeanRowMapper implements RowMapper {
 
     public Object map(ResultSet rs) throws SQLException {
         Object result;
+        PropertyMapper[] mapperList;
         try {
-
-            if (mapperList == null) {
-                init(rs);
-            }
+            // can't cache here due to to different order of columns in shards, 
+            // psdo: may be able to do at least some caching
+            mapperList = init(rs);
             result = constructor.newInstance();
         } catch (SQLException e) {
             throw e;
@@ -88,10 +87,7 @@ public class BeanRowMapper implements RowMapper {
         return result;
     }
 
-    private synchronized void init(ResultSet resultSet) throws Exception {
-        if (this.mapperList != null) {
-            return;
-        }
+    private PropertyMapper[] init(ResultSet resultSet) throws Exception {
         ResultSetMetaData metaData = resultSet.getMetaData();
         Map<String, Integer> colNames = new HashMap<String, Integer>();
         int count = metaData.getColumnCount();
@@ -127,7 +123,7 @@ public class BeanRowMapper implements RowMapper {
                     + " don`t have matching properties in " + itemType
                     + (propList.length() > 0 ? ", list of existing writable properties:\n" + propList : ""));
         }
-        this.mapperList = mapperList;
+        return mapperList;
     }
 
     private static String stripUnderscore(String name) {
