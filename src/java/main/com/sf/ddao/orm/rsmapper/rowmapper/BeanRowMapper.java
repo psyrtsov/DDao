@@ -65,6 +65,9 @@ public class BeanRowMapper implements RowMapper {
                 constructor = c;
             }
         }
+        if (constructor == null) {
+            throw new RuntimeException("Type " + itemType + " has to have parameterless constructor");
+        }
     }
 
     public Object map(ResultSet rs) throws SQLException {
