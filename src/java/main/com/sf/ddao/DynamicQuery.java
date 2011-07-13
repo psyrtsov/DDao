@@ -53,4 +53,20 @@ public class DynamicQuery implements StatementParamter {
         this.params.addAll(Arrays.asList(params));
         return this;
     }
+
+    public StringBuilder getSql() {
+        return sb;
+    }
+
+    public List<Object> getParams() {
+        return params;
+    }
+
+    @Override
+    public String toString() {
+        return "DynamicQuery{" +
+                "sql='" + sb +
+                ", params='" + params +
+                "'}";
+    }
 }
