@@ -25,6 +25,8 @@ import com.sf.ddao.TestUserBean;
 import com.sf.ddao.alinker.ALinker;
 import org.mockejb.jndi.MockContextFactory;
 
+import java.util.HashSet;
+
 /**
  * Created by psyrtsov
  */
@@ -115,6 +117,10 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
         TestUserBean data = new TestUserBean(true);
         data.setId(77);
         data.setName("name");
+        data.dirtyProps(new HashSet<String>() {{
+            add("gender");
+            add("name");
+        }});
 
         createResultSet("id", new Object[]{data.getId()});
 
@@ -125,11 +131,11 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
 //        assertNotNull(res);
 //        assertEquals(1, res);
 
-        final String sql = "update test_user set gender=?,long_name=?,name=? where id=?";
+        final String sql = "update test_user set gender=?,name=? where id=?";
         verifySQLStatementExecuted(sql);
         verifyPreparedStatementParameter(sql, 1, data.getGender().name());
-        verifyPreparedStatementParameter(sql, 3, data.getName());
-        verifyPreparedStatementParameter(sql, 4, data.getId());
+        verifyPreparedStatementParameter(sql, 2, data.getName());
+        verifyPreparedStatementParameter(sql, 3, data.getId());
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
         verifyConnectionClosed();

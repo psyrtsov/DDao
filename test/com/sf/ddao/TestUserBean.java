@@ -16,12 +16,14 @@
 
 package com.sf.ddao;
 
+import com.sf.ddao.crud.DirtyPropertyAware;
 import com.sf.ddao.crud.TableName;
 import com.sf.ddao.factory.BoundParameter;
 import org.apache.commons.chain.Context;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Set;
 
 /**
  * Created-By: Pavel Syrtsov
@@ -29,11 +31,12 @@ import java.sql.SQLException;
  * Time: 10:24:20 PM
  */
 @TableName("test_user")
-public class TestUserBean {
+public class TestUserBean implements DirtyPropertyAware {
     private long id;
     private String name;
     private String longName;
     private Gender gender = Gender.GIRL;
+    private Set<String> dirtyProps;
 
     @SuppressWarnings({"UnusedDeclaration"})
     private TestUserBean() {
@@ -73,6 +76,14 @@ public class TestUserBean {
 
     public void setGender(Gender gender) {
         this.gender = gender;
+    }
+
+    public boolean isDirty(String propertyName) {
+        return dirtyProps == null || dirtyProps.contains(propertyName);
+    }
+
+    public void dirtyProps(Set<String> dirtyProps) {
+        this.dirtyProps = dirtyProps;
     }
 
     public static enum Gender implements BoundParameter {

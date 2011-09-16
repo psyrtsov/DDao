@@ -20,6 +20,7 @@ import com.sf.ddao.chain.CtxHelper;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.crud.CRUDDao;
 import com.sf.ddao.crud.CRUDIgnore;
+import com.sf.ddao.crud.DirtyPropertyAware;
 import com.sf.ddao.factory.param.DefaultParameter;
 import com.sf.ddao.factory.param.ParameterHandler;
 import com.sf.ddao.factory.param.ParameterHelper;
@@ -64,7 +65,15 @@ public class CRUDBeanPropsParameter implements ParameterHandler {
             init(ctx);
         }
         int c = 0;
+        final Object bean = getBean(ctx);
+        DirtyPropertyAware dirtyPropertyAware = null;
+        if (bean instanceof DirtyPropertyAware) {
+            dirtyPropertyAware = (DirtyPropertyAware) bean;
+        }
         for (PropertyDescriptor descriptor : descriptors) {
+            if (dirtyPropertyAware != null && !dirtyPropertyAware.isDirty(descriptor.getName())) {
+                continue;
+            }
             if (c > 0) {
                 sb.append(",");
             }
@@ -88,11 +97,32 @@ public class CRUDBeanPropsParameter implements ParameterHandler {
         return sb.toString();
     }
 
-    public int bindParam(PreparedStatement preparedStatement, int idx, Context context) throws SQLException {
+    public int bindParam(PreparedStatement preparedStatement, int idx, Context ctx) throws SQLException {
         if (descriptors == null) {
-            init(context);
+            init(ctx);
         }
         int c = 0;
+        final Object bean = getBean(ctx);
+        DirtyPropertyAware dirtyPropertyAware = null;
+        if (bean instanceof DirtyPropertyAware) {
+            dirtyPropertyAware = (DirtyPropertyAware) bean;
+        }
+        for (PropertyDescriptor descriptor : descriptors) {
+            try {
+                if (dirtyPropertyAware != null && !dirtyPropertyAware.isDirty(descriptor.getName())) {
+                    continue;
+                }
+                Object v = descriptor.getReadMethod().invoke(bean);
+                ParameterHelper.bind(preparedStatement, idx++, v, descriptor.getPropertyType(), ctx);
+                c++;
+            } catch (Exception e) {
+                throw new SQLException(descriptor.getName(), e);
+            }
+        }
+        return c;
+    }
+
+    private Object getBean(Context context) {
         final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
         Object[] args = callCtx.getArgs();
         final Object bean;
@@ -101,16 +131,7 @@ public class CRUDBeanPropsParameter implements ParameterHandler {
         } else {
             bean = args[argNum];
         }
-        for (PropertyDescriptor descriptor : descriptors) {
-            try {
-                Object v = descriptor.getReadMethod().invoke(bean);
-                ParameterHelper.bind(preparedStatement, idx++, v, descriptor.getPropertyType(), context);
-                c++;
-            } catch (Exception e) {
-                throw new SQLException(descriptor.getName(), e);
-            }
-        }
-        return c;
+        return bean;
     }
 
     private synchronized void init(Context ctx) {
