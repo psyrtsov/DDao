@@ -82,6 +82,10 @@ public class TestUserBean implements DirtyPropertyAware {
         return dirtyProps == null || dirtyProps.contains(propertyName);
     }
 
+    public void cleanDirtyFlags() {
+        dirtyProps = null;
+    }
+
     public void dirtyProps(Set<String> dirtyProps) {
         this.dirtyProps = dirtyProps;
     }

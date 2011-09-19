@@ -21,4 +21,6 @@ package com.sf.ddao.crud;
  */
 public interface DirtyPropertyAware {
     boolean isDirty(String propertyName);
+
+    void cleanDirtyFlags();
 }

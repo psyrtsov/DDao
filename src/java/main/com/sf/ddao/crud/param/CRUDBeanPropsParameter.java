@@ -119,6 +119,9 @@ public class CRUDBeanPropsParameter implements ParameterHandler {
                 throw new SQLException(descriptor.getName(), e);
             }
         }
+        if (dirtyPropertyAware != null) {
+            dirtyPropertyAware.cleanDirtyFlags();
+        }
         return c;
     }
 
