@@ -141,6 +141,33 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
         verifyConnectionClosed();
     }
 
+    public void testUpdateIfDirty() throws Exception {
+        // create dao object
+        TestUserDao dao = factory.create(TestUserDao.class, null);
+
+        // setup test
+        TestUserBean data = new TestUserBean(true);
+        data.setId(77);
+        data.setName("name");
+        data.dirtyProps(new HashSet<String>() {{
+            add("gender");
+            add("name");
+        }});
+
+        createResultSet("id", new Object[]{data.getId()});
+
+        // execute dao method
+        Number res = dao.updateIfDirty(data);
+
+        // verify result
+//        assertNotNull(res);
+//        assertEquals(1, res);
+        assert res.equals(0);
+        verifyNumberPreparedStatements(0);
+        verifyAllResultSetsClosed();
+        verifyAllStatementsClosed();
+    }
+
     public void testDelete() throws Exception {
         // create dao object
         TestUserDao dao = factory.create(TestUserDao.class, null);

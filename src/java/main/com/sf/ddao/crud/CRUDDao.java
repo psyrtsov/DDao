@@ -26,10 +26,10 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.sf.ddao.factory.param.DefaultParameter.RETURN_ARG_IDX;
 import static com.sf.ddao.crud.param.CRUDBeanPropsParameter.CRUD_BEAN_PROPS;
 import static com.sf.ddao.crud.param.CRUDParameterService.USE_GENERICS;
 import static com.sf.ddao.crud.param.CRUDTableNameParameter.CRUD_TABLE_NAME;
+import static com.sf.ddao.factory.param.DefaultParameter.RETURN_ARG_IDX;
 
 /**
  * Created by psyrtsov
@@ -64,6 +64,10 @@ public interface CRUDDao<V> {
 
     @Update(CRUD_UPDATE)
     int update(V bean);
+
+    @CheckIfBeanIsDirty
+    @Update(CRUD_UPDATE)
+    int updateIfDirty(V bean);
 
     public static final String CRUD_DELETE =
             "delete from $" + CRUD_TABLE_NAME + ":0$" +

@@ -17,7 +17,7 @@
 package com.sf.ddao.crud;
 
 import com.sf.ddao.chain.CommandAnnotation;
-import com.sf.ddao.crud.ops.SelectWithCallbackThenUpdateSqlOperation;
+import com.sf.ddao.crud.ops.CheckIfDirtyOperation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -25,24 +25,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation SelectWithCallbackThenUpdate allows to attach select statement
- * followed by update statement to ddao method.
- * <p/>
- * The bean returned by select is passed in to the method parameter implementing
- * <code>UpdateCallback</code>. After calling the callback, the bean is passed to
- * update statement.
- * <p/>
- * User: Tomi Joki-Korpela
- * Date: Feb 4, 2011
- * Time: 9:12:57 PM
- * <p/>
- *
- * @See UpdateCallbackDao
- * @See UpdateCallback
+ * Created by psyrtsov
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@CommandAnnotation(SelectWithCallbackThenUpdateSqlOperation.class)
-public @interface SelectWithCallbackThenUpdate {
-    public abstract String[] value();
+@CommandAnnotation(CheckIfDirtyOperation.class)
+public @interface CheckIfBeanIsDirty {
 }
