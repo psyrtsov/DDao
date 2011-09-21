@@ -98,6 +98,7 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
 
         // verify result
         assertNotNull(res);
+        assertEquals(true, res.beanIsLoaded);
         assertEquals(name, res.getName());
         assertEquals(TestUserBean.Gender.GIRL, res.getGender());
 

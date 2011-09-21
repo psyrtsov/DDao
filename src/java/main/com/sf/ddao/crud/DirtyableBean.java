@@ -17,7 +17,6 @@
 package com.sf.ddao.crud;
 
 /**
- * Created by psyrtsov
  * should be implemented by bean that can have "dirty" state , that is state when it has changes
  * that have to be saved to DB
  */

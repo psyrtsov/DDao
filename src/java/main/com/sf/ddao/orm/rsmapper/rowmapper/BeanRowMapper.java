@@ -16,6 +16,7 @@
 
 package com.sf.ddao.orm.rsmapper.rowmapper;
 
+import com.sf.ddao.LoadAwareBean;
 import com.sf.ddao.orm.RSMapperFactoryRegistry;
 import com.sf.ddao.orm.RowMapper;
 
@@ -88,6 +89,10 @@ public class BeanRowMapper implements RowMapper {
             } catch (Exception e) {
                 throw new SQLException("Error mapping property " + propertyMapper.writeMethod, e);
             }
+        }
+        if (result instanceof LoadAwareBean) {
+            LoadAwareBean loadAwareBean = (LoadAwareBean) result;
+            loadAwareBean.beanIsLoaded();
         }
         return result;
     }

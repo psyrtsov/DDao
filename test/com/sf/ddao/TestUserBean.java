@@ -17,7 +17,6 @@
 package com.sf.ddao;
 
 import com.sf.ddao.crud.DirtyPropertyAware;
-import com.sf.ddao.crud.DirtyableBean;
 import com.sf.ddao.crud.TableName;
 import com.sf.ddao.factory.BoundParameter;
 import org.apache.commons.chain.Context;
@@ -32,12 +31,13 @@ import java.util.Set;
  * Time: 10:24:20 PM
  */
 @TableName("test_user")
-public class TestUserBean implements DirtyPropertyAware, DirtyableBean {
+public class TestUserBean implements DirtyPropertyAware, LoadAwareBean {
     private long id;
     private String name;
     private String longName;
     private Gender gender = Gender.GIRL;
     private Set<String> dirtyProps;
+    public boolean beanIsLoaded = false;
 
     @SuppressWarnings({"UnusedDeclaration"})
     private TestUserBean() {
@@ -93,6 +93,10 @@ public class TestUserBean implements DirtyPropertyAware, DirtyableBean {
 
     public boolean beanIsDirty() {
         return false;
+    }
+
+    public void beanIsLoaded() {
+        beanIsLoaded = true;
     }
 
     public static enum Gender implements BoundParameter {

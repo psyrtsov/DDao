@@ -14,21 +14,14 @@
  *  under the License.
  */
 
-package com.sf.ddao.crud;
-
-import com.sf.ddao.chain.CommandAnnotation;
-import com.sf.ddao.crud.ops.CleanDirtyBeanOperation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package com.sf.ddao;
 
 /**
  * Created by psyrtsov
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
-@CommandAnnotation(CleanDirtyBeanOperation.class)
-public @interface CleanDirtyBean {
+public interface LoadAwareBean {
+    /**
+     * called by ORM framework when bean is loaded from DB
+     */
+    void beanIsLoaded();
 }
