@@ -83,7 +83,7 @@ public class TestUserBean implements DirtyPropertyAware, DirtyableBean {
         return dirtyProps == null || dirtyProps.contains(propertyName);
     }
 
-    public void cleanDirtyFlags() {
+    public void cleanDirtyBean() {
         dirtyProps = null;
     }
 

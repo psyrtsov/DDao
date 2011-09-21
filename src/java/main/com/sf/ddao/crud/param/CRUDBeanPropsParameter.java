@@ -120,7 +120,7 @@ public class CRUDBeanPropsParameter implements ParameterHandler {
             }
         }
         if (dirtyPropertyAware != null) {
-            dirtyPropertyAware.cleanDirtyFlags();
+            dirtyPropertyAware.cleanDirtyBean();
         }
         return c;
     }

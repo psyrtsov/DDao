@@ -16,22 +16,19 @@
 
 package com.sf.ddao.crud;
 
+import com.sf.ddao.chain.CommandAnnotation;
+import com.sf.ddao.crud.ops.CleanDirtyBeanOperation;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  * Created by psyrtsov
- * should be implemented by bean that can have "dirty" state , that is state when it has changes
- * that have to be saved to DB
  */
-public interface DirtyableBean {
-    /**
-     * invoked by annotation @see com.sf.ddao.crud.CheckIfBeanIsDirty to define is bean is dirty and
-     * we should go ahead with execution of updates for this data
-     *
-     * @return true if bean is dirty and update has to proceed
-     */
-    boolean beanIsDirty();
-
-    /**
-     * clean dirty state from this bean
-     */
-    void cleanDirtyBean();
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD})
+@CommandAnnotation(CleanDirtyBeanOperation.class)
+public @interface CleanDirtyBean {
 }

@@ -19,8 +19,6 @@ package com.sf.ddao.crud;
 /**
  * Created by psyrtsov
  */
-public interface DirtyPropertyAware {
+public interface DirtyPropertyAware extends DirtyableBean {
     boolean isDirty(String propertyName);
-
-    void cleanDirtyFlags();
 }
