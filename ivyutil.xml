@@ -38,14 +38,14 @@
     <property name="build.classes.dir" value="${build.dir}/classes"/>
     <property name="build.info.file" value="${build.classes.dir}/${ant.project.name}.properties"/>
 
-    <property name="ivy.jar" value="${root.dir}/testlib/ivy.jar"/>
+    <property name="ivy.jar" value="${root.dir}/testlib/ivy-2.2.0.jar"/>
+    <property name="jsch.jar" value="${root.dir}/testlib/jsch-0.1.31.jar"/>
     <property name="ivy.file" value="ivy.xml"/>
     <property name="ivylib.dir" value="${root.dir}/lib/dependencies"/>
 
     <!-- setup ivy configuration -->
     <property name="repository.dir" value="${user.home}/.ivy2"/>
     <property name="ivy.local.default.root" value="${repository.dir}/local"/>
-    <property name="ivy.shared.default.root" value="${repository.dir}/shared"/>
 
     <available file="${repository.dir}/ivysettings.xml" property="ivySettingFilePresent"/>
 
@@ -54,6 +54,7 @@
         <path id="ivy.lib.path">
             <fileset dir="${repository.dir}/lib" includes="*.jar"/>
             <path path="${ivy.jar}"/>
+            <path path="${jsch.jar}"/>
         </path>
         <taskdef resource="org/apache/ivy/ant/antlib.xml"
                  uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
@@ -69,7 +70,7 @@
     <target name="ivy-resolve" depends="ivy-setup" description="--> resolve and retrieve dependencies with ivy">
         <mkdir dir="${ivylib.dir}"/>
         <ivy:resolve file="${ivy.file}"/>
-        <ivy:retrieve pattern="${ivylib.dir}/[artifact].[ext]"/>
+        <ivy:retrieve pattern="${ivylib.dir}/[artifact]-[revision](-[classifier]).[ext]"/>
     </target>
 
     <target name="ivy-report" depends="ivy-resolve" description="--> generates a report of dependencies">
@@ -93,7 +94,7 @@
     <target name="shared-version" depends="ivy-setup">
         <!-- local module info into ivy.* props -->
         <ivy:info file="${ivy.file}"/>
-        <ivy:buildnumber organisation="${ivy.organisation}" module="${ivy.module}" revision="${ivy.revision}"/>
+        <ivy:buildnumber organisation="${ivy.organisation}" module="${ivy.module}" revision="${ivy.revision}" resolver="shared"/>
     </target>
 
     <target name="build-info">
@@ -112,7 +113,7 @@
     <target name="publish-shared" depends="clean-ivylib, clean, shared-version, build-info, prep-publish"
             description="--> publish this project in the shared ivy repository">
         <ivy:publish artifactspattern="${build.jar.dir}/[artifact].[ext]"
-                     resolver="shared-publisher"
+                     resolver="shared"
                      pubrevision="${ivy.new.revision}"
                      status="release"
                      overwrite="false"
