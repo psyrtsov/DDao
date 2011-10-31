@@ -19,8 +19,6 @@ package com.sf.ddao.factory.param;
 import org.apache.commons.chain.Context;
 
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Date: Oct 27, 2009
@@ -30,11 +28,11 @@ public class JoinListParameter extends DefaultParameter {
     public static final String JOIN_LIST = "joinList";
 
     public Object extractParam(Context context) throws SQLException {
-        final List list = (List) super.extractParam(context);
+        final Iterable list = (Iterable) super.extractParam(context);
         return join(list);
     }
 
-    public static String join(Collection list) {
+    public static String join(Iterable list) {
         StringBuilder sb = new StringBuilder();
         for (Object item : list) {
             if (sb.length() > 0) {
