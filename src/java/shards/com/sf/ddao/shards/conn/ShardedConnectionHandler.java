@@ -46,9 +46,9 @@ import java.util.Map;
  * Time: 9:39:39 PM
  */
 public class ShardedConnectionHandler extends ConnectionHandlerHelper implements Intializible {
-    private final ALinker aLinker;
+    protected final ALinker aLinker;
     private final Map<Method, ShardKeyGetter> shardKeyGetterMap = new HashMap<Method, ShardKeyGetter>();
-    private ShardingService shardingService;
+    protected ShardingService shardingService;
 
     @Link
     public ShardedConnectionHandler(ALinker aLinker) {
@@ -62,12 +62,15 @@ public class ShardedConnectionHandler extends ConnectionHandlerHelper implements
     }
 
     public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
-        initShardKeys((Class) element);
-
         ShardedDao daoAnnotation = (ShardedDao) annotation;
         Class<? extends ShardingService> shardControlDaoClass = daoAnnotation.value();
-        shardingService = aLinker.create(shardControlDaoClass);
+        init((Class) element, shardControlDaoClass);
         super.init(element, annotation);
+    }
+
+    protected void init(Class daoClass, Class<? extends ShardingService> shardingServiceClass) {
+        initShardKeys((Class) daoClass);
+        shardingService = aLinker.create(shardingServiceClass);
     }
 
     protected void initShardKeys(Class clazz) {

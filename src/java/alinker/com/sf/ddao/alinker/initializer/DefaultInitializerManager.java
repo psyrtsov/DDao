@@ -32,12 +32,12 @@ import java.util.*;
  */
 public class DefaultInitializerManager implements InitializerManager {
     private final Map<Class, List<Initializer>> initializerCache = new HashMap<Class, List<Initializer>>();
-    private final Initializer defaultInitializer;
+    private final List<Initializer> defaultInitializerList = new ArrayList<Initializer>();
     private final ALinker aLinker;
 
     public DefaultInitializerManager(ALinker aLinker) {
         this.aLinker = aLinker;
-        defaultInitializer = new DependencyInjector();
+        defaultInitializerList.add(new DependencyInjector());
     }
 
     public void init() {
@@ -63,7 +63,7 @@ public class DefaultInitializerManager implements InitializerManager {
     private List<Initializer> createInitializerList(Class subjClass) throws FactoryException, InitializerException {
         List<Initializer> list = new ArrayList<Initializer>();
         // add default initializer 1st so that all dependencies are there to prceeed with next init steps
-        list.add(defaultInitializer);
+        list.addAll(defaultInitializerList);
         Annotation[] annotations;
         annotations = subjClass.getAnnotations();
         addInitializers(annotations, list);
@@ -94,5 +94,9 @@ public class DefaultInitializerManager implements InitializerManager {
 
     public void register(Class clazz, Initializer initializer) {
         getList(clazz).add(initializer);
+    }
+
+    public List<Initializer> getDefaultInitializerList() {
+        return defaultInitializerList;
     }
 }
