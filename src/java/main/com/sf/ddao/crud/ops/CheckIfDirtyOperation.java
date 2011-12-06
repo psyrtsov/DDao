@@ -21,6 +21,8 @@ import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.crud.DirtyableBean;
 import org.apache.commons.chain.Command;
 import org.apache.commons.chain.Context;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 
@@ -28,6 +30,7 @@ import java.lang.reflect.Method;
  * Created by psyrtsov
  */
 public class CheckIfDirtyOperation implements Command {
+    public static final Logger log = LoggerFactory.getLogger(CheckIfDirtyOperation.class.getName());
 
     public boolean execute(Context context) throws Exception {
         final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
@@ -40,6 +43,7 @@ public class CheckIfDirtyOperation implements Command {
                     if (method.getReturnType() == Integer.TYPE || method.getReturnType() == Integer.class) {
                         callCtx.setLastReturn(0);
                     }
+                    log.debug("Bean '{}' is not dirty and doesn't have to be updated" + arg);
                     return PROCESSING_COMPLETE;
                 }
             }
