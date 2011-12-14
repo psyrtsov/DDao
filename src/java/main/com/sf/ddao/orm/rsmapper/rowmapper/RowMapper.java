@@ -14,7 +14,7 @@
  *  under the License.
  */
 
-package com.sf.ddao.orm;
+package com.sf.ddao.orm.rsmapper.rowmapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

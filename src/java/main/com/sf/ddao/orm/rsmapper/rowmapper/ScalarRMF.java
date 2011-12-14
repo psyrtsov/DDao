@@ -14,26 +14,13 @@
  *  under the License.
  */
 
-package com.sf.ddao.orm.rsmapper;
-
-import com.sf.ddao.orm.RSMapper;
-import com.sf.ddao.orm.rsmapper.rowmapper.RowMapperFactory;
-import org.apache.commons.chain.Context;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
+package com.sf.ddao.orm.rsmapper.rowmapper;
 
 /**
  * Created by psyrtsov
  */
-public class SingleRowRSMapper implements RSMapper {
-    private final RowMapperFactory rowMapperFactory;
-
-    public SingleRowRSMapper(RowMapperFactory rowMapperFactory) {
-        this.rowMapperFactory = rowMapperFactory;
-    }
-
-    public Object handle(Context context, ResultSet rs) throws SQLException {
-        return rs.next() ? rowMapperFactory.get().map(rs) : null;
+public abstract class ScalarRMF implements RowMapperFactory, RowMapper {
+    public RowMapper get() {
+        return this;
     }
 }

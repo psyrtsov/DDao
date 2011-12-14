@@ -17,7 +17,8 @@
 package com.sf.ddao.orm.rsmapper;
 
 import com.sf.ddao.orm.RSMapper;
-import com.sf.ddao.orm.RowMapper;
+import com.sf.ddao.orm.rsmapper.rowmapper.RowMapper;
+import com.sf.ddao.orm.rsmapper.rowmapper.RowMapperFactory;
 import org.apache.commons.chain.Context;
 
 import java.sql.ResultSet;
@@ -29,16 +30,18 @@ import java.util.Map;
  * Created by psyrtsov
  */
 public class MapRSMapper implements RSMapper {
-    private final RowMapper keyMapper;
-    private final RowMapper valueMapper;
+    private final RowMapperFactory keyMapperFactory;
+    private final RowMapperFactory valueMapperFactory;
 
-    public MapRSMapper(RowMapper keyMapper, RowMapper valueMapper) {
-        this.keyMapper = keyMapper;
-        this.valueMapper = valueMapper;
+    public MapRSMapper(RowMapperFactory keyMapperFactory, RowMapperFactory valueMapperFactory) {
+        this.keyMapperFactory = keyMapperFactory;
+        this.valueMapperFactory = valueMapperFactory;
     }
 
     public Object handle(Context context, ResultSet rs) throws SQLException {
         Map res = new HashMap();
+        final RowMapper keyMapper = keyMapperFactory.get();
+        final RowMapper valueMapper = valueMapperFactory.get();
         while (rs.next()) {
             Object key = keyMapper.map(rs);
             Object value = valueMapper.map(rs);

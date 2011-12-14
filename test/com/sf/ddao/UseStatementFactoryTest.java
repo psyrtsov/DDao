@@ -25,7 +25,8 @@ import com.sf.ddao.alinker.ALinker;
 import com.sf.ddao.conn.JNDIDataSourceHandler;
 import com.sf.ddao.orm.RSMapper;
 import com.sf.ddao.orm.UseRSMapper;
-import com.sf.ddao.orm.rsmapper.rowmapper.BeanRowMapper;
+import com.sf.ddao.orm.rsmapper.rowmapper.BeanRowMapperFactory;
+import com.sf.ddao.orm.rsmapper.rowmapper.RowMapper;
 import org.apache.commons.chain.Context;
 import org.mockejb.jndi.MockContextFactory;
 
@@ -138,7 +139,7 @@ public class UseStatementFactoryTest extends BasicJDBCTestCaseAdapter {
         createResultSet("id", new Object[]{1, 2}, "name", new Object[]{"foo", "bar"});
         final List<TestUserBean> res = new ArrayList<TestUserBean>();
         dao.processUsers(new RSMapper() {
-            BeanRowMapper rowMapper = new BeanRowMapper(TestUserBean.class);
+            RowMapper rowMapper = new BeanRowMapperFactory(TestUserBean.class).get();
 
             public Object handle(Context context, ResultSet rs) throws SQLException {
                 while (rs.next()) {

@@ -21,9 +21,7 @@ import com.sf.ddao.orm.rsmapper.ArrayRSMapper;
 import com.sf.ddao.orm.rsmapper.CollectionRSMapper;
 import com.sf.ddao.orm.rsmapper.MapRSMapper;
 import com.sf.ddao.orm.rsmapper.SingleRowRSMapper;
-import com.sf.ddao.orm.rsmapper.rowmapper.BeanRowMapper;
-import com.sf.ddao.orm.rsmapper.rowmapper.MapRowMapper;
-import com.sf.ddao.orm.rsmapper.rowmapper.SelfRowMapper;
+import com.sf.ddao.orm.rsmapper.rowmapper.*;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
 
@@ -70,8 +68,8 @@ public class RSMapperFactoryRegistry {
         Class<?> returnClass = method.getReturnType();
         if (returnClass.isArray()) {
             Class itemType = returnClass.getComponentType();
-            RowMapper rowMapper = getRowMapper(itemType);
-            return new ArrayRSMapper(rowMapper, itemType);
+            RowMapperFactory rowMapperFactory = getRowMapperFactory(itemType);
+            return new ArrayRSMapper(rowMapperFactory, itemType);
         }
         Type returnType = method.getGenericReturnType();
         if (Collection.class.isAssignableFrom(returnClass)) {
@@ -83,11 +81,11 @@ public class RSMapperFactoryRegistry {
             Type[] actualTypeArguments = ((ParameterizedType) returnType).getActualTypeArguments();
             Type keyType = actualTypeArguments[0];
             Type valueType = actualTypeArguments[1];
-            RowMapper keyMapper = getScalarMapper(keyType, 1, true);
-            RowMapper valueMapper = getRowMapper(valueType, 2);
-            return new MapRSMapper(keyMapper, valueMapper);
+            RowMapperFactory keyMapperFactory = getScalarMapper(keyType, 1, true);
+            RowMapperFactory valueMapperFactory = getRowMapperFactory(valueType, 2);
+            return new MapRSMapper(keyMapperFactory, valueMapperFactory);
         }
-        return new SingleRowRSMapper(getRowMapper(returnType));
+        return new SingleRowRSMapper(getRowMapperFactory(returnType));
     }
 
     public static int findParameter(Method method) {
@@ -104,66 +102,74 @@ public class RSMapperFactoryRegistry {
     }
 
     private static RSMapper getCollectionORMapper(Type itemType) {
-        RowMapper rowMapper = getRowMapper(itemType);
+        RowMapperFactory rowMapperFactory = getRowMapperFactory(itemType);
         //noinspection unchecked
-        return new CollectionRSMapper(rowMapper);
+        return new CollectionRSMapper(rowMapperFactory);
     }
 
-    public static RowMapper getRowMapper(Type itemType) {
-        return getRowMapper(itemType, 1);
+    public static RowMapperFactory getRowMapperFactory(Type itemType) {
+        return getRowMapperFactory(itemType, 1);
     }
 
-    public static RowMapper getRowMapper(Type itemType, int startIdx) {
+    public static RowMapperFactory getRowMapperFactory(Type itemType, int startIdx) {
         // see if return type is simple so that we should map just startIdx column 
-        RowMapper scalarMapper = getScalarMapper(itemType, startIdx, false);
-        if (scalarMapper != null) {
-            return scalarMapper;
+        RowMapperFactory scalarMapperFactory = getScalarMapper(itemType, startIdx, false);
+        if (scalarMapperFactory != null) {
+            return scalarMapperFactory;
         }
         if (itemType instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) itemType;
             final Type rawType = parameterizedType.getRawType();
             if (rawType instanceof Class && Map.class.isAssignableFrom((Class<?>) rawType)) {
-                return new MapRowMapper();
+                return new RowMapperFactory() {
+                    public RowMapper get() {
+                        return new MapRowMapper();
+                    }
+                };
             }
         }
         if (itemType instanceof Class) {
-            Class itemClass = (Class) itemType;
+            final Class itemClass = (Class) itemType;
             if (RowMapper.class.isAssignableFrom(itemClass)) {
                 //noinspection unchecked
-                return new SelfRowMapper(itemClass);
+                return new SelfRowMapperFactory(itemClass);
             }
             if (Map.class.isAssignableFrom(itemClass)) {
-                return new MapRowMapper();
+                return new RowMapperFactory() {
+                    public RowMapper get() {
+                        return new MapRowMapper();
+                    }
+                };
             }
-            return new BeanRowMapper(itemClass);
+            return new BeanRowMapperFactory(itemClass);
         }
         throw new DaoException("No mapping defined for type " + itemType);
     }
 
-    public static RowMapper getScalarMapper(final Type itemType, final int idx, boolean req) {
+    public static RowMapperFactory getScalarMapper(final Type itemType, final int idx, boolean req) {
         if (itemType == String.class) {
-            return new RowMapper() {
+            return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
                     return rs.getString(idx);
                 }
             };
         }
         if (itemType == Integer.class || itemType == Integer.TYPE) {
-            return new RowMapper() {
+            return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
                     return rs.getInt(idx);
                 }
             };
         }
         if (itemType == URL.class) {
-            return new RowMapper() {
+            return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
                     return rs.getURL(idx);
                 }
             };
         }
         if (itemType == BigInteger.class) {
-            return new RowMapper() {
+            return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
                     final BigDecimal res = rs.getBigDecimal(idx);
                     return res == null ? null : res.toBigInteger();
@@ -171,35 +177,35 @@ public class RSMapperFactoryRegistry {
             };
         }
         if (itemType == BigDecimal.class) {
-            return new RowMapper() {
+            return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
                     return rs.getBigDecimal(idx);
                 }
             };
         }
         if (itemType == InputStream.class) {
-            return new RowMapper() {
+            return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
                     return rs.getBinaryStream(idx);
                 }
             };
         }
         if (itemType == Boolean.class || itemType == Boolean.TYPE) {
-            return new RowMapper() {
+            return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
                     return rs.getBoolean(idx);
                 }
             };
         }
         if (itemType == Blob.class) {
-            return new RowMapper() {
+            return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
                     return rs.getBlob(idx);
                 }
             };
         }
         if (itemType == java.sql.Date.class || itemType == java.util.Date.class) {
-            return new RowMapper() {
+            return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
                     return rs.getTimestamp(idx);
                 }
@@ -209,7 +215,7 @@ public class RSMapperFactoryRegistry {
             final Class itemClass = (Class) itemType;
             final ColumnMapper columnMapper = ColumnMapperRegistry.lookup(itemClass);
             if (columnMapper != null) {
-                return new RowMapper() {
+                return new ScalarRMF() {
                     public Object map(ResultSet rs) throws SQLException {
                         return columnMapper.map(rs, idx);
                     }
@@ -217,7 +223,7 @@ public class RSMapperFactoryRegistry {
             }
             final Converter converter = ConvertUtils.lookup(itemClass);
             if (converter != null) {
-                return new RowMapper() {
+                return new ScalarRMF() {
                     public Object map(ResultSet rs) throws SQLException {
                         String s = rs.getString(idx);
                         if (s == null) {
@@ -228,7 +234,7 @@ public class RSMapperFactoryRegistry {
                 };
             }
             if (Enum.class.isAssignableFrom((Class<?>) itemType)) {
-                return new RowMapper() {
+                return new ScalarRMF() {
                     public Object map(ResultSet rs) throws SQLException {
                         String s = rs.getString(idx);
                         if (s == null) {
@@ -248,30 +254,30 @@ public class RSMapperFactoryRegistry {
 
     //psdo: merge this with index based scalar mapper
 
-    public static RowMapper getScalarMapper(final Type itemType, final String name, boolean req) {
+    public static RowMapperFactory getScalarRowMapperFactory(final Type itemType, final String name, boolean req) {
         if (itemType == String.class) {
-            return new RowMapper() {
+            return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
                     return rs.getString(name);
                 }
             };
         }
         if (itemType == Integer.class || itemType == Integer.TYPE) {
-            return new RowMapper() {
+            return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
                     return rs.getInt(name);
                 }
             };
         }
         if (itemType == URL.class) {
-            return new RowMapper() {
+            return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
                     return rs.getURL(name);
                 }
             };
         }
         if (itemType == BigInteger.class) {
-            return new RowMapper() {
+            return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
                     final BigDecimal res = rs.getBigDecimal(name);
                     return res == null ? null : res.toBigInteger();
@@ -279,35 +285,35 @@ public class RSMapperFactoryRegistry {
             };
         }
         if (itemType == BigDecimal.class) {
-            return new RowMapper() {
+            return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
                     return rs.getBigDecimal(name);
                 }
             };
         }
         if (itemType == InputStream.class) {
-            return new RowMapper() {
+            return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
                     return rs.getBinaryStream(name);
                 }
             };
         }
         if (itemType == Boolean.class || itemType == Boolean.TYPE) {
-            return new RowMapper() {
+            return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
                     return rs.getBoolean(name);
                 }
             };
         }
         if (itemType == Blob.class) {
-            return new RowMapper() {
+            return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
                     return rs.getBlob(name);
                 }
             };
         }
         if (itemType == java.sql.Date.class || itemType == java.util.Date.class) {
-            return new RowMapper() {
+            return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
                     return rs.getTimestamp(name);
                 }
@@ -317,7 +323,7 @@ public class RSMapperFactoryRegistry {
             final Class itemClass = (Class) itemType;
             final ColumnMapper columnMapper = ColumnMapperRegistry.lookup(itemClass);
             if (columnMapper != null) {
-                return new RowMapper() {
+                return new ScalarRMF() {
                     public Object map(ResultSet rs) throws SQLException {
                         return columnMapper.map(rs, name);
                     }
@@ -325,7 +331,7 @@ public class RSMapperFactoryRegistry {
             }
             final Converter converter = ConvertUtils.lookup(itemClass);
             if (converter != null) {
-                return new RowMapper() {
+                return new ScalarRMF() {
                     public Object map(ResultSet rs) throws SQLException {
                         String s = rs.getString(name);
                         if (s == null) {
@@ -336,7 +342,7 @@ public class RSMapperFactoryRegistry {
                 };
             }
             if (Enum.class.isAssignableFrom((Class<?>) itemType)) {
-                return new RowMapper() {
+                return new ScalarRMF() {
                     public Object map(ResultSet rs) throws SQLException {
                         String s = rs.getString(name);
                         if (s == null) {

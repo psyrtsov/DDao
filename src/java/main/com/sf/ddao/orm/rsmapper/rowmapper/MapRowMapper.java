@@ -16,8 +16,6 @@
 
 package com.sf.ddao.orm.rsmapper.rowmapper;
 
-import com.sf.ddao.orm.RowMapper;
-
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;

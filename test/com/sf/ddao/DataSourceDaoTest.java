@@ -26,7 +26,8 @@ import com.sf.ddao.conn.DataSourceHandler;
 import com.sf.ddao.factory.param.ThreadLocalParameter;
 import com.sf.ddao.orm.RSMapper;
 import com.sf.ddao.orm.UseRSMapper;
-import com.sf.ddao.orm.rsmapper.rowmapper.BeanRowMapper;
+import com.sf.ddao.orm.rsmapper.rowmapper.BeanRowMapperFactory;
+import com.sf.ddao.orm.rsmapper.rowmapper.RowMapper;
 import org.apache.commons.chain.Context;
 import org.mockejb.jndi.MockContextFactory;
 
@@ -193,7 +194,7 @@ public class DataSourceDaoTest extends BasicJDBCTestCaseAdapter {
         // execute dao method
         TestUserDao dao = factory.create(TestUserDao.class, null);
         dao.processUsers(new RSMapper() {
-            BeanRowMapper rowMapper = new BeanRowMapper(TestUserBean.class);
+            RowMapper rowMapper = new BeanRowMapperFactory(TestUserBean.class).get();
 
             public Object handle(Context context, ResultSet rs) throws SQLException {
                 while (rs.next()) {

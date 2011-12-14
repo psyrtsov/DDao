@@ -17,7 +17,8 @@
 package com.sf.ddao.orm.rsmapper;
 
 import com.sf.ddao.orm.RSMapper;
-import com.sf.ddao.orm.RowMapper;
+import com.sf.ddao.orm.rsmapper.rowmapper.RowMapper;
+import com.sf.ddao.orm.rsmapper.rowmapper.RowMapperFactory;
 import org.apache.commons.chain.Context;
 
 import java.sql.ResultSet;
@@ -32,16 +33,16 @@ import java.util.Collection;
  */
 public class CollectionRSMapper implements RSMapper {
     private final Class<? extends Collection> listType;
-    private final RowMapper rowMapper;
+    private final RowMapperFactory rowMapperFactory;
 
 
-    public CollectionRSMapper(RowMapper rowMapper) {
-        this(Collection.class, rowMapper);
+    public CollectionRSMapper(RowMapperFactory rowMapperFactory) {
+        this(Collection.class, rowMapperFactory);
     }
 
-    public CollectionRSMapper(Class<? extends Collection> listType, RowMapper rowMapper) {
+    public CollectionRSMapper(Class<? extends Collection> listType, RowMapperFactory rowMapperFactory) {
         this.listType = listType.isInterface() ? ArrayList.class : listType;
-        this.rowMapper = rowMapper;
+        this.rowMapperFactory = rowMapperFactory;
     }
 
     public Object handle(Context context, ResultSet rs) throws SQLException {
@@ -51,6 +52,7 @@ public class CollectionRSMapper implements RSMapper {
         } catch (Exception e) {
             throw new RuntimeException("", e);
         }
+        RowMapper rowMapper = rowMapperFactory.get();
         while (rs.next()) {
             final Object o = rowMapper.map(rs);
             //noinspection unchecked

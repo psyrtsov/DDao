@@ -16,7 +16,7 @@
 
 package com.sf.ddao.orm.rsmapper;
 
-import com.sf.ddao.orm.RowMapper;
+import com.sf.ddao.orm.rsmapper.rowmapper.RowMapperFactory;
 import org.apache.commons.chain.Context;
 
 import java.lang.reflect.Array;
@@ -32,7 +32,7 @@ import java.util.Collection;
 public class ArrayRSMapper extends CollectionRSMapper {
     private final Class itemType;
 
-    public ArrayRSMapper(RowMapper rowMapper, Class itemType) {
+    public ArrayRSMapper(RowMapperFactory rowMapper, Class itemType) {
         super(rowMapper);
         this.itemType = itemType;
     }
