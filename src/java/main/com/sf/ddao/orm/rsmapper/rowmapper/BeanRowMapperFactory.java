@@ -137,7 +137,7 @@ public class BeanRowMapperFactory implements RowMapperFactory {
                 if (propertyDescriptor == null) {
                     throw new SQLException("Column " + colName + " doesn't have matching property");
                 }
-                mappers.add(new PropertyMapper(name, propertyDescriptor));
+                mappers.add(new PropertyMapper(colName, propertyDescriptor));
             }
             this.mappers = mappers;
         }
