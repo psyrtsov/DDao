@@ -44,27 +44,6 @@
         <jarDirectory url="file://$MODULE_DIR$/lib/dependencies" recursive="false" />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
-      <library name="dependencies">
-        <CLASSES>
-          <root url="file://$MODULE_DIR$/lib/dependencies" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-        <jarDirectory url="file://$MODULE_DIR$/lib/dependencies" recursive="false" />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="lib (2)">
-        <CLASSES>
-          <root url="file://$MODULE_DIR$/lib/dependencies" />
-          <root url="file://$MODULE_DIR$/lib/dependencies" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-        <jarDirectory url="file://$MODULE_DIR$/lib/dependencies" recursive="false" />
-      </library>
-    </orderEntry>
   </component>
 </module>
 
