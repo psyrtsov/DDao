@@ -16,13 +16,10 @@
 
 package com.sf.ddao.shards.ops;
 
-import com.sf.ddao.alinker.ALinker;
-import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.alinker.inject.Link;
+import com.google.inject.Injector;
 import com.sf.ddao.chain.CtxHelper;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.conn.ConnectionHandlerHelper;
-import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.param.JoinListParameter;
 import com.sf.ddao.ops.SelectSqlOperation;
 import com.sf.ddao.shards.MultiShardResultMerger;
@@ -30,6 +27,7 @@ import com.sf.ddao.shards.MultiShardSelect;
 import com.sf.ddao.shards.conn.ShardedConnectionHandler;
 import org.apache.commons.chain.Context;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -44,14 +42,9 @@ import java.util.Map;
  */
 public class MultiShardSelectSqlOperation extends SelectSqlOperation {
     public static final String KEY_LIST_CONTEXT_VALUE = "keyList";
-    private final ALinker aLinker;
+    @Inject
+    private Injector injector;
     private MultiShardResultMerger resultMerger;
-
-    @Link
-    public MultiShardSelectSqlOperation(ALinker aLinker, StatementFactory statementFactory) {
-        super(statementFactory);
-        this.aLinker = aLinker;
-    }
 
     @Override
     public boolean execute(Context context) throws Exception {
@@ -82,9 +75,9 @@ public class MultiShardSelectSqlOperation extends SelectSqlOperation {
     }
 
     @Override
-    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+    public void init(AnnotatedElement element, Annotation annotation) {
         MultiShardSelect multiShardSelect = element.getAnnotation(MultiShardSelect.class);
-        resultMerger = aLinker.create(multiShardSelect.resultMerger());
+        resultMerger = injector.getInstance(multiShardSelect.resultMerger());
         super.init(element, multiShardSelect.value());
     }
 }

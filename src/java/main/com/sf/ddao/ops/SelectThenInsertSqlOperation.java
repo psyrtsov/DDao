@@ -17,14 +17,13 @@
 package com.sf.ddao.ops;
 
 import com.sf.ddao.SelectThenInsert;
-import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.alinker.inject.Link;
 import com.sf.ddao.chain.CtxHelper;
+import com.sf.ddao.chain.InitializerException;
 import com.sf.ddao.chain.MethodCallCtx;
-import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.param.ThreadLocalParameter;
 import org.apache.commons.chain.Context;
 
+import javax.inject.Inject;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
@@ -35,14 +34,9 @@ import java.util.Arrays;
  * Time: 9:12:57 PM
  */
 public class SelectThenInsertSqlOperation extends UpdateSqlOperation {
+    @Inject
     private SelectSqlOperation selectSqlOp;
     public static final String ID_FIELD_NAME = "id";
-
-    @Link
-    public SelectThenInsertSqlOperation(StatementFactory statementFactory, SelectSqlOperation selectSqlOp) {
-        super(statementFactory);
-        this.selectSqlOp = selectSqlOp;
-    }
 
     @Override
     public boolean execute(Context context) throws Exception {
@@ -60,7 +54,7 @@ public class SelectThenInsertSqlOperation extends UpdateSqlOperation {
     }
 
     @Override
-    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+    public void init(AnnotatedElement element, Annotation annotation) {
         SelectThenInsert selectThenInsert = element.getAnnotation(SelectThenInsert.class);
         String sql[] = selectThenInsert.value();
         if (sql.length != 2) {

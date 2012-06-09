@@ -16,10 +16,10 @@
 
 package com.sf.ddao.factory.param;
 
-import com.sf.ddao.alinker.ALinker;
-import com.sf.ddao.alinker.factory.SingleInstance;
-import com.sf.ddao.alinker.inject.Link;
+import com.google.inject.Injector;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.lang.reflect.AnnotatedElement;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,21 +30,17 @@ import java.util.ServiceLoader;
  * Date: Apr 10, 2008
  * Time: 3:29:23 PM
  */
-@SingleInstance
+@Singleton
 public class ParameterFactory {
     private final Map<String, ParameterService> paramTypeMap = new HashMap<String, ParameterService>();
-    private final ALinker aLinker;
+    private final Injector aLinker;
 
-    @Link
-    public ParameterFactory(ALinker aLinker) {
+    @Inject
+    public ParameterFactory(Injector aLinker) {
         this.aLinker = aLinker;
-        init();
-    }
-
-    public void init() {
         final ServiceLoader<ParameterService> parameterServiceServiceLoader = ServiceLoader.load(ParameterService.class);
         for (ParameterService parameterService : parameterServiceServiceLoader) {
-            aLinker.init(parameterService);
+            this.aLinker.injectMembers(parameterService);
             parameterService.register(this);
         }
     }
@@ -61,7 +57,7 @@ public class ParameterFactory {
                 }
                 return parameterService.create(element, factoryName, paramName, isRef);
             }
-            ParameterHandler param = aLinker.create(DefaultParameter.class);
+            ParameterHandler param = aLinker.getInstance(DefaultParameter.class);
             param.init(element, name, isRef);
             return param;
         } catch (Exception e) {

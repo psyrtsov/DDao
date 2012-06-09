@@ -16,8 +16,6 @@
 
 package com.sf.ddao;
 
-import com.sf.ddao.alinker.factory.UseFactory;
-import com.sf.ddao.chain.ChainHandlerFactory;
 import com.sf.ddao.chain.CommandAnnotation;
 import com.sf.ddao.conn.DataSourceHandler;
 
@@ -36,7 +34,6 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@UseFactory(ChainHandlerFactory.class)
 @CommandAnnotation(DataSourceHandler.class)
 public @interface DataSourceDao {
     /**

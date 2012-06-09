@@ -17,18 +17,16 @@
 package com.sf.ddao.crud.ops;
 
 import com.sf.ddao.DaoException;
-import com.sf.ddao.SelectThenInsert;
-import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.alinker.inject.Link;
 import com.sf.ddao.chain.CtxHelper;
+import com.sf.ddao.chain.InitializerException;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.crud.SelectWithCallbackThenUpdate;
 import com.sf.ddao.crud.UpdateCallback;
-import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.ops.SelectSqlOperation;
 import com.sf.ddao.ops.UpdateSqlOperation;
 import org.apache.commons.chain.Context;
 
+import javax.inject.Inject;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
@@ -39,13 +37,8 @@ import java.util.Arrays;
  * Time: 9:12:57 PM
  */
 public class SelectWithCallbackThenUpdateSqlOperation extends UpdateSqlOperation {
+    @Inject
     private SelectSqlOperation selectSqlOp;
-
-    @Link
-    public SelectWithCallbackThenUpdateSqlOperation(StatementFactory statementFactory, SelectSqlOperation selectSqlOp) {
-        super(statementFactory);
-        this.selectSqlOp = selectSqlOp;
-    }
 
     @Override
     public boolean execute(Context context) throws Exception {
@@ -58,6 +51,7 @@ public class SelectWithCallbackThenUpdateSqlOperation extends UpdateSqlOperation
             for (Object arg : args) {
                 if (UpdateCallback.class.isAssignableFrom(arg.getClass())) {
                     UpdateCallback callback = UpdateCallback.class.cast(arg);
+                    //noinspection unchecked
                     callback.update(res);
                 }
             }
@@ -70,7 +64,7 @@ public class SelectWithCallbackThenUpdateSqlOperation extends UpdateSqlOperation
     }
 
     @Override
-    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+    public void init(AnnotatedElement element, Annotation annotation) {
         SelectWithCallbackThenUpdate selectWithCallbackThenUpdate = element.getAnnotation(SelectWithCallbackThenUpdate.class);
         String sql[] = selectWithCallbackThenUpdate.value();
         if (sql.length != 2) {

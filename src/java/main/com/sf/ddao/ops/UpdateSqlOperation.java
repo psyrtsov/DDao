@@ -18,16 +18,16 @@ package com.sf.ddao.ops;
 
 import com.sf.ddao.DaoException;
 import com.sf.ddao.Update;
-import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.alinker.inject.Link;
 import com.sf.ddao.chain.CtxHelper;
+import com.sf.ddao.chain.InitializerException;
+import com.sf.ddao.chain.Intializible;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
-import com.sf.ddao.handler.Intializible;
 import org.apache.commons.chain.Command;
 import org.apache.commons.chain.Context;
 
+import javax.inject.Inject;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -39,15 +39,11 @@ import java.sql.PreparedStatement;
  * Time: 11:55:52 PM
  */
 public class UpdateSqlOperation implements Command, Intializible {
+    @Inject
     private StatementFactory statementFactory;
     private Method method;
 
-    @Link
-    public UpdateSqlOperation(StatementFactory statementFactory) {
-        this.statementFactory = statementFactory;
-    }
-
-    public void init(AnnotatedElement element, String sql) throws InitializerException {
+    public void init(AnnotatedElement element, String sql) {
         method = (Method) element;
         try {
             statementFactory.init(element, sql);
@@ -56,7 +52,7 @@ public class UpdateSqlOperation implements Command, Intializible {
         }
     }
 
-    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+    public void init(AnnotatedElement element, Annotation annotation) {
         Update updateAnnotation = element.getAnnotation(Update.class);
         init(element, updateAnnotation.value());
     }
@@ -64,7 +60,7 @@ public class UpdateSqlOperation implements Command, Intializible {
     public boolean execute(Context context) throws Exception {
         try {
             final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
-            PreparedStatement preparedStatement = statementFactory.createStatement(context, Integer.MAX_VALUE);
+            PreparedStatement preparedStatement = statementFactory.createStatement(context, false);
             int res = preparedStatement.executeUpdate();
             preparedStatement.close();
             if (method.getReturnType() == Integer.TYPE || method.getReturnType() == Integer.class) {

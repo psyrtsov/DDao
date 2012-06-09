@@ -14,9 +14,7 @@
  *  under the License.
  */
 
-package com.sf.ddao.handler;
-
-import com.sf.ddao.alinker.initializer.InitializerException;
+package com.sf.ddao.chain;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;

@@ -17,8 +17,7 @@
 package com.sf.ddao.conn;
 
 import com.sf.ddao.DataSourceDao;
-import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.handler.Intializible;
+import com.sf.ddao.chain.Intializible;
 import org.apache.commons.chain.Context;
 
 import javax.sql.DataSource;
@@ -42,8 +41,7 @@ public class DataSourceHandler extends ConnectionHandlerHelper implements Intial
     public static final ConcurrentMap<String, DataSource> dataSourceMap = new ConcurrentHashMap<String, DataSource>();
     private String dsName;
 
-    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
-        super.init(element, annotation);
+    public void init(AnnotatedElement element, Annotation annotation) {
         DataSourceDao daoAnnotation = (DataSourceDao) annotation;
         dsName = daoAnnotation.value();
     }

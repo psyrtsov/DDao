@@ -16,13 +16,11 @@
 
 package com.sf.ddao.shards.conn;
 
-import com.sf.ddao.alinker.ALinker;
-import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.alinker.inject.Link;
+import com.google.inject.Injector;
 import com.sf.ddao.chain.CtxHelper;
+import com.sf.ddao.chain.Intializible;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.conn.ConnectionHandlerHelper;
-import com.sf.ddao.handler.Intializible;
 import com.sf.ddao.shards.ShardException;
 import com.sf.ddao.shards.ShardKey;
 import com.sf.ddao.shards.ShardedDao;
@@ -30,6 +28,7 @@ import com.sf.ddao.shards.ShardingService;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.chain.Context;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -46,14 +45,10 @@ import java.util.Map;
  * Time: 9:39:39 PM
  */
 public class ShardedConnectionHandler extends ConnectionHandlerHelper implements Intializible {
-    protected final ALinker aLinker;
+    @Inject
+    protected Injector injector;
     private final Map<Method, ShardKeyGetter> shardKeyGetterMap = new HashMap<Method, ShardKeyGetter>();
     protected ShardingService shardingService;
-
-    @Link
-    public ShardedConnectionHandler(ALinker aLinker) {
-        this.aLinker = aLinker;
-    }
 
     @Override
     public boolean execute(Context context) throws Exception {
@@ -61,16 +56,15 @@ public class ShardedConnectionHandler extends ConnectionHandlerHelper implements
         return super.execute(context);
     }
 
-    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+    public void init(AnnotatedElement element, Annotation annotation) {
         ShardedDao daoAnnotation = (ShardedDao) annotation;
         Class<? extends ShardingService> shardControlDaoClass = daoAnnotation.value();
         init((Class) element, shardControlDaoClass);
-        super.init(element, annotation);
     }
 
     protected void init(Class daoClass, Class<? extends ShardingService> shardingServiceClass) {
-        initShardKeys((Class) daoClass);
-        shardingService = aLinker.create(shardingServiceClass);
+        initShardKeys(daoClass);
+        shardingService = injector.getInstance(shardingServiceClass);
     }
 
     protected void initShardKeys(Class clazz) {
@@ -153,6 +147,7 @@ public class ShardedConnectionHandler extends ConnectionHandlerHelper implements
             throw new ShardException("Shard key at method " + callCtx.getMethod() + " has to be collection to be used with multi-shard query");
         }
         Collection shardKeyCollection = (Collection) shardKey;
+        //noinspection unchecked
         return shardingService.getMultiShard(shardKeyCollection, context);
     }
 }

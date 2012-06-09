@@ -17,9 +17,6 @@
 package com.sf.ddao.ops;
 
 import com.sf.ddao.Insert;
-import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.alinker.inject.Link;
-import com.sf.ddao.factory.StatementFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -30,12 +27,7 @@ import java.lang.reflect.AnnotatedElement;
  * Time: 1:43:33 AM
  */
 public class InsertSqlOperation extends UpdateSqlOperation {
-    @Link
-    public InsertSqlOperation(StatementFactory statementFactory) {
-        super(statementFactory);
-    }
-
-    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+    public void init(AnnotatedElement element, Annotation annotation) {
         Insert insertAnnotation = element.getAnnotation(Insert.class);
         String sql = insertAnnotation.value();
         init(element, sql);

@@ -16,9 +16,9 @@
 
 package com.sf.ddao.factory.param;
 
-import com.sf.ddao.alinker.ALinker;
-import com.sf.ddao.alinker.inject.Link;
+import com.google.inject.Injector;
 
+import javax.inject.Inject;
 import java.lang.reflect.AnnotatedElement;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,8 +35,8 @@ public class ParameterServiceImpl implements ParameterService {
         put(ThreadLocalParameter.THREAD_LOCAL, ThreadLocalParameter.class);
         put(ForwardParameter.FWD, ForwardParameter.class);
     }};
-    @Link
-    public ALinker aLinker;
+    @Inject
+    public Injector injector;
 
     public void register(ParameterFactory parameterFactory) {
         for (String name : classMap.keySet()) {
@@ -46,13 +46,7 @@ public class ParameterServiceImpl implements ParameterService {
 
     public ParameterHandler create(AnnotatedElement element, String funcName, String paramName, boolean isRef) {
         final Class<? extends ParameterHandler> aClass = classMap.get(funcName);
-        final ParameterHandler res;
-        try {
-            res = aClass.newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        aLinker.init(res);
+        final ParameterHandler res = injector.getInstance(aClass);
         res.init(element, paramName, isRef);
         return res;
     }

@@ -16,10 +16,9 @@
 
 package com.sf.ddao.conn;
 
-import com.sf.ddao.DaoException;
 import com.sf.ddao.JNDIDao;
-import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.handler.Intializible;
+import com.sf.ddao.chain.InitializerException;
+import com.sf.ddao.chain.Intializible;
 import org.apache.commons.chain.Context;
 
 import javax.naming.InitialContext;
@@ -39,15 +38,14 @@ public class JNDIDataSourceHandler extends ConnectionHandlerHelper implements In
     public static String DS_CTX_PREFIX = "java:comp/env/";
     private DataSource dataSource;
 
-    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
-        super.init(element, annotation);
+    public void init(AnnotatedElement element, Annotation annotation) {
         JNDIDao daoAnnotation = (JNDIDao) annotation;
         String dsName = daoAnnotation.value();
         try {
             InitialContext ic = new InitialContext(new Hashtable());
             dataSource = (DataSource) ic.lookup(DS_CTX_PREFIX + dsName);
         } catch (Exception e) {
-            throw new DaoException("Failed to find DataSource " + dsName, e);
+            throw new InitializerException("Failed to find DataSource " + dsName, e);
         }
     }
 

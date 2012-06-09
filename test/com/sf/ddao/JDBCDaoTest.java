@@ -16,11 +16,13 @@
 
 package com.sf.ddao;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.mockrunner.jdbc.BasicJDBCTestCaseAdapter;
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockResultSet;
-import com.sf.ddao.alinker.ALinker;
+import com.sf.ddao.chain.ChainModule;
 import com.sf.ddao.chain.UseContext;
 import com.sf.ddao.factory.param.ThreadLocalParameter;
 import com.sf.ddao.orm.RSMapper;
@@ -47,7 +49,7 @@ import static com.sf.ddao.chain.CtxHelper.context;
  * Time: 7:00:11 PM
  */
 public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
-    ALinker factory;
+    Injector injector;
     private static final String PART_NAME = "partName";
 
     @JDBCDao(value = "jdbc://test", driver = "com.mockrunner.mock.jdbc.MockDriver")
@@ -66,7 +68,7 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         List<TestUserBean> getUserList();
 
         @Select("select id, name from user")
-        List<Map<String, String>> getMapList();
+        List<Map<String, Object>> getMapList();
 
         /**
          * 1st parametter passed by  value (by injecting result of toString() into SQL), 2nd parametter passed by reference,
@@ -101,7 +103,7 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
 
     protected void setUp() throws Exception {
         super.setUp();
-        factory = new ALinker();
+        injector = Guice.createInjector(new ChainModule(TestUserDao.class));
     }
 
     protected void tearDown() throws Exception {
@@ -123,7 +125,7 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
 
     public void testSingleRecordGet() throws Exception {
         // create dao object
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
 
         // ruse it for multiple invocations
         getUserOnce(dao, 1, "foo", true);
@@ -158,7 +160,7 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         createResultSet("id", new Object[]{1, 2}, "name", new Object[]{"foo", "bar"});
 
         // execute dao method
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
         List<TestUserBean> res = dao.getUserList();
 
         // verify result
@@ -180,8 +182,8 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         createResultSet("id", new Object[]{1, 2}, "name", new Object[]{"foo", "bar"});
 
         // execute dao method
-        TestUserDao dao = factory.create(TestUserDao.class, null);
-        List<Map<String, String>> res = dao.getMapList();
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
+        List<Map<String, Object>> res = dao.getMapList();
 
         // verify result
         assertNotNull(res);
@@ -202,7 +204,7 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         createResultSet("id", new Object[]{1, 2}, "name", new Object[]{"foo", "bar"});
 
         // execute dao method
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
         TestUserBean[] res = dao.getUserArray("user", 2);
 
         // verify result
@@ -226,7 +228,7 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         final List<TestUserBean> res = new ArrayList<TestUserBean>();
 
         // execute dao method
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
         dao.processUsers(new RSMapper() {
             RowMapper rowMapper = new BeanRowMapperFactory(TestUserBean.class).get();
 
@@ -261,7 +263,7 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         createResultSet("id", new Object[]{id});
 
         // execute dao method
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
         int res = dao.getUserIdByName(testName, context(PART_NAME, testPart));
 
         // verify result
@@ -283,7 +285,7 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         createResultSet("id", new Object[]{id});
 
         // execute dao method
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
         int res = dao.getUserIdByName(testName, context(PART_NAME, testPart));
 
         // verify result
@@ -302,9 +304,10 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
         final String testName = "testName";
 
         // execute dao method
-        final TestUserDao dao = factory.create(TestUserDao.class, null);
+        final TestUserDao dao = injector.getInstance(TestUserDao.class);
         final TestUserBean user = new TestUserBean(true);
         user.setName(testName);
+        //noinspection unchecked
         TxHelper.execInTx(dao, new Runnable() {
             public void run() {
                 try {
@@ -339,7 +342,7 @@ public class JDBCDaoTest extends BasicJDBCTestCaseAdapter {
 
     public void testDynamicQuery() throws Exception {
         // create dao object
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
 
         DynamicQuery dq = new DynamicQuery();
         dq.add("(?,?)", 1, "foo");

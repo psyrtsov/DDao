@@ -16,12 +16,10 @@
 
 package com.sf.ddao.chain;
 
-import com.sf.ddao.alinker.ALinker;
-import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.alinker.inject.Link;
-import com.sf.ddao.handler.Intializible;
+import com.google.inject.Injector;
 import org.apache.commons.chain.Command;
 
+import javax.inject.Inject;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.InvocationHandler;
@@ -39,15 +37,15 @@ import java.util.Map;
 public class ChainInvocationHandler implements InvocationHandler {
     Map<Method, MethodInvocationHandler> map = new HashMap<Method, MethodInvocationHandler>();
 
-    @Link
-    public ALinker aLinker;
+    @Inject
+    public Injector injector;
 
     public Object invoke(Object o, Method method, Object[] args) throws Throwable {
         final MethodInvocationHandler methodHandler = map.get(method);
         return methodHandler.invoke(args);
     }
 
-    public void init(Class<?> iFace) throws InitializerException {
+    public void init(Class<?> iFace) {
         List<Command> classLevelList = new ArrayList<Command>();
         addChainMemebers(iFace, classLevelList);
         final Method[] methods = iFace.getMethods();
@@ -62,10 +60,10 @@ public class ChainInvocationHandler implements InvocationHandler {
     private void addChainMemebers(AnnotatedElement annotatedElement, List<Command> list) {
         for (Annotation annotation : annotatedElement.getAnnotations()) {
             final CommandAnnotation memberAnnotation = annotation.annotationType().getAnnotation(CommandAnnotation.class);
-            if (memberAnnotation == null) {
+            if (memberAnnotation == null || memberAnnotation.value() == null) {
                 continue;
             }
-            final Command chainCommand = aLinker.create(memberAnnotation.value());
+            final Command chainCommand = injector.getInstance(memberAnnotation.value());
             if (chainCommand instanceof Intializible) {
                 Intializible intializible = (Intializible) chainCommand;
                 intializible.init(annotatedElement, annotation);

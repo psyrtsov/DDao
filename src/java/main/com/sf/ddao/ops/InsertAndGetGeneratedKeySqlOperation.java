@@ -18,23 +18,22 @@ package com.sf.ddao.ops;
 
 import com.sf.ddao.DaoException;
 import com.sf.ddao.InsertAndGetGeneratedKey;
-import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.alinker.inject.Link;
 import com.sf.ddao.chain.CtxHelper;
+import com.sf.ddao.chain.InitializerException;
+import com.sf.ddao.chain.Intializible;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
-import com.sf.ddao.handler.Intializible;
 import org.apache.commons.chain.Command;
 import org.apache.commons.chain.Context;
 
+import javax.inject.Inject;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 
 /**
  * Created-By: Pavel Syrtsov
@@ -42,18 +41,14 @@ import java.sql.Statement;
  * Time: 2:47:16 PM
  */
 public class InsertAndGetGeneratedKeySqlOperation implements Command, Intializible {
+    @Inject
     private StatementFactory statementFactory;
     private Method method;
-
-    @Link
-    public InsertAndGetGeneratedKeySqlOperation(StatementFactory statementFactory) {
-        this.statementFactory = statementFactory;
-    }
 
     public boolean execute(Context context) throws Exception {
         try {
             final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
-            PreparedStatement preparedStatement = statementFactory.createStatement(context, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement preparedStatement = statementFactory.createStatement(context, true);
             Object res = null;
             preparedStatement.executeUpdate();
             ResultSet resultSet = preparedStatement.getGeneratedKeys();
@@ -75,7 +70,7 @@ public class InsertAndGetGeneratedKeySqlOperation implements Command, Intializib
         }
     }
 
-    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+    public void init(AnnotatedElement element, Annotation annotation) {
         method = (Method) element;
         InsertAndGetGeneratedKey insertAndGetGeneratedKey = element.getAnnotation(InsertAndGetGeneratedKey.class);
         String sql = insertAndGetGeneratedKey.value();
@@ -84,14 +79,6 @@ public class InsertAndGetGeneratedKeySqlOperation implements Command, Intializib
         } catch (StatementFactoryException e) {
             throw new InitializerException("Failed to setup sql operation " + sql + " for method " + method, e);
         }
-    }
-
-    public Method getMethod() {
-        return method;
-    }
-
-    public StatementFactory getStatementFactory() {
-        return statementFactory;
     }
 }
 

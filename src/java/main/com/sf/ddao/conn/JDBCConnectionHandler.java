@@ -16,10 +16,9 @@
 
 package com.sf.ddao.conn;
 
-import com.sf.ddao.DaoException;
 import com.sf.ddao.JDBCDao;
-import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.handler.Intializible;
+import com.sf.ddao.chain.InitializerException;
+import com.sf.ddao.chain.Intializible;
 import org.apache.commons.chain.Context;
 
 import java.lang.annotation.Annotation;
@@ -36,14 +35,13 @@ import java.sql.SQLException;
 public class JDBCConnectionHandler extends ConnectionHandlerHelper implements Intializible {
     private JDBCDao jdbcDao;
 
-    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
-        super.init(element, annotation);
+    public void init(AnnotatedElement element, Annotation annotation)  {
         jdbcDao = (JDBCDao) annotation;
         if (jdbcDao.driver() != null && jdbcDao.driver().length() > 0) {
             try {
                 Class.forName(jdbcDao.driver());
             } catch (Exception e) {
-                throw new DaoException("Failed to load driver " + jdbcDao.driver(), e);
+                throw new InitializerException("Failed to load driver " + jdbcDao.driver(), e);
             }
         }
     }

@@ -16,8 +16,6 @@
 
 package com.sf.ddao.shards;
 
-import com.sf.ddao.alinker.factory.UseFactory;
-import com.sf.ddao.chain.ChainHandlerFactory;
 import com.sf.ddao.chain.CommandAnnotation;
 import com.sf.ddao.shards.conn.ShardedConnectionHandler;
 
@@ -34,7 +32,6 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@UseFactory(ChainHandlerFactory.class)
 @CommandAnnotation(ShardedConnectionHandler.class)
 public @interface ShardedDao {
     Class<? extends ShardingService> value();

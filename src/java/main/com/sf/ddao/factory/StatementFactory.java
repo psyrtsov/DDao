@@ -16,7 +16,7 @@
 
 package com.sf.ddao.factory;
 
-import com.sf.ddao.alinker.factory.InstanceOf;
+import com.google.inject.ImplementedBy;
 import com.sf.ddao.factory.param.ParameterHandler;
 import org.apache.commons.chain.Context;
 
@@ -36,7 +36,7 @@ import java.util.List;
  * Then it will be used to create JDBC prepared statement
  * and bindParam to it arguments data objects if any.
  */
-@InstanceOf(DefaultStatementFactory.class)
+@ImplementedBy(DefaultStatementFactory.class)
 public interface StatementFactory {
     /**
      * Initializes factory object with query data
@@ -52,25 +52,15 @@ public interface StatementFactory {
      * This method implementation has to be thread safe.
      *
      * @param context
-     * @return PreparedStatement instance ready to be executed
-     * @throws StatementFactoryException if it fails to create
-     *                                   and initialize prepared statement
-     */
-    PreparedStatement createStatement(Context context) throws StatementFactoryException;
-
-    /**
-     * Creates new PreparedStatement according to definition given in setup.
-     * This method implementation has to be thread safe.
-     *
-     * @param context
      * @param returnGeneratedKeys - if not equal to Integer.MAX_VALUE then will be
      *                            passed to connection.createPreparedStatment  @return PreparedStatement instance ready to be executed
      * @throws StatementFactoryException if it fails to create
      *                                   and initialize prepared statement
      */
-    PreparedStatement createStatement(Context context, int returnGeneratedKeys) throws StatementFactoryException;
+    PreparedStatement createStatement(Context context, boolean returnGeneratedKeys) throws StatementFactoryException;
 
     String createText(Context context) throws SQLException;
 
+    @SuppressWarnings("UnusedDeclaration")
     List<ParameterHandler> getRefParametersList();
 }

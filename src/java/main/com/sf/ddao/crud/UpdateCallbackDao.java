@@ -19,9 +19,9 @@ package com.sf.ddao.crud;
 import com.sf.ddao.orm.UseRSMapper;
 
 import static com.sf.ddao.crud.CRUDDao.CRUD_SELECT;
-import static com.sf.ddao.factory.param.DefaultParameter.RETURN_ARG_IDX;
 import static com.sf.ddao.crud.param.CRUDBeanPropsParameter.CRUD_BEAN_PROPS;
 import static com.sf.ddao.crud.param.CRUDTableNameParameter.CRUD_TABLE_NAME;
+import static com.sf.ddao.factory.param.DefaultParameter.RETURN_ARG_IDX;
 
 /**
  * Created by tjokikorpela

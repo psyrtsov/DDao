@@ -16,9 +16,9 @@
 
 package com.sf.ddao.shards;
 
-import com.sf.ddao.alinker.factory.SingleInstance;
 import org.apache.commons.chain.Context;
 
+import javax.inject.Singleton;
 import javax.sql.DataSource;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * Created by psyrtsov
  */
-@SingleInstance
+@Singleton
 public class TestShardingService implements ShardingService<Long> {
     private DataSource ds1;
     private DataSource ds2;

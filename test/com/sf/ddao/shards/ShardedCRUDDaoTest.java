@@ -16,6 +16,8 @@
 
 package com.sf.ddao.shards;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.mockrunner.jdbc.JDBCTestModule;
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.JDBCMockObjectFactory;
@@ -23,7 +25,7 @@ import com.mockrunner.mock.jdbc.MockResultSet;
 import com.sf.ddao.Delete;
 import com.sf.ddao.InsertAndGetGeneratedKey;
 import com.sf.ddao.TestUserBean;
-import com.sf.ddao.alinker.ALinker;
+import com.sf.ddao.chain.ChainModule;
 import junit.framework.TestCase;
 import org.mockejb.jndi.MockContextFactory;
 
@@ -36,7 +38,7 @@ import static com.sf.ddao.crud.CRUDDao.CRUD_INSERT;
  * Created by psyrtsov
  */
 public class ShardedCRUDDaoTest extends TestCase {
-    ALinker factory;
+    Injector injector;
     private JDBCTestModule testModule1;
     private JDBCTestModule testModule2;
 
@@ -54,7 +56,7 @@ public class ShardedCRUDDaoTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        factory = new ALinker();
+        this.injector = Guice.createInjector(new ChainModule(TestUserDao.class, TestUserDao1.class));
         super.setUp();
         MockContextFactory.setAsInitial();
 
@@ -63,9 +65,9 @@ public class ShardedCRUDDaoTest extends TestCase {
         JDBCMockObjectFactory mockFactory2 = new JDBCMockObjectFactory();
         testModule2 = new JDBCTestModule(mockFactory2);
 
-        final TestShardingService controlDao = factory.create(TestShardingService.class);
-        controlDao.setDS1(mockFactory1.getMockDataSource());
-        controlDao.setDS2(mockFactory2.getMockDataSource());
+        final TestShardingService shardingService = injector.getInstance(TestShardingService.class);
+        shardingService.setDS1(mockFactory1.getMockDataSource());
+        shardingService.setDS2(mockFactory2.getMockDataSource());
     }
 
     protected void tearDown() throws Exception {
@@ -86,7 +88,7 @@ public class ShardedCRUDDaoTest extends TestCase {
 
     public void testCreate() throws Exception {
         // create dao object
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
 
         final long id = 7;
         createResultSet(testModule1, "id", new Object[]{id});
@@ -96,11 +98,7 @@ public class ShardedCRUDDaoTest extends TestCase {
         data.setName("name");
 
         // execute dao method
-        Number res = dao.create(data);
-
-        // verify result
-//        assertNotNull(res);
-//        assertEquals(1, res);
+        dao.create(data);
 
         final String sql = "insert into test_user(gender,long_name,name) values(?,?,?)";
         testModule1.verifySQLStatementExecuted(sql);
@@ -113,7 +111,7 @@ public class ShardedCRUDDaoTest extends TestCase {
 
     public void testCreateWithSeparateMethod() throws Exception {
         // create dao object
-        TestUserDao1 dao = factory.create(TestUserDao1.class, null);
+        TestUserDao1 dao = injector.getInstance(TestUserDao1.class);
 
         final long id = 7;
         createResultSet(testModule1, "id", new Object[]{id});
@@ -123,11 +121,7 @@ public class ShardedCRUDDaoTest extends TestCase {
         data.setName("name");
 
         // execute dao method
-        Number res = dao.create(data);
-
-        // verify result
-//        assertNotNull(res);
-//        assertEquals(1, res);
+        dao.create(data);
 
         final String sql = "insert into test_user(gender,long_name,name) values(?,?,?)";
         testModule1.verifySQLStatementExecuted(sql);
@@ -140,7 +134,7 @@ public class ShardedCRUDDaoTest extends TestCase {
 
     public void testRead() throws Exception {
         // create dao object
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
 
         final long id = 17;
         String name = "name77";
@@ -162,7 +156,7 @@ public class ShardedCRUDDaoTest extends TestCase {
 
     public void testUpdate() throws Exception {
         // create dao object
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
 
         // setup test
         TestUserBean data = new TestUserBean(true);
@@ -172,11 +166,7 @@ public class ShardedCRUDDaoTest extends TestCase {
         createResultSet(testModule2, "id", new Object[]{data.getId()});
 
         // execute dao method
-        Number res = dao.update(data);
-
-        // verify result
-//        assertNotNull(res);
-//        assertEquals(1, res);
+        dao.update(data);
 
         final String sql = "update test_user set gender=?,long_name=?,name=? where id=?";
         testModule2.verifySQLStatementExecuted(sql);
@@ -190,17 +180,13 @@ public class ShardedCRUDDaoTest extends TestCase {
 
     public void testDelete() throws Exception {
         // create dao object
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
 
         final long id = 17;
         createResultSet(testModule2, "id", new Object[]{id});
 
         // execute dao method
-        Number res = dao.delete(id);
-
-        // verify result
-//        assertNotNull(res);
-//        assertEquals(1, res);
+        dao.delete(id);
 
         final String sql = "delete from test_user where id=?";
         testModule2.verifySQLStatementExecuted(sql);
@@ -212,7 +198,7 @@ public class ShardedCRUDDaoTest extends TestCase {
 
     public void testDeleteWithSeparateMethod() throws Exception {
         // create dao object
-        TestUserDao1 dao = factory.create(TestUserDao1.class, null);
+        TestUserDao1 dao = injector.getInstance(TestUserDao1.class);
 
         final long id = 17;
         TestUserBean data = new TestUserBean(true);
@@ -221,11 +207,7 @@ public class ShardedCRUDDaoTest extends TestCase {
         createResultSet(testModule2, "id", new Object[]{id});
 
         // execute dao method
-        Number res = dao.delete(data);
-
-        // verify result
-//        assertNotNull(res);
-//        assertEquals(1, res);
+        dao.delete(data);
 
         final String sql = "delete from test_user where id=?";
         testModule2.verifySQLStatementExecuted(sql);

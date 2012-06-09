@@ -16,12 +16,14 @@
 
 package com.sf.ddao;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.mockrunner.jdbc.BasicJDBCTestCaseAdapter;
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.JDBCMockObjectFactory;
 import com.mockrunner.mock.jdbc.MockDataSource;
 import com.mockrunner.mock.jdbc.MockResultSet;
-import com.sf.ddao.alinker.ALinker;
+import com.sf.ddao.chain.ChainModule;
 import com.sf.ddao.conn.JNDIDataSourceHandler;
 import com.sf.ddao.orm.RSMapper;
 import com.sf.ddao.orm.UseRSMapper;
@@ -58,7 +60,7 @@ public class UseStatementFactoryTest extends BasicJDBCTestCaseAdapter {
         void processUsers(@UseRSMapper RSMapper selectCallback);
     }
 
-    ALinker aLinker;
+    Injector injector;
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -67,7 +69,7 @@ public class UseStatementFactoryTest extends BasicJDBCTestCaseAdapter {
         MockContextFactory.setAsInitial();
         InitialContext context = new InitialContext();
         context.rebind(JNDIDataSourceHandler.DS_CTX_PREFIX + "jdbc/testdb", ds);
-        aLinker = new ALinker();
+        this.injector = Guice.createInjector(new ChainModule(UserDao.class));
     }
 
     protected void tearDown() throws Exception {
@@ -87,7 +89,7 @@ public class UseStatementFactoryTest extends BasicJDBCTestCaseAdapter {
     }
 
     public void testGetUser() throws Exception {
-        UserDao dao = aLinker.create(UserDao.class, null);
+        UserDao dao = injector.getInstance(UserDao.class);
         createResultSet("id", new Object[]{1}, "name", new Object[]{"foobar"});
         TestUserBean res = dao.getUser(1);
         assertNotNull(res);
@@ -101,7 +103,7 @@ public class UseStatementFactoryTest extends BasicJDBCTestCaseAdapter {
     }
 
     public void testGetUserList() throws Exception {
-        UserDao dao = aLinker.create(UserDao.class, null);
+        UserDao dao = injector.getInstance(UserDao.class);
         createResultSet("id", new Object[]{1, 2}, "name", new Object[]{"foo", "bar"});
         List<TestUserBean> res = dao.getUserList();
         assertNotNull(res);
@@ -118,7 +120,7 @@ public class UseStatementFactoryTest extends BasicJDBCTestCaseAdapter {
     }
 
     public void testGetUserArray() throws Exception {
-        UserDao dao = aLinker.create(UserDao.class, null);
+        UserDao dao = injector.getInstance(UserDao.class);
         createResultSet("id", new Object[]{1, 2}, "name", new Object[]{"foo", "bar"});
         TestUserBean[] res = dao.getUserArray(2);
         assertNotNull(res);
@@ -135,7 +137,7 @@ public class UseStatementFactoryTest extends BasicJDBCTestCaseAdapter {
     }
 
     public void testSelectCallback() throws Exception {
-        UserDao dao = aLinker.create(UserDao.class, null);
+        UserDao dao = injector.getInstance(UserDao.class);
         createResultSet("id", new Object[]{1, 2}, "name", new Object[]{"foo", "bar"});
         final List<TestUserBean> res = new ArrayList<TestUserBean>();
         dao.processUsers(new RSMapper() {

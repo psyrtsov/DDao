@@ -15,13 +15,10 @@
  */
 package com.sf.ddao.conn;
 
-import com.sf.ddao.alinker.initializer.InitializerException;
 import com.sf.ddao.chain.CtxHelper;
 import org.apache.commons.chain.Context;
 import org.apache.commons.chain.Filter;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -37,9 +34,6 @@ public abstract class ConnectionHandlerHelper implements Filter {
     public static final String CONNECTION_KEY = ConnectionHandlerHelper.class.toString() + "_CONN";
 
     private final ThreadLocal<Connection> connectionOnHold = new ThreadLocal<Connection>();
-
-    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
-    }
 
     public boolean execute(Context context) throws Exception {
         CtxHelper.put(context, ConnectionHandlerHelper.class, this);

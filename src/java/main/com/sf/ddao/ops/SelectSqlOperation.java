@@ -18,19 +18,19 @@ package com.sf.ddao.ops;
 
 import com.sf.ddao.DaoException;
 import com.sf.ddao.Select;
-import com.sf.ddao.alinker.initializer.InitializerException;
-import com.sf.ddao.alinker.inject.Link;
 import com.sf.ddao.chain.CtxHelper;
+import com.sf.ddao.chain.InitializerException;
+import com.sf.ddao.chain.Intializible;
 import com.sf.ddao.chain.MethodCallCtx;
 import com.sf.ddao.factory.StatementFactory;
 import com.sf.ddao.factory.StatementFactoryException;
-import com.sf.ddao.handler.Intializible;
 import com.sf.ddao.orm.RSMapper;
 import com.sf.ddao.orm.RSMapperFactory;
 import com.sf.ddao.orm.RSMapperFactoryRegistry;
 import org.apache.commons.chain.Command;
 import org.apache.commons.chain.Context;
 
+import javax.inject.Inject;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -44,14 +44,9 @@ import java.sql.SQLException;
  * Time: 8:10:29 PM
  */
 public class SelectSqlOperation implements Command, Intializible {
+    @Inject
     private StatementFactory statementFactory;
     private RSMapperFactory rsMapperFactory;
-
-    @Link
-    public SelectSqlOperation(StatementFactory statementFactory) {
-        this.statementFactory = statementFactory;
-    }
-
 
     public boolean execute(Context context) throws Exception {
         final MethodCallCtx callCtx = CtxHelper.get(context, MethodCallCtx.class);
@@ -65,7 +60,7 @@ public class SelectSqlOperation implements Command, Intializible {
     }
 
     public Object exec(Context context, Object[] args) throws StatementFactoryException, SQLException {
-        PreparedStatement preparedStatement = statementFactory.createStatement(context, Integer.MAX_VALUE);
+        PreparedStatement preparedStatement = statementFactory.createStatement(context, false);
         ResultSet resultSet = preparedStatement.executeQuery();
         RSMapper RSMapper = rsMapperFactory.getInstance(args, resultSet);
         final Object res = RSMapper.handle(context, resultSet);
@@ -74,7 +69,7 @@ public class SelectSqlOperation implements Command, Intializible {
         return res;
     }
 
-    public void init(AnnotatedElement element, String sql) throws InitializerException {
+    public void init(AnnotatedElement element, String sql) {
         try {
             statementFactory.init(element, sql);
             rsMapperFactory = RSMapperFactoryRegistry.create((Method) element);
@@ -83,7 +78,7 @@ public class SelectSqlOperation implements Command, Intializible {
         }
     }
 
-    public void init(AnnotatedElement element, Annotation annotation) throws InitializerException {
+    public void init(AnnotatedElement element, Annotation annotation) {
         Select selectSql = element.getAnnotation(Select.class);
         init(element, selectSql.value());
     }

@@ -16,13 +16,15 @@
 
 package com.sf.ddao.crud;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.mockrunner.jdbc.BasicJDBCTestCaseAdapter;
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockResultSet;
 import com.sf.ddao.JDBCDao;
 import com.sf.ddao.TestUserBean;
-import com.sf.ddao.alinker.ALinker;
+import com.sf.ddao.chain.ChainModule;
 import org.mockejb.jndi.MockContextFactory;
 
 import java.util.HashSet;
@@ -31,7 +33,7 @@ import java.util.HashSet;
  * Created by psyrtsov
  */
 public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
-    ALinker factory;
+    Injector injector;
 
     @JDBCDao(value = "jdbc://test", driver = "com.mockrunner.mock.jdbc.MockDriver")
     public static interface TestUserDao extends CRUDDao<TestUserBean>, UpdateCallbackDao<TestUserBean> {
@@ -39,7 +41,7 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
 
     protected void setUp() throws Exception {
         super.setUp();
-        factory = new ALinker();
+        this.injector = Guice.createInjector(new ChainModule(TestUserDao.class));
     }
 
     protected void tearDown() throws Exception {
@@ -61,7 +63,7 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
 
     public void testCreate() throws Exception {
         // create dao object
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
 
         final long id = 77;
         createResultSet("id", new Object[]{id});
@@ -70,11 +72,7 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
         data.setName("name");
 
         // execute dao method
-        Number res = dao.create(data);
-
-        // verify result
-//        assertNotNull(res);
-//        assertEquals(1, res);
+        dao.create(data);
 
         final String sql = "insert into test_user(gender,long_name,name) values(?,?,?)";
         verifySQLStatementExecuted(sql);
@@ -87,7 +85,7 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
 
     public void testRead() throws Exception {
         // create dao object
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
 
         final long id = 77;
         String name = "name77";
@@ -112,7 +110,7 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
 
     public void testUpdate() throws Exception {
         // create dao object
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
 
         // setup test
         TestUserBean data = new TestUserBean(true);
@@ -126,11 +124,7 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
         createResultSet("id", new Object[]{data.getId()});
 
         // execute dao method
-        Number res = dao.update(data);
-
-        // verify result
-//        assertNotNull(res);
-//        assertEquals(1, res);
+        dao.update(data);
 
         final String sql = "update test_user set gender=?,name=? where id=?";
         verifySQLStatementExecuted(sql);
@@ -144,7 +138,7 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
 
     public void testUpdateIfDirty() throws Exception {
         // create dao object
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
 
         // setup test
         TestUserBean data = new TestUserBean(true);
@@ -158,12 +152,8 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
         createResultSet("id", new Object[]{data.getId()});
 
         // execute dao method
-        Number res = dao.updateIfDirty(data);
+        dao.updateIfDirty(data);
 
-        // verify result
-//        assertNotNull(res);
-//        assertEquals(1, res);
-        assert res.equals(0);
         verifyNumberPreparedStatements(0);
         verifyAllResultSetsClosed();
         verifyAllStatementsClosed();
@@ -171,17 +161,13 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
 
     public void testDelete() throws Exception {
         // create dao object
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
 
         final long id = 77;
         createResultSet("id", new Object[]{id});
 
         // execute dao method
-        Number res = dao.delete(id);
-
-        // verify result
-//        assertNotNull(res);
-//        assertEquals(1, res);
+        dao.delete(id);
 
         final String sql = "delete from test_user where id=?";
         verifySQLStatementExecuted(sql);
@@ -193,7 +179,7 @@ public class CRUDDaoTest extends BasicJDBCTestCaseAdapter {
 
     public void testReadWithCallbackThenUpdate() throws Exception {
         // create dao object
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
 
         final long id = 77;
         String name = "name77";

@@ -16,14 +16,14 @@
 
 package com.sf.ddao.shards;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.mockrunner.jdbc.JDBCTestModule;
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.JDBCMockObjectFactory;
 import com.mockrunner.mock.jdbc.MockResultSet;
 import com.sf.ddao.*;
-import com.sf.ddao.alinker.ALinker;
-import com.sf.ddao.alinker.FactoryException;
-import com.sf.ddao.alinker.initializer.InitializerException;
+import com.sf.ddao.chain.ChainModule;
 import com.sf.ddao.factory.param.ThreadLocalParameter;
 import com.sf.ddao.orm.RSMapper;
 import com.sf.ddao.orm.UseRSMapper;
@@ -47,7 +47,7 @@ import java.util.List;
  * Time: 7:00:11 PM
  */
 public class ShardedDaoTest extends TestCase {
-    ALinker factory;
+    Injector injector;
     private static final String PART_NAME = "testPartName";
     private JDBCTestModule testModule1;
     private JDBCTestModule testModule2;
@@ -109,7 +109,7 @@ public class ShardedDaoTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        factory = new ALinker();
+        this.injector = Guice.createInjector(new ChainModule(TestUserDao.class));
         super.setUp();
         MockContextFactory.setAsInitial();
 
@@ -118,7 +118,7 @@ public class ShardedDaoTest extends TestCase {
         JDBCMockObjectFactory mockFactory2 = new JDBCMockObjectFactory();
         testModule2 = new JDBCTestModule(mockFactory2);
 
-        final TestShardingService controlDao = factory.create(TestShardingService.class);
+        final TestShardingService controlDao = injector.getInstance(TestShardingService.class);
         controlDao.setDS1(mockFactory1.getMockDataSource());
         controlDao.setDS2(mockFactory2.getMockDataSource());
     }
@@ -142,7 +142,7 @@ public class ShardedDaoTest extends TestCase {
 
     public void testSingleRecordGet() throws Exception {
         // create dao object
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
 
         // reuse it for multiple invocations
         getUserOnce(testModule1, dao, 1, "foo1", false);
@@ -175,7 +175,7 @@ public class ShardedDaoTest extends TestCase {
     }
 
     public void testMultiShardGetRecordList() throws Exception {
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
         // setup test
         createResultSet(testModule1, "id", new Object[]{1, 2}, "name", new Object[]{"u1", "u2"});
         createResultSet(testModule2, "id", new Object[]{15, 16}, "name", new Object[]{"u15", "u16"});
@@ -221,7 +221,7 @@ public class ShardedDaoTest extends TestCase {
 
     public void testGetUserArray() throws Exception {
         // execute dao method
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
         getUserDataArray(dao, testModule1, 1);
         getUserDataArray(dao, testModule1, 10);
         getUserDataArray(dao, testModule2, 11);
@@ -229,7 +229,7 @@ public class ShardedDaoTest extends TestCase {
 
     }
 
-    private void getUserDataArray(TestUserDao dao, JDBCTestModule testModule, int userId) throws FactoryException, InitializerException {
+    private void getUserDataArray(TestUserDao dao, JDBCTestModule testModule, int userId) {
         // setup test
         createResultSet(testModule, "id", new Object[]{1, 2}, "name", new Object[]{"foo", "bar"});
 
@@ -251,7 +251,7 @@ public class ShardedDaoTest extends TestCase {
     }
 
     public void testSelectCallback() throws Exception {
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
         processUserData(dao, testModule1);
 
     }
@@ -289,7 +289,7 @@ public class ShardedDaoTest extends TestCase {
     }
 
     public void testUsingStaticFunction() throws Exception {
-        TestUserDao dao = factory.create(TestUserDao.class, null);
+        TestUserDao dao = injector.getInstance(TestUserDao.class);
         getUserData(dao, 1, testModule1, 0);
         getUserData(dao, 10, testModule1, 1);
         getUserData(dao, 11, testModule2, 0);
@@ -323,7 +323,7 @@ public class ShardedDaoTest extends TestCase {
         final String testName = "testName";
 
         // execute dao method
-        final TestUserDao dao = factory.create(TestUserDao.class, null);
+        final TestUserDao dao = injector.getInstance(TestUserDao.class);
         final TestUserBean user = new TestUserBean(true);
         user.setName(testName);
         TxHelper.execInTx(dao, new Runnable() {
