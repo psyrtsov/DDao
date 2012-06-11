@@ -33,7 +33,6 @@
     <path id="src.path">
         <path path="src/java/alinker"/>
         <path path="src/java/main"/>
-        <path path="src/java/astore"/>
         <path path="src/java/shards"/>
     </path>
     <path id="runtime-libs">
