@@ -99,6 +99,8 @@ public abstract class ParameterHelper implements ParameterHandler {
         } else if (BigInteger.class.isAssignableFrom(clazz)) {
             BigInteger bi = (BigInteger) param;
             preparedStatement.setBigDecimal(idx, new BigDecimal(bi));
+        } else if (clazz == Double.class || clazz == Double.TYPE) {
+            preparedStatement.setDouble(idx, (Double) param);
         } else if (Timestamp.class.isAssignableFrom(clazz)) {
             preparedStatement.setTimestamp(idx, (Timestamp) param);
         } else if (Date.class.isAssignableFrom(clazz)) {
@@ -107,9 +109,17 @@ public abstract class ParameterHelper implements ParameterHandler {
             }
             preparedStatement.setDate(idx, (java.sql.Date) param);
         } else if (BoundParameter.class.isAssignableFrom(clazz)) {
-            ((BoundParameter) param).bindParam(preparedStatement, idx, context);
+	        if (param != null) {
+                    ((BoundParameter) param).bindParam(preparedStatement, idx, context);
+	        } else {
+		    preparedStatement.setObject(idx, null);
+	        }
         } else {
-            throw new SQLException("Unimplemented type mapping for " + clazz);
+	        if (param != null) {
+		    preparedStatement.setString(idx, param.toString());
+	        } else {
+                throw new SQLException("Unimplemented type mapping for " + clazz);
+	        }
         }
     }
 
