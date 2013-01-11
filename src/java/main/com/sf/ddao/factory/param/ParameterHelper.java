@@ -108,6 +108,8 @@ public abstract class ParameterHelper implements ParameterHandler {
                 param = new java.sql.Date(((Date) param).getTime());
             }
             preparedStatement.setDate(idx, (java.sql.Date) param);
+        } else if (param instaceof byte[]) {
+            preparedStatement.setBytes(idx, (byte[])param);
         } else if (BoundParameter.class.isAssignableFrom(clazz)) {
 	        if (param != null) {
                     ((BoundParameter) param).bindParam(preparedStatement, idx, context);
