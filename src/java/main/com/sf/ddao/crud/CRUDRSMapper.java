@@ -14,7 +14,7 @@
  *  under the License.
  */
 
-package com.sf.ddao.crud;
+package com.sf.ddao.crud.rsmapper;
 
 import com.sf.ddao.orm.RSMapper;
 import com.sf.ddao.orm.RSMapperFactoryRegistry;
