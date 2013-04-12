@@ -16,15 +16,6 @@
 
 package com.sf.ddao.orm;
 
-import com.sf.ddao.DaoException;
-import com.sf.ddao.orm.rsmapper.ArrayRSMapper;
-import com.sf.ddao.orm.rsmapper.CollectionRSMapper;
-import com.sf.ddao.orm.rsmapper.MapRSMapper;
-import com.sf.ddao.orm.rsmapper.SingleRowRSMapper;
-import com.sf.ddao.orm.rsmapper.rowmapper.*;
-import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.beanutils.Converter;
-
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -38,6 +29,21 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
+
+import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.beanutils.Converter;
+
+import com.sf.ddao.DaoException;
+import com.sf.ddao.orm.rsmapper.ArrayRSMapper;
+import com.sf.ddao.orm.rsmapper.CollectionRSMapper;
+import com.sf.ddao.orm.rsmapper.MapRSMapper;
+import com.sf.ddao.orm.rsmapper.SingleRowRSMapper;
+import com.sf.ddao.orm.rsmapper.rowmapper.BeanRowMapperFactory;
+import com.sf.ddao.orm.rsmapper.rowmapper.MapRowMapper;
+import com.sf.ddao.orm.rsmapper.rowmapper.RowMapper;
+import com.sf.ddao.orm.rsmapper.rowmapper.RowMapperFactory;
+import com.sf.ddao.orm.rsmapper.rowmapper.ScalarRMF;
+import com.sf.ddao.orm.rsmapper.rowmapper.SelfRowMapperFactory;
 
 /**
  * Created by: Pavel Syrtsov
@@ -204,6 +210,13 @@ public class RSMapperFactoryRegistry {
                 }
             };
         }
+        if (itemType == byte[].class) {
+            return new ScalarRMF() {
+                public Object map(ResultSet rs) throws SQLException {
+                    return rs.getBytes(idx);
+                }
+            };
+        }
         if (itemType == java.sql.Date.class || itemType == java.util.Date.class) {
             return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
@@ -309,6 +322,13 @@ public class RSMapperFactoryRegistry {
             return new ScalarRMF() {
                 public Object map(ResultSet rs) throws SQLException {
                     return rs.getBlob(name);
+                }
+            };
+        }
+        if (itemType == byte[].class) {
+            return new ScalarRMF() {
+                public Object map(ResultSet rs) throws SQLException {
+                    return rs.getBytes(name);
                 }
             };
         }

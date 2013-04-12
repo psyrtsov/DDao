@@ -134,10 +134,12 @@ public class BeanRowMapperFactory implements RowMapperFactory {
                     throw new SQLException("Ambiguous column name " + colName + "(" + colNames + ")");
                 }
                 PropertyDescriptor propertyDescriptor = props.get(name);
-                if (propertyDescriptor == null) {
-                    throw new SQLException("Column " + colName + " doesn't have matching property");
+//                if (propertyDescriptor == null) {
+//                    throw new SQLException("Column " + colName + " doesn't have matching property");
+//                }
+                if (propertyDescriptor != null) {
+                    mappers.add(new PropertyMapper(colName, propertyDescriptor));
                 }
-                mappers.add(new PropertyMapper(colName, propertyDescriptor));
             }
             this.mappers = mappers;
         }
